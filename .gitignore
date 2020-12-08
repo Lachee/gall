@@ -1,0 +1,8 @@
+vendor/*
+node_modules/*
+config.php
+public/dist/*
+public/cache/*
+.npmrc
+*.key
+*.env

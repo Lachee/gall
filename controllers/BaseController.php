@@ -1,0 +1,61 @@
+<?php namespace app\controllers;
+
+use Exception;
+use GALL;
+use kiss\controllers\Controller;
+use kiss\exception\ExpiredOauthException;
+use kiss\exception\HttpException;
+use kiss\helpers\HTTP;
+use kiss\helpers\Response;
+use kiss\Kiss;
+use Mixy;
+use XVE;
+
+class BaseController extends Controller {
+
+    public function authorize($action) {        
+        if (!Kiss::$app->loggedIn()) return false;
+        return true;
+    }
+
+    public function action($endpoint, ...$args) {
+        
+        //Force a check on the mixer user, validating the oauth. We dont want to apply this rule to the /auth endpoint tho.
+        if (Kiss::$app->loggedIn() && $endpoint != '/auth' && $endpoint != '/login' && $endpoint != 'exception') {
+            if (!GALL::$app->getUser()->validateDiscordToken()) {
+                try { 
+                    $discordUser = GALL::$app->getUser()->getDiscordUser();
+
+                } catch(\Exception $ex) { 
+                    //We failed to get the user for what ever reason, lets abort
+                    Kiss::$app->getUser()->logout(); 
+                    Kiss::$app->session->addNotification('Failed to validate the Discord authentication.', 'danger');
+                    return Kiss::$app->respond(Response::redirect('/'));
+                }
+            }
+        }
+    
+        if (!$this->authorize($endpoint))
+            throw new HttpException(HTTP::FORBIDDEN, 'You need to be logged in to do that.');
+        
+        // Unless we are the main controller, we have to be whitelisted
+        //if (!($this instanceof MainController)) {            
+        //if (Kiss::$app->loggedIn()) {
+        //    if (!GALL::$app->getUser()->whitelist)
+        //    {                    
+        //        Kiss::$app->getUser()->logout(); 
+        //        Kiss::$app->session->addNotification('Your account is forbidden from accessing content.', 'danger');
+        //        return Kiss::$app->respond(Response::redirect('/'));
+        //    }
+        //}
+        //}
+
+        $response = parent::action($endpoint, ...$args);
+        return $response;
+    }
+
+    public function render($action, $options = []) {
+        //$this->registerJsVariable("mixy", "new mixlib.Mixy(" . json_encode($mixyDefaults) . ")", Controller::POS_START, 'const', false);
+        return parent::render($action, $options);
+    }
+}

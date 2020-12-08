@@ -1,0 +1,149 @@
+@charset "utf-8";
+
+$footer-padding: 1rem 1.5rem 0rem;
+@import './bulma/bulma.scss';
+
+//Navbar
+.navbar-item.brand-text {
+  font-weight: 300;
+}
+.navbar-item, .navbar-link {
+  font-size: 14px;
+  font-weight: 700;
+}
+
+//Menu
+.menu-label {
+  color: $grey-dark;
+  letter-spacing: 1.3;
+  font-weight: 700;
+}
+.menu-list a {
+  font-size: 14px;
+  font-weight: 700;
+}
+.menu-list a:hover {
+  background-color: transparent;
+  color: $link;
+}
+.menu-list a.is-active {
+  background-color: transparent;
+  color: $primary;
+  font-weight: 700;
+}
+
+//Info Tiles
+.info-tiles {
+  margin: 1rem 0;
+}
+.info-tiles .subtitle {
+  font-weight: 300;
+  color: $grey-dark;
+}
+
+//Custom Hero
+.hero .title, .hero .subtitle {
+  color: hsl(192, 17%, 99%);
+}
+
+.card .content {
+  font-size: 14px;
+}
+.card-footer-item {
+  font-size: 14px;
+  font-weight: 700;
+  color: $grey-dark;
+}
+.card-table .table {
+  margin-bottom: 0;
+}
+.events-card .card-table {
+  max-height: 250px;
+  overflow-y: scroll;
+}
+.table td > .far {
+  font-size: 20pt;
+}
+
+.content table tbody tr:last-child td, .content table tbody tr:last-child th, .table tbody tr:last-child td, .table tbody tr:last-child th {
+  border-top-width: 1px;
+}
+.content table td, .content table th, .table td, .table th {
+  border-bottom-width: 0px;
+}
+.overflow-x-auto {
+  overflow-x: auto;
+}
+
+
+// Full Width the editor
+.panel-block#editor-box > div {
+  width: 100%;
+}
+
+.stacktrace {
+  .trace {
+    padding: 5px;
+    margin: 5px;
+    font-size: 10pt;
+    
+    &.is-important { 
+      background: #00000008;
+      .target {
+        font-weight: bold;
+      }
+
+      .file {
+        .path { background: #01a38e; }
+        .line { background: #127d70; }
+        a:hover { background: #127d70; }
+      }
+    }
+
+    .target {
+      font-size: 13pt;
+      font-family: monospace; 
+
+      .class { }
+      .type {
+        color: #0000004f;
+      }
+      
+      .func {
+        color: #40af81;
+      }
+    }
+
+    .file {
+      .path {
+        padding: 1px 3px 1px 5px;
+        background: #d5d6d6;
+        height: 100%;
+        float: left;
+      }
+      
+      .line {
+        padding: 1px 5px 1px 3px;
+        background: #bdbdbd;
+        font-family: monospace;
+        height: 100%;
+        float: left;
+      }
+      
+      a {
+        color: #ffffff;
+        border: 2px solid transparent;
+        overflow: hidden;
+        border-radius: 5px;
+        &:hover { background: #bdbdbd; }
+      }
+    }
+  }
+}
+
+//Footer
+.footer {
+  .badge {
+    margin: 10px;
+  }
+}

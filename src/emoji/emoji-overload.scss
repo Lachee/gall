@@ -1,0 +1,7 @@
+$primary: #4db6ac !default;
+
+.emoji-header .far { padding: 10px; }
+.emoji-search .fa-search { padding: 6px; }
+.emoji-header .active .far { font-weight: 900; color: $primary; }
+.select-category:after, .select-category.active:after { background: $primary !important; }
+.icon-tooltip { border-color: $primary !important; }

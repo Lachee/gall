@@ -1,0 +1,8 @@
+.lm_dropTargetIndicator {
+    box-shadow: none !important;
+}
+
+.toolbar-item {
+    z-index: 21;    // This is 21 because the transition handles are 20.
+}
+
