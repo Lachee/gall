@@ -14,7 +14,7 @@ use kiss\helpers\HTTP;
 
 
 <div class="columns">
-    <div class="column is-one-fifth">
+    <div class="column is-one-fifth pt-4">
        <?= ProfileCard::widget(['profile' => $profile ]); ?>
 
     </div>

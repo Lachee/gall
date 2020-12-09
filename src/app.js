@@ -58,3 +58,8 @@ export const actionPromise = new Promise((resolve, reject) => {
         resolve(v);
     }).catch(e => reject(e));
 }).catch(e => { console.warn("Failed to load the action.", e); });
+
+
+window.onbeforeunload = function(){
+    //$('img').attr('src', '');
+};

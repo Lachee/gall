@@ -36,13 +36,29 @@ use kiss\helpers\StringHelper;
             <?php endforeach; ?>
             <a href="<?= HTTP::url(['/gallery/search', 'scraper' => $gallery->scraper]) ?>"><span class="tag is-info is-medium"><?= $gallery->scraper ?></span></a>
         </div>
+
+        <div class="tag-group">
+            <div class="subtitle">Source</div>
+            <a href="<?= $gallery->url ?>" target="_blank"><?= $gallery->url ?></a>
+        </div>
+
+        
     </div>
     <div class="column">
         <div class="columns">
             <div class="column is-four-fifths">
 
-                <p class="subtitle"><?= $gallery->title ?></p>
-                <p class="heading"><a href="<?= $gallery->url ?>" target="_blank">view source</a></p>
+                <p class="heading"><?= $gallery->title ?></p>
+                <p class="heading">
+                    <a class="button is-small expanding-artwork-control">
+                        <span class="icon"><i class="fal fa-expand"></i></span>
+                        <span class="expand-label">Expand</span>
+                    </a>
+                    <a href="<?= $gallery->url ?>" class="button is-small">
+                        <span class="icon"><i class="fal fa-external-link"></i></span>
+                        <span>View Source</span>
+                    </a>
+                </p>
             </div>
             <div class="column has-text-right">
                 <p class="heading">Submitted by</p>
@@ -53,7 +69,7 @@ use kiss\helpers\StringHelper;
         <?php if (count($images) == 1) : ?>
             <?php foreach ($images as $image) : ?>
                 <section class="artwork">
-                    <figure class="image is-16by9">
+                    <figure class="image is-16by9 expanding-artwork" data-expanding-class="is-16by9">
                         <img style='object-fit: contain' src="<?= $image->url ?>">
                     </figure>
                 </section>  
@@ -62,7 +78,7 @@ use kiss\helpers\StringHelper;
             <section class="artwork has-lightbox">
                 <div id="lightgallery">
                     <?php foreach ($images as $image) : ?>
-                        <a href="<?= $image->url ?>"><img src="<?= $image->getThumbnail(100, 'NEAREST_NEIGHBOUR') ?>"></a>
+                        <a href="<?= $image->url ?>"><img loading=lazy class="expanding-artwork lg-thumbnail" data-expanding-class="lg-thumbnail" src="<?= $image->getThumbnail(250, 'NEAREST_NEIGHBOUR') ?>"></a>
                     <?php endforeach; ?>
                 </div>
             </section>

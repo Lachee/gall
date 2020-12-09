@@ -22,6 +22,7 @@
     "hotkeys-js": "^3.8.1",
     "interactjs": "^1.9.22",
     "jquery": "^3.5.1",
+    "js-cookie": "^2.2.1",
     "lg-autoplay": "^1.2.1",
     "lg-fullscreen": "^1.2.1",
     "lg-fullscreen.js": "^1.2.0",

@@ -32,3 +32,10 @@
         margin-bottom: 5px;
     }
 }
+
+img.lg-thumbnail {
+    width: 100px;
+    background: hsl(0, 0%, 14%);
+    transition: width 0.25s;
+    object-fit: contain;
+}

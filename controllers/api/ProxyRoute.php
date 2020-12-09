@@ -15,7 +15,7 @@ use Ramsey\Uuid\Uuid;
 class ProxyRoute extends Route {
 
     public const CACHE_DURATION = 60 * 60 * 24 * 7;
-    public const CACHE_VERSION = 7;
+    public const CACHE_VERSION = 9;
     public const INTERPOLATIONS = [
         'NEAREST_NEIGHBOUR' => IMG_NEAREST_NEIGHBOUR, 
         'BILINEAR_FIXED'    => IMG_BILINEAR_FIXED, 
@@ -26,6 +26,7 @@ class ProxyRoute extends Route {
     protected static function route() { return "/proxy"; }
 
     public function get() {
+
         $size  = HTTP::get('size', 0);
         $url    = HTTP::get('url');
         $algo   = HTTP::get('algo', IMG_BICUBIC);

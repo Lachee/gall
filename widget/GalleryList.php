@@ -30,7 +30,7 @@ class GalleryList extends Widget {
             $tags = join(' ', ArrayHelper::map($gallery->topTags, function($tag) { return '<a href="'.HTTP::url(['/gallery/search', 'tag' => $tag->name ]).'">'.$tag->name.' ( '.$tag->count.' )</a>'; }));
 
 $card = <<<HTML
-    <div id="gallery-{$gallery->id}" class="card smart-link" style="background-image: url({$thumbnailLink});" data-href="{$galleryLink}">
+    <div id="gallery-{$gallery->id}" class="card smart-link" loading=lazy style="background-image: url({$thumbnailLink});" data-href="{$galleryLink}">
         <header class="card-header"> </header>
         <div class="card-bottom">
             <div class="card-author">
