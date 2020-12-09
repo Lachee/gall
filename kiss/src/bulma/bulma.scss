@@ -229,3 +229,19 @@ kbd {
     from { opacity: 0; }
     to   { opacity: 1; }
 }
+
+
+/** Fixes the column orderrs */
+@include until($tablet) {
+    .is-flex-reversable {
+        &.columns {
+            display: flex;
+            flex-direction: column-reverse;
+        }
+    }
+
+    .page-contents {
+        padding-left: 1rem;
+        padding-right: 1rem;
+    }
+}

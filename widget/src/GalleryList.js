@@ -59,7 +59,7 @@ function fixScrollBehaviours() {
 function fixClickBehaviours() {
     const clickLongTime = 50;
     const clickMove = 5;
-    const touchLongTime = 1000;
+    const touchLongTime = 500;
     const touchMove = 15;
 
     const elements = document.querySelectorAll('.smart-link');

@@ -123,26 +123,10 @@ class Gallery extends ActiveRecord {
         return Gallery::find()->orderByAsc('id');
     }
 
-    /** @return ActiveQuery|Gallery[] finds the galleries submitted by the user */
-    public static function findBySubmitted($user) {
-        return Gallery::find()->where(['founder_id', $user])->orderByDesc('id');
-    }
-    
-    /** @return ActiveQuery|Gallery[] finds the galleries favourited by the user */
-    public static function findByFavourite($user) {
-        //TODO
-        return Gallery::find()->where(['founder_id', $user])->orderByDesc('id');
-    }    
-
-    /** @return ActiveQuery|Gallery[] finds the galleries by the users fav tags */
-    public static function findByFavouriteTags($user) {
-        //TODO
-        return Gallery::find()->where(['founder_id', $user])->orderByDesc('id');
-    }
-
-    /** @return ActiveQuery|Gallery[] finds the top 5 submissions */
-    public static function findByTopSubmitted($user) {
-        return Gallery::find()->where(['founder_id', $user])->orderByAsc('id')->limit(5);
+    /** @param User|int $founder 
+     * @return ActiveQuery|Gallery[] finds the galleries base of the founder */
+    public static function findByFounder($founder) {
+        return Gallery::find()->where(['founder_id', $founder]);
     }
 
     private const SEARCH_EXCLUDE = 0;

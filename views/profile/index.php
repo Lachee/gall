@@ -23,6 +23,6 @@ use kiss\helpers\HTTP;
         <?= GalleryList::widget(['galleries' => $submissions, 'grid' => false]); ?>
         
         <div class="title">Favourites</div>   
-        <?= GalleryList::widget(['galleries' => $favourites, 'grid' => count($submissions) <= 3 || count($submissions) > 10]); ?>
+        <?= GalleryList::widget(['galleries' => $favourites, 'grid' => count($favourites) <= 3 || count($favourites) > 10]); ?>
     </div>
 </div>

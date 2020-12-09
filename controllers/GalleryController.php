@@ -14,15 +14,17 @@ use Ramsey\Uuid\Uuid;
 class GalleryController extends BaseController {
 
     function actionIndex() {
+        /** @var User $user */
+        $user = Kiss::$app->user;
         $limit = 10;
 
         return $this->render('index', [
             'latest'        => Gallery::findByLatest()->limit($limit)->all(),
             'top_rated'     => Gallery::findByRating()->limit($limit)->all(),
 
-            'submitted'     => Gallery::findBySubmitted(Kiss::$app->user)->limit($limit)->all(),
-            'favourites'    => Gallery::findByFavourite(Kiss::$app->user)->limit($limit)->all(),
-            'latest_tagged' => Gallery::findByFavouriteTags(Kiss::$app->user)->limit($limit)->all(),
+            'submitted'     => $user->getGalleries()->limit($limit)->all(),
+            'favourites'    =>  $user->getFavouriteGalleries()->limit($limit)->all(),
+            'latest_tagged' => $user->getRecommendedGalleries()->limit($limit)->all(),
         ]);
     }
 

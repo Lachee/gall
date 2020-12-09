@@ -1,6 +1,16 @@
 @charset "utf-8";
 
+body {
+    overflow-x: hidden;
+}
+
 .card {
     border-radius: 15px;
     overflow: hidden;
+}
+
+.avatar, .avatar img {
+    border-radius: 100%;
+    width: 64px;
+    height: 64px;
 }

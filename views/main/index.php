@@ -18,7 +18,7 @@ use kiss\Kiss;
                 <div class="column" id="site-heading">
                     <h1 class="title is-size-1">GALL</h1>
                     <h2 class="subtitle is-size-3">Socially share images in Discord</h2>
-                    <a class="button is-primary is-inverted is-outlined is-large" id="login-button" href="<?= HTTP::url(['/login']); ?>">
+                    <a class="button is-primary is-inverted is-outlined is-large" id="login-button" href="<?= HTTP::url([Kiss::$app->loggedIn() ? '/gallery/' : '/login']); ?>">
                         <span class="icon"><i class="fal fa-share"></i></span>
                         <span>Start Sharing</span>
                     </a>

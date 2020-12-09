@@ -3,6 +3,7 @@
 use app\models\User;
 use kiss\helpers\ArrayHelper;
 use kiss\helpers\HTTP;
+use kiss\helpers\StringHelper;
 use kiss\widget\Widget;
 
 class ProfileCard extends Widget {
@@ -19,7 +20,8 @@ class ProfileCard extends Widget {
         $profile = $this->profile;
         $profileImageLink = $profile->profileImage ? $profile->profileImage->getThumbnail(350) : '';        
         $tags = join(' ', ArrayHelper::map($profile->favouriteTags, function($tag) { return '<a href="'.HTTP::url(['/gallery/search', 'tag' => $tag->name ]).'">'.$tag->name.' ( '.$tag->count.' )</a>'; }));
-
+        $favs = StringHelper::shortNumber($profile->favouriteCount);
+        
 $html = <<<HTML
         <div class="profile-card">
         <div class="card">
@@ -35,7 +37,7 @@ $html = <<<HTML
 
                 <div class="content">
                     <div class="metric"><span class="icon"><i class="fal fa-coin"></i></span> 1,502</div>
-                    <div class="metric"><span class="icon"><i class="fal fa-bookmark"></i></span> 15</div>
+                    <div class="metric"><span class="icon"><i class="fal fa-bookmark"></i></span> {$favs}</div>
                 </div>
 
                 <div class="content">

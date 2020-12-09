@@ -14,7 +14,7 @@
         display: flex;
         flex-direction: column;
         transition: .2s;
-        margin: 0;
+        margin: auto;
         scroll-snap-align: start;
         clear: both;
         position: relative;
@@ -29,10 +29,11 @@
             object-fit: cover;
         }
         .card-content {
-            padding-top: 70%;
+            top: 35%;
             height: 100%;
-            background: linear-gradient(0deg, $card-background, 0%, $card-background ($color-height - 5), rgba(0, 0, 0, 0) $color-height);
+            background: linear-gradient(0deg, #121212, 0%, #121212 86%, rgba(0, 0, 0, 0) 100%);
             
+            .avatar { width: 100%; }
             .avatar img {
                 margin: auto;
                 width: $avatar-size;

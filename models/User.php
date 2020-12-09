@@ -59,6 +59,30 @@ class User extends Identity {
         return !empty($this->profile_name) ? $this->profile_name :  $this->username;
     }
 
+    /** @return ActiveQuery|Favourite[] gets the favourites */
+    public function getFavouriteCount() {
+        return Favourite::findByProfile($this)->select(null, [ 'COUNT(*)' ])->one(true)['COUNT(*)'];
+    }
+
+    /** @return ActiveQuery|Gallery[] get the favourite galleries */
+    public function getFavouriteGalleries() {
+        return Gallery::find()->leftJoin(Favourite::class, [ '$gallery.id' => 'gallery_id' ])->where(['user_id', $this ]);
+    }
+
+    /** @return ActiveQuery|Gallery[] the best galleries the user has submitted */
+    public function getBestGalleries() {
+        return $this->getGalleries()->orderByDesc('views');
+    }
+
+    /** @return ActiveQuery|Gallery[] the galleries the user submitted themselves */
+    public function getGalleries() {
+        return Gallery::findByFounder($this);
+    }
+
+    public function getRecommendedGalleries() {
+        return $this->getBestGalleries();
+    }
+
     /** @return ActiveQuery|Tag[] gets the users favourite tags */
     public function getFavouriteTags() {
         //TODO: Implement Favourite Tags

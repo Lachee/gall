@@ -39,3 +39,10 @@ img.lg-thumbnail {
     transition: width 0.25s;
     object-fit: contain;
 }
+
+.favourited {
+    .avatar {
+        margin-right: 10px;
+        float: left;
+    }
+}

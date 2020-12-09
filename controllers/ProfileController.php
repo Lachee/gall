@@ -16,13 +16,14 @@ class ProfileController extends BaseController {
     public static function route() { return "/profile/:profile_name"; }
 
     function actionIndex() {
+        /** @var User $profile */
         $profile = User::findByProfileName($this->profile_name)->one();
         if ($profile == null) throw new HttpException(HTTP::NOT_FOUND);
 
         return $this->render('index', [
             'profile'       => $profile,
-            'submissions'   => Gallery::findByTopSubmitted($profile)->limit(4)->all(),
-            'favourites'    => Gallery::findBySubmitted($profile)->all()
+            'submissions'   => $profile->getBestGalleries()->limit(4)->all(),
+            'favourites'    => $profile->getFavouriteGalleries()->all()
         ]);
     }
 }

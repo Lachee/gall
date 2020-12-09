@@ -10,9 +10,11 @@ use kiss\helpers\StringHelper;
 /** @var Gallery $gallery */
 /** @var Image[] $images */
 
+$tno = $gallery->favourites;
+$k = $tno;
 ?>
 
-<div class="columns">
+<div class="columns is-flex-reversable">
     <div class="column is-one-third">
 
         <?php if (!empty($gallery->description)) : ?>
@@ -107,9 +109,27 @@ use kiss\helpers\StringHelper;
             <div class="level-item has-text-centered">
                 <div>
                     <p class="heading">Favourites</p>
-                    <p class="title">?</p>
+                    <p class="title"><?= StringHelper::shortNumber(count($gallery->favourites)) ?></p>
                 </div>
             </div>
+        </section>
+
+        <section class="favourited">
+            <?php foreach((array) $gallery->favourites as $f): ?>
+                <div class="avatar">
+                    <img src="<?= $f->profile->avatarUrl ?>" alt="Avatar Picture">
+                </div>
+            <?php endforeach; ?>
+            <?php foreach((array) $gallery->favourites as $f): ?>
+                <div class="avatar">
+                    <img src="<?= $f->profile->avatarUrl ?>" alt="Avatar Picture">
+                </div>
+            <?php endforeach; ?>
+            <?php foreach((array) $gallery->favourites as $f): ?>
+                <div class="avatar">
+                    <img src="<?= $f->profile->avatarUrl ?>" alt="Avatar Picture">
+                </div>
+            <?php endforeach; ?>
         </section>
     </div>
 </div>

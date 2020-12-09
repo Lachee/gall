@@ -16,13 +16,13 @@ use kiss\Kiss;
 
 
 <?php if (Kiss::$app->loggedIn()) : ?>
-    <h1>Submitted</h1>
-    <?= GalleryList::widget([ 'galleries' => $submitted ]); ?>
-
     <h1>Favourites</h1>
     <?= GalleryList::widget([ 'galleries' => $favourites ]); ?>
       
-    <h1>Tags</h1>
+    <h1>Submitted</h1>
+    <?= GalleryList::widget([ 'galleries' => $submitted ]); ?>
+
+    <h1>Recommended</h1>
     <?= GalleryList::widget([ 'galleries' => $latest_tagged ]); ?>
       
 <?php endif; ?>

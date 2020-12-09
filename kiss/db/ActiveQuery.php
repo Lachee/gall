@@ -41,11 +41,11 @@ class ActiveQuery extends Query {
     }
 
     /** @inheritdoc */
-    public function leftJoin($table, $on) {
+    public function join($table, $on, $joinType = 'JOIN') {
         if (is_subclass_of($table, ActiveRecord::class, true)) {
             $table = $table::tableName();
         }
-        return parent::leftJoin($table, $on);
+        return parent::join($table, $on, $joinType);
     }
 
     /** @inheritdoc */
