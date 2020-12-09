@@ -15,11 +15,11 @@ class Image extends ActiveRecord {
     protected $gallery_id;
 
     public function getFounder() {
-        return User::findByKey($this->founder_id);
+        return User::findByKey($this->founder_id)->limit(1);
     }
 
     public function getGallery() { 
-        return Gallery::findByKey($this->gallery_id);
+        return Gallery::findByKey($this->gallery_id)->limit(1);
     }
 
     public static function findByGallery($gallery) {

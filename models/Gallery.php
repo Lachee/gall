@@ -34,11 +34,11 @@ class Gallery extends ActiveRecord {
     }
 
     public function getFounder() {
-        return User::findByKey($this->founder_id);
+        return User::findByKey($this->founder_id)->limit(1);
     }
 
     public function getThumbnail() { 
-        return Image::findByKey($this->thumbnail_id);
+        return Image::findByKey($this->thumbnail_id)->limit(1);
     }
 
     public function getImages() {
@@ -75,6 +75,11 @@ class Gallery extends ActiveRecord {
     /** Increments the views */
     public function incrementView() {
         return self::find()->increment([ 'views' ])->where([ 'id', $this ])->execute();
+    }
+
+    /** @return ActiveQuery|Favourite list of all people that favourited this gallery */
+    public function getFavourites() {
+        return Favourite::find()->where(['gallery_id',  $this->getKey() ]);
     }
 
     /** Gets the number of views */

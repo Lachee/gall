@@ -255,6 +255,9 @@ class Query {
         return $this;
     }
 
+    /** Returns the current limit */
+    public function getLimit() { return $this->limit; }
+
     /** Order the query by the value */
     public function orderByDesc($field) {
         $this->orderBy = $field;

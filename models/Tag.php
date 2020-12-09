@@ -22,11 +22,11 @@ class Tag extends ActiveRecord {
     protected $rating;
 
     public function getFounder() {
-        return User::findByKey($this->founder_id);
+        return User::findByKey($this->founder_id)->limit(1);
     }
 
     public function getAlias() { 
-        return Tag::findByKey($this->alias_id);
+        return Tag::findByKey($this->alias_id)->limit(1);
     }
 
     public function getId() {
