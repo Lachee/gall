@@ -50,7 +50,7 @@ function fixScrollBehaviours() {
 }
 
 function fixClickBehaviours() {
-    const clickLongTime = 25;
+    const clickLongTime = 50;
     const clickMove = 5;
     const touchLongTime = 1000;
     const touchMove = 15;
@@ -80,7 +80,7 @@ function fixClickBehaviours() {
 
         elm.addEventListener('mouseup', (event) => {
             if (window.isMobile()) return;
-            
+            if (event.button == 2) return;
             event.preventDefault();
             if (elm.classList.contains('click-long')) navigate(elm, event.button == 1);
             clearTouchTimeout(elm);

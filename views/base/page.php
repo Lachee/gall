@@ -5,6 +5,7 @@ use kiss\db\Query;
 use kiss\Kiss;
 
 ?>
+
 <html>
     <?= $this->renderContent('@/views/base/header', $_params_) ?>
     <body>
@@ -15,7 +16,6 @@ use kiss\Kiss;
         </div>
     </body>
     <?= $this->renderJsVariables(Controller::POS_END); ?>
-    
     <?php if (KISS_DEBUG): ?>
         <?php var_dump(Query::getLog()) ?>
     <?php endif; ?>

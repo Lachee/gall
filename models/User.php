@@ -29,31 +29,6 @@ class User extends Identity {
         $this->_discordUser = GALL::$app->discord->identify($storage);
         return $this->_discordUser;
     }
-
-    /** Gets the URL of the users avatar
-     * @return string the URL
-     */
-    public function getAvatarUrl($size = 64) {
-        return HTTP::url( ['/api/proxy', 'url' => "https://d.lu.je/avatar/{$this->snowflake}?size=$size" ] );  
-    }
-
-    /** @return ActiveQuery|Image gets the profile image */
-    public function getProfileImage() {
-        if (empty($this->profile_image)) return null;
-        return Image::findByKey($this->profile_image)->limit(1);
-    }
-
-    /** @return string the name of the profile page. Some users may have a custom one. */
-    public function getProfileName() {
-        return !empty($this->profile_name) ? $this->profile_name : $this->snowflake;
-    }
-
-    /** @return string the name to display to others. */
-    public function getDisplayName() {
-        return !empty($this->profile_name) ? $this->profile_name :  $this->username;
-    }
-
-
     /** Runs a quick validation on the discord token
      * @return bool true if the token is valid
      */
@@ -63,6 +38,33 @@ class User extends Identity {
         $storage = GALL::$app->discord->getStorage($this->uuid);
         return GALL::$app->discord->validateAccessToken($storage);
     }
+
+    /** Gets the URL of the users avatar
+     * @return string the URL
+     */
+    public function getAvatarUrl($size = 64) {
+        return HTTP::url( ['/api/proxy', 'url' => "https://d.lu.je/avatar/{$this->snowflake}?size=$size" ] );  
+    }
+    /** @return ActiveQuery|Image gets the profile image */
+    public function getProfileImage() {
+        if (empty($this->profile_image)) return null;
+        return Image::findByKey($this->profile_image)->limit(1);
+    }
+    /** @return string the name of the profile page. Some users may have a custom one. */
+    public function getProfileName() {
+        return !empty($this->profile_name) ? $this->profile_name : $this->snowflake;
+    }
+    /** @return string the name to display to others. */
+    public function getDisplayName() {
+        return !empty($this->profile_name) ? $this->profile_name :  $this->username;
+    }
+
+    /** @return ActiveQuery|Tag[] gets the users favourite tags */
+    public function getFavouriteTags() {
+        //TODO: Implement Favourite Tags
+        return Tag::find()->limit(5);
+    }
+
 
 
     /** @return ActiveQuery|$this finds the profile from the given name */

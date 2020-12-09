@@ -2,8 +2,10 @@
 
 use kiss\models\Identity;
 use GALL;
+use kiss\db\ActiveQuery;
 use kiss\db\ActiveRecord;
 use kiss\exception\ArgumentException;
+use kiss\exception\InvalidOperationException;
 use kiss\helpers\ArrayHelper;
 use kiss\Kiss;
 
@@ -17,6 +19,7 @@ class Gallery extends ActiveRecord {
     protected $scraper;
     protected $url;
     protected $thumbnail_id;
+    protected $views;
 
     public function getShortDescription() {
         $maxLength = 100;
@@ -68,6 +71,15 @@ class Gallery extends ActiveRecord {
     public function getTopTags() {
         return $this->getAllTags()->orderByDesc('cnt')->limit(5);
     }
+
+    /** Increments the views */
+    public function incrementView() {
+        return self::find()->increment([ 'views' ])->where([ 'id', $this ])->execute();
+    }
+
+    /** Gets the number of views */
+    public function getViews() { return self::find()->fields(['id', 'views'])->where(['id', $this])->cache(false)->one(true)['views']; }
+    public function setViews() { throw new InvalidOperationException('Views cannot be set'); }
 
     /** Creates a link between the tag and this gallery
      * @param Tag $tag the tag to add

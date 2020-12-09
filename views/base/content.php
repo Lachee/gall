@@ -9,13 +9,13 @@ use app\widget\Notification;
 
 ?>
 
-<div class="page-contents">
+<div class="<?= !isset($wrapContents) || $wrapContents === true ? 'page-contents' : ''; ?>">
     <?php if (isset($fullWidth) && $fullWidth === true): ?>
         <?= Notification::widget(); ?>
         <?= $_VIEW; ?>
     <?php else: ?>
         <div class="container">        
-            <div class="columnsss"> 
+            <div class="columns"> 
                 <?php if (Breadcrumb::count() > 0): ?>
                         <div class="column is-3 ">
                             <?= Menu::widget(); ?>
@@ -26,7 +26,7 @@ use app\widget\Notification;
                             <?= $_VIEW; ?>
                         </div>
                 <?php else: ?>
-                    <div class="columnss is-12">
+                    <div class="column is-12">
                         <?= Notification::widget(); ?>
                         <?= $_VIEW; ?>
                     </div>

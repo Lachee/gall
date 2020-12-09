@@ -39,3 +39,11 @@ $previewHeight: 1080;
     transform: translateX(-($previewWidth / 2) + 0px) translateY( -($previewHeight/2) + 0px) scale($previewScale) translateX(($previewWidth / 2) + 0px) translateY(($previewHeight/2) + 0px);
     transform: scale($previewScale);
 }
+
+.flexcard .card-list { 
+    overflow: hidden;
+}
+
+#site-heading {
+    margin: auto;
+}

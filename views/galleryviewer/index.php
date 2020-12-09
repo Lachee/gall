@@ -5,6 +5,7 @@ use app\models\Image;
 use app\models\Tag;
 use kiss\helpers\HTML;
 use kiss\helpers\HTTP;
+use kiss\helpers\StringHelper;
 
 /** @var Gallery $gallery */
 /** @var Image[] $images */
@@ -72,7 +73,7 @@ use kiss\helpers\HTTP;
             <div class="level-item has-text-centered">
                 <div>
                     <p class="heading">Views</p>
-                    <p class="title">?</p>
+                    <p class="title"><?= StringHelper::shortNumber($gallery->views) ?></p>
                 </div>
             </div>
             <div class="level-item has-text-centered">

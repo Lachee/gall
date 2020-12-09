@@ -1,3 +1,7 @@
+<?php
+
+use kiss\helpers\HTTP;
+?>
 <footer class="footer">
     <div class="content has-text-centered">
         <div class="level">
@@ -9,7 +13,7 @@
                 
             </div>
             <div class="level-item">    
-                <a class="badge" href="https://jwt.io" target="_blank"><img src="http://jwt.io/img/badge-compatible.svg"></a>
+                <a class="badge" href="<?= HTTP::url('/jwt')?>" target="_blank"><img src="https://jwt.io/img/badge-compatible.svg"></a>
                 <a class="badge" href="https://bulma.io">
                     <img src="/images/made-with-bulma.png" alt="Made with Bulma" width="128" height="24">
                 </a>

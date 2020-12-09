@@ -22,7 +22,8 @@ class MainController extends BaseController {
 
     function actionIndex() {
         return $this->render('index', [
-            'fullWidth' => true
+            'fullWidth' => true,
+            'wrapContents' => false,
         ]);
     }
 

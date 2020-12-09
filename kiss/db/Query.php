@@ -1,6 +1,7 @@
 <?php namespace kiss\db;
 
 use Exception;
+use kiss\exception\ArgumentException;
 use kiss\exception\QueryException;
 use kiss\exception\SQLException;
 use kiss\Kiss;
@@ -13,6 +14,7 @@ class Query {
     protected const QUERY_UPDATE = 'UPDATE';
     protected const QUERY_INSERT = 'INSERT';
     protected const QUERY_INSERT_OR_UPDATE = 'INSERT_OR_UPDATE';
+    protected const QUERY_INCREMENT = 'INCREMENT';
 
     /** @var int $cacheDuration how long in second cached results last for. */
     public $cacheDuration = 5;
@@ -32,6 +34,7 @@ class Query {
     protected $includeNull = false;
     protected $join = [];
     protected $groupBy = null;
+    protected $incrementAmount = 1;
     
     /** @var mixed An array of arrays. Each sub array represents the joiner, field, operator, value */
     protected $wheres = [];
@@ -111,6 +114,21 @@ class Query {
         $this->query = self::QUERY_UPDATE;
         $this->values = $values;
         $this->from = $from ?? $this->from;
+        return $this;
+    }
+
+    /** Increments the fields by the given amount
+     * @param string[] $fields the fields to increment
+     * @param int $amount how much to increment by
+     * @param string $from name of the table.
+     * @return $this
+     */
+    public function increment($fields, $amount = 1, $from = null) {
+        if (!is_integer($amount)) throw new ArgumentException('amount must be a integer');
+        $this->query = self::QUERY_INCREMENT;
+        $this->fields = $fields;
+        $this->form = $from ?? $this->from;
+        $this->incrementAmount = intval($amount);
         return $this;
     }
 
@@ -344,6 +362,16 @@ class Query {
                 $this->wheres = null;
                 $this->limit = null;
                 $this->orderBy = null;
+                break;
+
+            case self::QUERY_INCREMENT:
+                if (!is_integer($this->incrementAmount))
+                    throw new ArgumentException('amount must be a integer');
+                $increments = [];
+                foreach($this->fields as $field)
+                    $increments[] = "{$field} = {$field} + {$this->incrementAmount}";
+                
+                $query = "UPDATE {$this->form} SET " . join(', ', $increments);
                 break;
         }
 

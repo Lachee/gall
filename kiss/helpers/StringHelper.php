@@ -25,4 +25,23 @@ class StringHelper {
     public static function token($length = 16) {
         return bin2hex(random_bytes($length));
     }
+
+    /** Turns a number into a pretty form 
+     * @param int $n the number
+     * @param int $precision how many decimal places
+     * @return string
+    */
+    public static function shortNumber($n, $precision = 1) {
+        
+        if ($n > 1000000000) 
+            return number_format($n / 1000000, $precision) . 'B';
+        
+        if ($n > 1000000)
+            return number_format($n / 1000000, $precision) . 'M';
+        
+        if ($n > 1000)
+            return number_format($n / 1000, $precision) . 'K';
+        
+        return number_format($n, 0);
+    }
 }

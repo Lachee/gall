@@ -211,6 +211,7 @@ kbd {
     }
 }
 
+
 /** NOtifications */
 .notifications {
     &.toast {
@@ -220,8 +221,8 @@ kbd {
         z-index: 99999;
         animation: fadein 1s;
     }
-    
 }
+
 
 
 @keyframes fadein {

@@ -20,6 +20,8 @@ class GalleryViewerController extends BaseController {
         /** @var Gallery $gallery */
         $gallery = Gallery::findByKey($this->gallery_id)->one();
         if ($gallery == null) throw new HttpException(HTTP::NOT_FOUND);
+        
+        $gallery->incrementView();
 
         /** @var Image[] $images */
         $images = $gallery->getImages()->all();

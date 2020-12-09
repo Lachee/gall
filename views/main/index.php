@@ -1,36 +1,36 @@
 <?php
+
+use app\models\Gallery;
+use app\widget\GalleryList;
+use app\widget\ProfileCard;
 use kiss\helpers\HTML;
+use kiss\helpers\HTTP;
+use kiss\Kiss;
+
 ?>
 
-<section class="hero hero is-gradient is-primary ">
+
+<section class="hero is-medium is-dark is-bold is-fullheight-with-navbar">
     <div class="hero-body">
         <div class="container">
-            <h1 class="title">GALL</h1>
-            <h2 class="subtitle">Private Image Gallery</h2>
-        </div>
-    </div>
-</section>
-<section class="hero hero is-gradient is-danger ">
-    <div class="hero-body">
-        <div class="container">
-            <h1 class="title">Explicit Material</h1>
-            <h2 class="subtitle">This website may contain sexually explicit content that is not suitable for minors under the age of 18 years. By logging into this website, you agree to the terms set out by the webmaster and agree that you are of 18 years and older.</h2>
-        </div>
-    </div>
-</section>
-<section class="hero hero is-gradient is-info ">
-    <div class="hero-body">
-        <div class="container">
-            <h1 class="title">Whitelist Only</h1>
-            <h2 class="subtitle">This website was created by the webmaster to host a collection of images. These images may or may not be copyrighted material and no licensing on these images are reserved. All content on this website is for the webmaster only, and all visitors are forbidden and are going against the webmasters requests</h2>
-        </div>
-    </div>
-</section>
-<section class="hero hero is-gradient is-warning ">
-    <div class="hero-body">
-        <div class="container">
-            <h1 class="title">Warning</h1>
-            <h2 class="subtitle">By viewing content on this website outside of this landing page is forbidden. Doing so violates the webmasters terms and is unlawful entry to the site's material.</h2>
+            <div class="columns">
+                <div class="column is-one-fifth"></div>
+                <div class="column" id="site-heading">
+                    <h1 class="title is-size-1">GALL</h1>
+                    <h2 class="subtitle is-size-3">Socially share images in Discord</h2>
+                    <a class="button is-primary is-inverted is-outlined is-large" id="login-button" href="<?= HTTP::url(['/login']); ?>">
+                        <span class="icon"><i class="fal fa-share"></i></span>
+                        <span>Start Sharing</span>
+                    </a>
+                </div>
+                <div class="column is-one-third">
+                    <?php if (Kiss::$app->loggedIn()): ?>                        
+                        <?= ProfileCard::widget(['profile' => Kiss::$app->user ]); ?>
+                    <?php else: ?>
+                        <?= GalleryList::widget([ 'galleries' => Gallery::findByRating()->limit(1)->all(), 'grid' => true]) ?>
+                    <?php endif; ?>
+                </div>
+            </div>
         </div>
     </div>
 </section>
