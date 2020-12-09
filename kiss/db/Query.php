@@ -209,6 +209,9 @@ class Query {
         if (count($params) == 0)
             throw new QueryException($this, "where parameter cannot be empty");
 
+        if (!isset($params[0]))
+            throw new QueryException($this, "where paramter needs to be an non-assoc array");
+
         if (is_array($params[0])) {
             //We are an array of AND WHERES
             // so we will recursively add them

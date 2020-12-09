@@ -89,6 +89,10 @@ class User extends Identity {
         return Tag::find()->limit(5);
     }
 
+    /** @return bool returns if the user has favourited a particular gallery */
+    public function hasFavouritedGallery($gallery) {
+        return Favourite::findByProfile($this)->select(null, [ 'COUNT(*)' ])->andWhere(['gallery_id', $gallery])->one(true)['COUNT(*)'] != 0;
+    }
 
 
     /** @return ActiveQuery|$this finds the profile from the given name */

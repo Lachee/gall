@@ -14,15 +14,13 @@ use kiss\Kiss;
 <h1>Top Rated</h1>
 <?= GalleryList::widget([ 'galleries' => $top_rated ]); ?>
 
-
 <?php if (Kiss::$app->loggedIn()) : ?>
+    <h1>Recommended</h1>
+    <?= GalleryList::widget([ 'galleries' => $latest_tagged ]); ?>
+
     <h1>Favourites</h1>
     <?= GalleryList::widget([ 'galleries' => $favourites ]); ?>
       
     <h1>Submitted</h1>
     <?= GalleryList::widget([ 'galleries' => $submitted ]); ?>
-
-    <h1>Recommended</h1>
-    <?= GalleryList::widget([ 'galleries' => $latest_tagged ]); ?>
-      
 <?php endif; ?>

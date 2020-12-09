@@ -33,6 +33,9 @@ class ProxyRoute extends Route {
 
         $interpolation = self::INTERPOLATIONS[$algo] ?? (in_array($algo, array_values(self::INTERPOLATIONS)) ? $algo : IMG_BILINEAR_FIXED);
 
+        //Set the default cache
+        HTTP::setHeader('Cache-Control', "public, max-age=60, immutable");
+
         //TODO: REmove This
         //return null;
 

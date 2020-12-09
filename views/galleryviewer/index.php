@@ -7,6 +7,7 @@ use app\widget\ProfileCard;
 use kiss\helpers\HTML;
 use kiss\helpers\HTTP;
 use kiss\helpers\StringHelper;
+use kiss\Kiss;
 
 /** @var Gallery $gallery */
 /** @var Image[] $images */
@@ -23,6 +24,9 @@ $k = $tno;
             <p class="heading">Actions</p>
             
             <p class="heading">
+                <a class="button is-small">
+                    <span class="icon"><i class="<?= Kiss::$app->user->hasFavouritedGallery($gallery) ? 'fas' : 'fal' ?> fa-bookmark"></i></span>
+                </a>
                 <a class="button is-small expanding-artwork-control">
                     <span class="icon"><i class="fal fa-expand"></i></span>
                     <span class="expand-label">Expand</span>

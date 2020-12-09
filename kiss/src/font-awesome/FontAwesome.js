@@ -2,6 +2,7 @@
 import '@fortawesome/fontawesome-pro/scss/fontawesome.scss';
 import '@fortawesome/fontawesome-pro/scss/brands.scss';
 import '@fortawesome/fontawesome-pro/scss/light.scss';
+import '@fortawesome/fontawesome-pro/scss/solid.scss';
 
 export class FontAwesome {
     #icons;
