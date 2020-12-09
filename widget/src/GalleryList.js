@@ -62,7 +62,10 @@ function fixClickBehaviours() {
         if (!elm.addEventListener) continue;
         
         elm.addEventListener('click', (event) => {
-            event.preventDefault();
+            if (event.target == elm) {
+                event.preventDefault();
+                return;
+            }
         });
 
         elm.addEventListener('mousedown', (event) => {

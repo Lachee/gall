@@ -120,19 +120,19 @@
 
     .half-circle {
         position: absolute;
-        bottom: 0;
+        top: 0;
         left: 0;
         width: 60px;
         height: 48px;
         fill: none;
-        stroke: #ff8a00;
-        stroke-width: 8;
+        stroke: #00c9ff;
+        stroke-width: 3;
         stroke-linecap: round;
         pointer-events: none;
+        transform: translate(-8px, 25px) rotate(45deg);
     }
 
     .tags {
-        margin: 1rem 0 2rem;
         padding: .5rem 0 1rem;
         line-height: 2;
         margin-bottom: 0;
