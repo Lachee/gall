@@ -45,7 +45,7 @@ use kiss\helpers\HTTP;
             </div>
             <div class="column has-text-right">
                 <p class="heading">Submitted by</p>
-                <p class="subtitle"><a href="<?= HTTP::url(['/profile/:profile', 'profile' => $gallery->founder->profileName]) ?>">@<?= $gallery->founder->displayName ?></a></p>
+                <p class="subtitle"><a href="<?= HTTP::url(['/profile/:profile/', 'profile' => $gallery->founder->profileName]) ?>">@<?= $gallery->founder->displayName ?></a></p>
             </div>
         </div>
 

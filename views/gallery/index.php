@@ -15,7 +15,7 @@ use kiss\Kiss;
                 <header class="card-header"> </header>
                 <div class="card-bottom">
                     <div class="card-author">
-                        <a class="author-avatar" href="<?= HTTP::url(['/profile/:profile', 'profile' => $gallery->founder->profileName ]) ?>">
+                        <a class="author-avatar" href="<?= HTTP::url(['/profile/:profile/', 'profile' => $gallery->founder->profileName ]) ?>">
                             <img src="https://d.lu.je/avatar/<?= $gallery->founder->snowflake ?>" />
                         </a>
                         <svg class="half-circle" viewBox="0 0 106 57">
@@ -47,7 +47,7 @@ use kiss\Kiss;
                 <header class="card-header"> </header>
                 <div class="card-bottom">
                     <div class="card-author">
-                        <a class="author-avatar" href="<?= HTTP::url(['/profile/:snowflake', 'snowflake' => $gallery->founder->profileName ]) ?>">
+                        <a class="author-avatar" href="<?= HTTP::url(['/profile/:profile/', 'profile' => $gallery->founder->profileName ]) ?>">
                             <img src="https://d.lu.je/avatar/<?= $gallery->founder->snowflake ?>" />
                         </a>
                         <svg class="half-circle" viewBox="0 0 106 57">
@@ -80,7 +80,7 @@ use kiss\Kiss;
                 <header class="card-header"> </header>
                 <div class="card-bottom">
                     <div class="card-author">
-                        <a class="author-avatar" href="<?= HTTP::url(['/profile/:snowflake', 'snowflake' => $gallery->founder->profileName ]) ?>">
+                        <a class="author-avatar" href="<?= HTTP::url(['/profile/:profile/', 'profile' => $gallery->founder->profileName ]) ?>">
                             <img src="https://d.lu.je/avatar/<?= $gallery->founder->snowflake ?>" />
                         </a>
                         <svg class="half-circle" viewBox="0 0 106 57">
@@ -112,7 +112,7 @@ use kiss\Kiss;
                 <header class="card-header"> </header>
                 <div class="card-bottom">
                     <div class="card-author">
-                        <a class="author-avatar" href="<?= HTTP::url(['/profile/:snowflake', 'snowflake' => $gallery->founder->profileName ]) ?>">
+                        <a class="author-avatar" href="<?= HTTP::url(['/profile/:profile/', 'profile' => $gallery->founder->profileName ]) ?>">
                             <img src="https://d.lu.je/avatar/<?= $gallery->founder->snowflake ?>" />
                         </a>
                         <svg class="half-circle" viewBox="0 0 106 57">
@@ -144,7 +144,7 @@ use kiss\Kiss;
                 <header class="card-header"> </header>
                 <div class="card-bottom">
                     <div class="card-author">
-                        <a class="author-avatar" href="<?= HTTP::url(['/profile/:snowflake', 'snowflake' => $gallery->founder->profileName ]) ?>">
+                        <a class="author-avatar" href="<?= HTTP::url(['/profile/:profile/', 'profile' =>  $gallery->founder->profileName ]) ?>">
                             <img src="https://d.lu.je/avatar/<?= $gallery->founder->snowflake ?>" />
                         </a>
                         <svg class="half-circle" viewBox="0 0 106 57">

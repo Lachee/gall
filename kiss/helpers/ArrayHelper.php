@@ -32,7 +32,7 @@ class ArrayHelper {
     /** Maps the value of the array */
     public static function map($array, $callback) {
         $tmp = [];
-        foreach($array as $k => $p) { 
+        foreach((array) $array as $k => $p) { 
             $tmp[$k] = call_user_func($callback, $p);
         }
         return $tmp;

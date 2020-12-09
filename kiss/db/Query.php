@@ -18,6 +18,8 @@ class Query {
     public $cacheDuration = 5;
     private $cacheVersion = 4;
 
+    public $remember = true;
+
     protected $conn;
     
     protected $query;
@@ -30,10 +32,11 @@ class Query {
     protected $includeNull = false;
     protected $join = [];
     protected $groupBy = null;
-
+    
     /** @var mixed An array of arrays. Each sub array represents the joiner, field, operator, value */
     protected $wheres = [];
-
+    
+    private static $_memcache = [];
     private static $_execLog = [];
     public static function getLog() { return self::$_execLog; }
 
@@ -414,11 +417,20 @@ class Query {
         //Check the cache if we ahve the duration for it
         $redis      = Kiss::$app->redis();
         $cacheKey   = 'query:' . $this->cacheVersion . ':' . md5($querySummary);
+
+        //Check if its in the memory
+        if ($this->remember && isset(self::$_memcache[$cacheKey])) {
+            self::$_execLog[] = "REPEAT {$querySummary}";
+            return self::$_memcache[$cacheKey];
+        }
+
+        //Get it from the cache
         if ($redis != null && $this->cacheDuration > 0) {
             $cacheResults = $redis->get($cacheKey);
             if ($cacheResults != null) {
-                self::$_execLog[] = 'CACHED ' . $querySummary;
+                self::$_execLog[] = "REDIS  {$querySummary}";
                 $data = unserialize($cacheResults);
+                if ($this->remember) self::$_memcache[$cacheKey] = $data;
                 return $data;
             }
         }
@@ -429,7 +441,7 @@ class Query {
         }
 
         //Execute and check if we fail or not
-        self::$_execLog[] = $querySummary;
+        self::$_execLog[] = "QUERY  {$querySummary}";
         $result = $stm->execute();
         if (!$result) {
             $err = $stm->errorInfo();
@@ -439,6 +451,10 @@ class Query {
         //Select is the only one where we want to return the object
         if ($this->query === self::QUERY_SELECT || $this->query === self::QUERY_SELECT_MINIMISE) {
             $result = $stm->fetchAll(\PDO::FETCH_ASSOC);
+
+            //Store the result in memory
+            if ($this->remember) 
+                self::$_memcache[$cacheKey] = $result;
 
             //We should cache it if we can
             if ($redis != null && $this->cacheDuration > 0) {

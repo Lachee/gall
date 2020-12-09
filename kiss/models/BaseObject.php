@@ -53,21 +53,25 @@ class BaseObject implements SchemaInterface, JsonSerializable {
                         $this->{$key} = [];
                         foreach($pair as $i => $p) {
                             if (StringHelper::startsWith($i, '$')) continue;
-                            if ($type == 'string' || $type == 'int' || $type == 'float' || $type == 'double' || $type == 'decimal' || $type == 'single' || $type == 'bool' || $type == 'boolean') {
-
-                                //We are just a static
+                            if ($p instanceof BaseObject) {
                                 $this->{$key}[$i] = $p;
-
                             } else {
+                                if ($type == 'string' || $type == 'int' || $type == 'float' || $type == 'double' || $type == 'decimal' || $type == 'single' || $type == 'bool' || $type == 'boolean') {
 
-                                //Validate the class
-                                $class = $p['$class'] ?? $type;
-                                if ($class != $type && !is_subclass_of($class, $type)) {
-                                    throw new InvalidOperationException("{$key}'s class {$class} is not of type {$type}!");
+                                    //We are just a static
+                                    $this->{$key}[$i] = $p;
+
+                                } else {
+
+                                    //Validate the class
+                                    $class = $p['$class'] ?? $type;
+                                    if ($class != $type && !is_subclass_of($class, $type)) {
+                                        throw new InvalidOperationException("{$key}'s class {$class} is not of type {$type}!");
+                                    }
+
+                                    //Append to the list
+                                    $this->{$key}[$i] = $class == null ? $p : self::new($class, $p);
                                 }
-
-                                //Append to the list
-                                $this->{$key}[$i] = $class == null ? $p : self::new($class, $p);
                             }
                         }
 

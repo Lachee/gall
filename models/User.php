@@ -2,6 +2,8 @@
 
 use kiss\models\Identity;
 use GALL;
+use kiss\db\ActiveQuery;
+use kiss\Kiss;
 
 class User extends Identity {
     
@@ -45,5 +47,13 @@ class User extends Identity {
     /** @return string the name to display to others. */
     public function getDisplayName() {
         return !empty($this->profile_name) ? $this->profile_name :  $this->username;
+    }
+
+    /** @return ActiveQuery|$this finds the profile from the given name */
+    public static function findByProfileName($profile) {
+        if ($profile == '@me') {
+            return self::findByKey(Kiss::$app->user->getKey());
+        }
+        return self::findBySnowflake($profile)->orWhere(['profile_name', $profile]);
     }
 }
