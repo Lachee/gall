@@ -18,7 +18,7 @@ use kiss\helpers\HTTP;
        <?= ProfileCard::widget(['profile' => $profile ]); ?>
 
     </div>
-    <div class="column">
+    <div class="column is-four-fifths">
         <div class="title">Best Submissions</div>
         <?= GalleryList::widget(['galleries' => $submissions, 'grid' => false]); ?>
         

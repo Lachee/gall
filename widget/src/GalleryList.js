@@ -20,14 +20,11 @@ function fixScrollBehaviours() {
         if (!elm.addEventListener) continue;
 
         elm.addEventListener('mousedown', (event) => { 
-            elm.mouseDown = true;
-        });
-        elm.addEventListener('mouseup', (event) => {
-            elm.mouseDown = false;
+            elm.isDragScrolled = true;
         });
 
         elm.addEventListener('mousemove', (event) => {
-            if (!elm.mouseDown) return;
+            if (!elm.isDragScrolled) return;
             elm.scrollBy({
                 left: -event.movementX
             });
@@ -47,6 +44,16 @@ function fixScrollBehaviours() {
         });
         */
     }
+
+    //Globally when the mouse is up, stop scrolling all elements
+    window.addEventListener('mouseup', function(event){
+        const elements = document.querySelectorAll(".flexcard .card-list");    
+        for(let i in elements) {
+            const elm = elements[i];
+            if (!elm.addEventListener) continue;
+            elm.isDragScrolled = false;
+        }
+    });
 }
 
 function fixClickBehaviours() {
@@ -84,6 +91,15 @@ function fixClickBehaviours() {
             event.preventDefault();
             if (elm.classList.contains('click-long')) navigate(elm, event.button == 1);
             clearTouchTimeout(elm);
+        });
+
+        elm.addEventListener('mouseover', (event) => {
+            if (window.isMobile()) return;
+            elm.scrollIntoView({
+                block: "nearest",
+                inline: "nearest",
+                behavior: "smooth",
+            });
         });
 
         elm.addEventListener('touchstart', (event) => {

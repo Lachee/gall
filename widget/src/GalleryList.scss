@@ -8,8 +8,10 @@
 
     .card-list {
         display: flex;
-        padding: 3rem;
+        padding: 3rem 3rem 1rem 3rem;
         overflow-x: scroll;
+        margin-top: -1rem;
+
         &.is-grid { 
             flex-flow: row wrap;
             align-items: center;
