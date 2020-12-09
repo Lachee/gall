@@ -26,7 +26,8 @@ class ActiveRecord extends BaseObject{
             if ($result instanceof ActiveQuery) {
                 $all = $result->all();
                 $limit = $result->getLimit();
-                if ($limit == null || $limit[0] > 1) return $all;
+                if ($limit == null || $limit[1] > 1) 
+                    return $all;
                 return $all[0] ?? null;
             }
             return $result;
