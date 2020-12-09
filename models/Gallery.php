@@ -123,6 +123,11 @@ class Gallery extends ActiveRecord {
         return Gallery::find()->where(['founder_id', $user])->orderByDesc('id');
     }
 
+    /** @return ActiveQuery|Gallery[] finds the top 5 submissions */
+    public static function findByTopSubmitted($user) {
+        return Gallery::find()->where(['founder_id', $user])->orderByAsc('id')->limit(5);
+    }
+
     private const SEARCH_EXCLUDE = 0;
     private const SEARCH_ADDITIONAL = 1;
     private const SEARCH_REQUIRED = 2;

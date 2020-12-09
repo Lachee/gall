@@ -3,6 +3,7 @@
 use kiss\models\Identity;
 use GALL;
 use kiss\db\ActiveQuery;
+use kiss\helpers\HTTP;
 use kiss\Kiss;
 
 class User extends Identity {
@@ -12,7 +13,7 @@ class User extends Identity {
     protected $profile_name = null;
 
     public $snowflake;
-
+    protected $profile_image;
 
     /** Finds by snowflake */
     public static function findBySnowflake($snowflake) {
@@ -29,14 +30,17 @@ class User extends Identity {
         return $this->_discordUser;
     }
 
-    /** Runs a quick validation on the discord token
-     * @return bool true if the token is valid
+    /** Gets the URL of the users avatar
+     * @return string the URL
      */
-    public function validateDiscordToken() {
-        if ($this->_discordUser != null) return true;
-        
-        $storage = GALL::$app->discord->getStorage($this->uuid);
-        return GALL::$app->discord->validateAccessToken($storage);
+    public function getAvatarUrl($size = 64) {
+        return HTTP::url( ['/api/proxy', 'url' => "https://d.lu.je/avatar/{$this->snowflake}?size=$size" ] );  
+    }
+
+    /** @return ActiveQuery|Image gets the profile image */
+    public function getProfileImage() {
+        if (empty($this->profile_image)) return null;
+        return Image::findByKey($this->profile_image)->limit(1);
     }
 
     /** @return string the name of the profile page. Some users may have a custom one. */
@@ -49,6 +53,18 @@ class User extends Identity {
         return !empty($this->profile_name) ? $this->profile_name :  $this->username;
     }
 
+
+    /** Runs a quick validation on the discord token
+     * @return bool true if the token is valid
+     */
+    public function validateDiscordToken() {
+        if ($this->_discordUser != null) return true;
+        
+        $storage = GALL::$app->discord->getStorage($this->uuid);
+        return GALL::$app->discord->validateAccessToken($storage);
+    }
+
+
     /** @return ActiveQuery|$this finds the profile from the given name */
     public static function findByProfileName($profile) {
         if ($profile == '@me') {
@@ -56,4 +72,5 @@ class User extends Identity {
         }
         return self::findBySnowflake($profile)->orWhere(['profile_name', $profile]);
     }
+
 }

@@ -21,7 +21,7 @@ class ProfileController extends BaseController {
 
         return $this->render('index', [
             'profile'   => $profile,
-            'submissions' => Gallery::findBySubmitted($profile)->all(),
+            'top_submissions' => Gallery::findByTopSubmitted($profile)->all(),
             'favourites' => Gallery::findByFavourite($profile)->all(),
         ]);
     }

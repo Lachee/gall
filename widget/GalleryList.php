@@ -25,7 +25,7 @@ class GalleryList extends Widget {
         foreach($this->galleries as $gallery) { 
             $profileLink    = HTTP::url(['/profile/:profile/', 'profile' => $gallery->founder->profileName ]);
             $galleryLink    = HTTP::url(['/gallery/:id/', 'id' => $gallery->id ]);
-            $avatarLink     = "https://d.lu.je/avatar/{$gallery->founder->snowflake}";
+            $avatarLink     = $gallery->founder->avatarUrl;
             $thumbnailLink  = $gallery->thumbnail->getThumbnail(250);
             $tags = join(' ', ArrayHelper::map($gallery->topTags, function($tag) { return '<a href="'.HTTP::url(['/gallery/search', 'tag' => $tag->name ]).'">'.$tag->name.' ( '.$tag->count.' )</a>'; }));
 
