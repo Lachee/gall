@@ -47,7 +47,7 @@ class User extends Identity {
     }
     /** @return ActiveQuery|Image gets the profile image */
     public function getProfileImage() {
-        if (empty($this->profile_image)) return null;
+        if (empty($this->profile_image)) return $this->getBestGalleries()->limit(1)->one()->thumbnail;
         return Image::findByKey($this->profile_image)->limit(1);
     }
     /** @return string the name of the profile page. Some users may have a custom one. */

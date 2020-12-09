@@ -120,7 +120,7 @@ class Gallery extends ActiveRecord {
     /** @return ActiveQuery|Gallery[] finds the best galleries */
     public static function findByRating() {
         //TODO
-        return Gallery::find()->orderByAsc('id');
+        return Gallery::find()->orderByDesc('views');
     }
 
     /** @param User|int $founder 

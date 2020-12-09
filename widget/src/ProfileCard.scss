@@ -3,6 +3,16 @@
     $card-background: #121212;
     $avatar-size: 75px;
     $color-height: 62%;
+
+    &.is-small .card {
+        height: 350px;
+        .card-content {
+            background: linear-gradient(0deg, #121212, 0%, #121212 50%, rgba(0, 0, 0, 0) 100%);
+            top: 193px;
+            .title, .subtitle { text-shadow: 0 0 6px black;  margin-bottom: 15px; }
+        }
+    }
+
     .card {
         height: 500px;
         width: 250px;
@@ -41,13 +51,12 @@
                 border-radius: 50%;
                 position: relative;
                 display: block;
-                background: $card-background;
                 padding: 1px;
             }
             
             .title {
                 text-align: center;
-                margin-top: 10px;
+                margin-top: 15px;
                 font-size: 18pt;
             }
             .subtitle {
