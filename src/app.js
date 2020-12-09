@@ -3,6 +3,7 @@ import './app.scss';
 //Get the route and remove the first element
 export let view;
 export let action;
+export let widgets = [];
 
 //export const route = kiss.ROUTE || window.location.pathname.split('/'); 
 //route.shift();
@@ -17,6 +18,19 @@ console.log("Loading route's JS", { sourceDirectory, actionName });
 
 //TODO: Put this in KISS
 
+//Load allt he widgets
+export const widgetPromise = new Promise((resolve, reject) => {
+    import(
+        /* webpackChunkName: "[widgets]" */
+        "../widget/src/" 
+    ).then(w => {
+        if (w == null)  console.warn("Failed to load widgets");
+        console.log('Loaded Widgets');
+        widgets.push(w);
+        resolve(w);
+    }).catch(e => reject(e));
+}).catch(e => { console.warn("Failed to load widgets.", e); });
+
 //Actually load the index
 // It has to be manually written out because webpack will generate a pattern
 export const viewPromise = new Promise((resolve, reject) => {
@@ -25,6 +39,7 @@ export const viewPromise = new Promise((resolve, reject) => {
         `../views${sourceDirectory}/_view.js`
     ).then(v => {
         if (v == null)  console.warn("Failed to find the view ", sourceDirectory + "/_view.js");
+        console.log('Loaded View');
         view = v;
         resolve(v);
     }).catch(e => reject(e));
@@ -38,6 +53,7 @@ export const actionPromise = new Promise((resolve, reject) => {
         "../views" + sourceDirectory + `/${actionName}.js` 
     ).then(v => {
         if (v == null)  console.warn("Failed to find the action ", sourceDirectory + actionName + ".js");
+        console.log('Loaded Action');
         view = v;
         resolve(v);
     }).catch(e => reject(e));
