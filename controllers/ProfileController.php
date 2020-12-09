@@ -19,10 +19,24 @@ class ProfileController extends BaseController {
         $profile = User::findByProfileName($this->profile_name)->one();
         if ($profile == null) throw new HttpException(HTTP::NOT_FOUND);
 
+        $submissions = [];
+        $filter = HTTP::get('filter', 'best');
+        switch($filter) {
+            default:
+            case 'best':
+                $submissions = Gallery::findByTopSubmitted($profile)->limit(4)->all();
+                break;
+            case 'fav':
+                $submissions = Gallery::findBySubmitted($profile)->limit(10)->all();
+                break;
+            case 'all':
+                $submissions = Gallery::findBySubmitted($profile)->all();
+                break;
+        }
+
         return $this->render('index', [
             'profile'   => $profile,
-            'top_submissions' => Gallery::findByTopSubmitted($profile)->all(),
-            'favourites' => Gallery::findByFavourite($profile)->all(),
+            'submissions' => $submissions,
         ]);
     }
 }

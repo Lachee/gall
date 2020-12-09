@@ -188,6 +188,24 @@ class Gallery extends ActiveRecord {
             }
         }
 
+        if (!empty($terms['profile'])) {
+            [ $names,  $excludes ] = self::_searchParseQuery($terms['profile']);
+            $profiles = ArrayHelper::mapArray($names, function($name) { return [ $name, User::findByProfileName($name)->fields(['id'])->one() ]; });
+
+            foreach($excludes as $name => $t) {
+                $founder_id = $profiles[$name]->getKey();
+                $galleries = Gallery::find()->fields(['id, founder_id'])->where(['founder_id', $founder_id])->limit($limit, $page * $limit)->all(true);
+
+                foreach($galleries as $gallery) {
+                    $i = $name;
+                    $g = $gallery['id'];
+
+                    if (!isset($map[$t][$i]))   $map[$t][$i] = [];
+                        $map[$t][$i][] = $g;
+                }
+            }
+        }
+
         //Then filter the map tags
         $galleries = [];
         

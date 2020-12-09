@@ -29,7 +29,7 @@ $user = Kiss::$app->getUser();
                     <?php if ($user): ?>
                         <div class="field has-addons"> 
                             <p class="control">
-                                <a class="button" id="login-button" href="#" >
+                                <a class="button" id="login-button" href="<?= HTTP::url(['/profile/@me/']); ?>" >
                                     <span class="icon"><i class="fab fa-discord"></i></span>
                                     <span><?= HTML::encode($user->username) ?></span>
                                 </a>

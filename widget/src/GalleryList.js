@@ -1,4 +1,4 @@
-import { truncate } from "lodash";
+import './GalleryList.scss';
 
 console.log('gallery-list');
 (() => {

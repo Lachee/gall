@@ -47,10 +47,15 @@ use kiss\helpers\HTTP;
         </div>
     </div>
     <div class="column">
-        <h2>Top Submissions</h2>
-        <?= GalleryList::widget(['galleries' => $top_submissions, 'grid' => true]); ?>
-
-        <h2>Favourites</h2>
-        <?= GalleryList::widget(['galleries' => $favourites]); ?>
+        <div class="tabs">
+            <ul>
+                <li class="is-active"><a >Best Submitted</a></li>
+                <li><a href="<?= HTTP::url(['/gallery/search', 'profile' => $profile->profileName ]) ?>">All Submitted</a></li>
+            </ul>
+        </div>        
+        <?= GalleryList::widget(['galleries' => $submissions, 'grid' => false]); ?>
+        
+        <div class="tabs"><ul><li>Favourites</li></ul></div>        
+        <?= GalleryList::widget(['galleries' => $submissions, 'grid' => count($submissions) <= 3 || count($submissions) > 10]); ?>
     </div>
 </div>

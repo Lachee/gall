@@ -45,7 +45,16 @@ class ArrayHelper {
             $key = call_user_func($callback, $p);
             $tmp[$key] = $p;
         }
-
+        return $tmp;
+    }
+    
+    /** Maps an array. The callback needs to return an array with exactly 2 values.*/
+    public static function mapArray($array, $callback) {
+        $tmp = [];
+        foreach($array as $p) {
+            [ $k, $v ] = call_user_func($callback, $p);
+            $tmp[$k] = $v;
+        }
         return $tmp;
     }
 }
