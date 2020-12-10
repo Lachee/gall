@@ -97,6 +97,11 @@ class ActiveRecord extends BaseObject{
     /** After the save */
     protected function afterSave() {}
 
+    /** Before the delete */
+    protected function beforeDelete() {}
+    /** After the delete */
+    protected function afterDelete() {}
+
     /** An array of fields */
     public function fields() { 
         if (!empty($this->_columns)) 
@@ -229,6 +234,49 @@ class ActiveRecord extends BaseObject{
 
         //Return the last auto incremented id
         $this->afterSave();
+        return true;
+    }
+
+    /** Deletes the record permamently. 
+     * @return bool true if it was deleted
+    */
+    public function delete() {
+        
+        //Cannot delete new records
+        if ($this->isNewRecord()) {
+            $this->addError('Cannot delete new records');
+            return false;
+        }
+        
+        $this->beforeDelete();
+
+        $class = get_called_class();
+        $table = $class::tableName();
+
+        //Prepare the query and execute
+        $query = Kiss::$app->db()->createQuery()
+                                    ->delete($table)
+                                    ->where(self::whereByKeys($this));
+
+        $result = $query->execute();
+        if ($result === false) {
+            $this->addError('Failed to execute the save query.');
+            return false;
+        }
+
+        //Set everythign as dirty
+        $this->_newRecord = true;
+
+        //Clear the table keys
+        $tableKeys = self::tableKey();
+        if (is_string($tableKeys)) {
+            $this->{$tableKeys} = null;
+        } else {            
+            $this->{$tableKeys[0]} = null;
+        }
+
+        //Invoke the post event
+        $this->afterDelete();
         return true;
     }
 

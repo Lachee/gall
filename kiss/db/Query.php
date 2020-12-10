@@ -95,7 +95,7 @@ class Query {
         return $this;
     }
 
-    /** sets if null parameters should be included. 
+    /** Deletes a record from the table 
      * @param string $from name of the table.
      * @return $this
     */
