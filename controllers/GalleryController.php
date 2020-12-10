@@ -24,7 +24,7 @@ class GalleryController extends BaseController {
 
             'submitted'     => $user->getGalleries()->limit($limit)->all(),
             'favourites'    =>  $user->getFavouriteGalleries()->limit($limit)->all(),
-            'latest_tagged' => $user->getRecommendedGalleries()->limit($limit)->all(),
+            'latest_tagged' => $user->searchRecommdendedGalleries(0, $limit),
         ]);
     }
 

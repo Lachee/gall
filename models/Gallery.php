@@ -180,7 +180,6 @@ class Gallery extends ActiveRecord {
             else 
             {
                 //We need to map the tags
-                $map = [];
                 foreach($links as $tag) {
                     $t = $tagExcludes[$tag['name']];
                     $i = $tag['tag_id'];
@@ -239,6 +238,9 @@ class Gallery extends ActiveRecord {
         //Add all the ors
         if (!empty($map[self::SEARCH_ADDITIONAL]))
             $galleries = array_merge($galleries, ...$map[self::SEARCH_ADDITIONAL]);
+
+        //Remove duplicates
+        $galleries = array_unique($galleries);
 
         //Find all the galleries
         foreach($galleries as $id) {

@@ -17,7 +17,7 @@ class Query {
     protected const QUERY_INCREMENT = 'INCREMENT';
 
     /** @var int $cacheDuration how long in second cached results last for. */
-    public $cacheDuration = 5;
+    public $cacheDuration = 30;
     private $cacheVersion = 4;
 
     public $remember = true;
@@ -40,7 +40,7 @@ class Query {
     protected $wheres = [];
     
     private static $_memcache = [];
-    private static $_execLog = [];
+    private static $_execLog = [ 'QUERY' => [],  'CACHE' => [], 'REPEAT' => [] ];
     public static function getLog() { return self::$_execLog; }
 
     public function __construct(Connection $conn)
@@ -102,6 +102,9 @@ class Query {
     public function delete($from = null) {
         $this->query = self::QUERY_DELETE;
         $this->from = $from ?? $this->from;
+
+        $this->remember = false;
+        $this->cacheDuration = -1;
         return $this;
     }
 
@@ -114,6 +117,9 @@ class Query {
         $this->query = self::QUERY_UPDATE;
         $this->values = $values;
         $this->from = $from ?? $this->from;
+
+        $this->remember = false;
+        $this->cacheDuration = -1;
         return $this;
     }
 
@@ -141,6 +147,9 @@ class Query {
         $this->query = self::QUERY_INSERT;
         $this->values = $values;
         $this->from = $from ?? $this->from;
+
+        $this->remember = false;
+        $this->cacheDuration = -1;
         return $this;
     }
 
@@ -153,6 +162,9 @@ class Query {
         $this->query = self::QUERY_INSERT_OR_UPDATE;
         $this->values = $values;
         $this->from = $from ?? $this->from;
+        
+        $this->remember = false;
+        $this->cacheDuration = -1;
         return $this;
     }
 
@@ -430,8 +442,12 @@ class Query {
         
         //Create the limit
         if ($this->limit != null && count($this->limit) == 2 && $this->limit[1] != 0) {
-            $limit = join(',', $this->limit);
-            $query .= " LIMIT {$limit}";
+            if ($this->limit[0] == 0) { 
+                $query .= " LIMIT {$this->limit[1]}";
+            } else {
+                $limit = join(',', $this->limit);
+                $query .= " LIMIT {$limit}";
+            }
         }
 
         //Return the query and binding
@@ -464,7 +480,7 @@ class Query {
 
         //Check if its in the memory
         if ($this->remember && isset(self::$_memcache[$cacheKey])) {
-            self::$_execLog[] = "REPEAT {$querySummary}";
+            self::$_execLog['REPEAT'][] = $querySummary;
             return self::$_memcache[$cacheKey];
         }
 
@@ -472,7 +488,7 @@ class Query {
         if ($redis != null && $this->cacheDuration > 0) {
             $cacheResults = $redis->get($cacheKey);
             if ($cacheResults != null) {
-                self::$_execLog[] = "REDIS  {$querySummary}";
+                self::$_execLog['CACHE'][] = $querySummary;
                 $data = unserialize($cacheResults);
                 if ($this->remember) self::$_memcache[$cacheKey] = $data;
                 return $data;
@@ -485,7 +501,7 @@ class Query {
         }
 
         //Execute and check if we fail or not
-        self::$_execLog[] = "QUERY  {$querySummary}";
+        self::$_execLog['QUERY'][] = $querySummary;
         $result = $stm->execute();
         if (!$result) {
             $err = $stm->errorInfo();

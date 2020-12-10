@@ -46,10 +46,10 @@ class Tag extends ActiveRecord {
                 return 'info';
             case self::TYPE_CHARACTER:
                 return 'success';
-            default:            
+            default:       
                 $ratings = [
-                    'light',    // Information
-                    'warning',  // Lewd
+                    '',         // Information
+                    '',         // Lewd
                     'dark',     // NSFW  
                     'danger',   // NSFW or Talk (rape and loli)
                 ];

@@ -3,6 +3,7 @@
 use kiss\models\Identity;
 use GALL;
 use kiss\db\ActiveQuery;
+use kiss\helpers\ArrayHelper;
 use kiss\helpers\HTTP;
 use kiss\Kiss;
 use kiss\schema\IntegerProperty;
@@ -94,8 +95,13 @@ class User extends Identity {
         return Gallery::findByFounder($this);
     }
 
-    public function getRecommendedGalleries() {
-        return $this->getBestGalleries();
+    public function searchRecommdendedGalleries($page, $limit) {
+        $tags = $this->getFavouriteTags()->limit(5)->all();
+        if (count($tags) == 0) $tags = $this->getFavouriteTagsSubmitted()->limit(5)->all();
+        if (count($tags) == 0) return $this->getBestGalleries();
+
+        $search = join(',', ArrayHelper::map($tags, function($t) { return '|' . $t->name; }));
+        return Gallery::search([ 'tag' => $search ], $page, $limit);
     }
 
     /** @return ActiveQuery|Tag[] gets the users favourite tags */
