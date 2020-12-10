@@ -20,7 +20,6 @@ class FavouriteRoute extends GalleryRoute {
     // Throw an exception to send exceptions back.
     // Supports get, delete
     public function get() {
-        return $this->post();
         return $this->getGallery()->getFavourites()->all();
     }
 

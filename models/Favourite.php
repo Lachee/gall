@@ -8,6 +8,7 @@ use kiss\schema\RefProperty;
 class Favourite extends ActiveRecord {
     
     public static function tableName() { return '$favourites'; }
+    public static function tableKey() { return ['gallery_id', 'user_id']; }
 
     protected $gallery_id;
     protected $user_id;

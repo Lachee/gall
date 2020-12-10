@@ -59,7 +59,7 @@ class ActiveRecord extends BaseObject{
       */
     public function getKeys() {
         $keys = [];
-        foreach(self::tableKey() as $key) $keys[$key] = $this->{$key};
+        foreach(get_called_class()::tableKey() as $key) $keys[$key] = $this->{$key};
         return $keys;
     }
 
@@ -140,7 +140,7 @@ class ActiveRecord extends BaseObject{
         //Add the table keys as the where condition
         $condition = self::whereByKeys($this);
         $query->andWhere($condition);
-        //$tableKeys = self::tableKey();
+        //$tableKeys = get_called_class()::tableKey();
         //if (is_string($tableKeys)) {
         //    $query->andWhere([$tableKeys, $this->{$tableKeys}]);
         //} else {
@@ -223,7 +223,7 @@ class ActiveRecord extends BaseObject{
         $this->_newRecord = false;        
         $this->clearDirty();
 
-        $tableKeys = self::tableKey();
+        $tableKeys = get_called_class()::tableKey();
         if (is_string($tableKeys)) {
             if ($result !== '0' || $this->{$tableKeys} == null)
                 $this->{$tableKeys} = $result;
@@ -258,6 +258,7 @@ class ActiveRecord extends BaseObject{
                                     ->delete($table)
                                     ->where(self::whereByKeys($this));
 
+        $dbg = $query->previewStatement();
         $result = $query->execute();
         if ($result === false) {
             $this->addError('Failed to execute the save query.');
@@ -268,7 +269,7 @@ class ActiveRecord extends BaseObject{
         $this->_newRecord = true;
 
         //Clear the table keys
-        $tableKeys = self::tableKey();
+        $tableKeys = get_called_class()::tableKey();
         if (is_string($tableKeys)) {
             $this->{$tableKeys} = null;
         } else {            
@@ -336,10 +337,10 @@ class ActiveRecord extends BaseObject{
      * @return array the condition
      */
     protected static function whereByKeys($keys) {
-        $tableKeys = self::tableKey();
+        $tableKeys = get_called_class()::tableKey();
 
         if (is_string($tableKeys)) {
-            $tableKeys = [ self::tableKey() ];
+            $tableKeys = [ get_called_class()::tableKey() ];
         }
 
         $condition = [];
