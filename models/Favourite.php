@@ -2,6 +2,8 @@
 
 use kiss\db\ActiveQuery;
 use kiss\db\ActiveRecord;
+use kiss\schema\IntegerProperty;
+use kiss\schema\RefProperty;
 
 class Favourite extends ActiveRecord {
     
@@ -9,7 +11,16 @@ class Favourite extends ActiveRecord {
 
     protected $gallery_id;
     protected $user_id;
-    protected $id;
+
+    
+    public static function getSchemaProperties($options = [])
+    {
+        return [
+            'gallery_id'    => new IntegerProperty('ID of the gallery'),
+            'profile'       => new RefProperty(User::class, 'the user that found it'),
+        ];
+    }
+
 
     /** @return ActiveQuery|Gallery gets the linked gallery */
     public function getGallery() {

@@ -103,6 +103,27 @@ class User extends Identity {
         return Tag::find()->limit(5);
     }
 
+    /** Adds a gallery to the user's favourites
+     * @param Gallery $gallery the gallery to add
+     * @return Favourite|false the resulting favourite. Will return false if unable to add
+     */
+    public function addFavourite($gallery) {
+        $galleryid = $gallery instanceof Gallery ? $gallery->getKey() : intval($gallery);
+        $favourite = new Favourite([ 'gallery_id' => $galleryid, 'user_id' => $this->getKey() ]);
+        if ($favourite->save()) return $favourite;
+        return false;
+    }
+
+    /** Removes the gallery from the user's favourites
+     * @param Gallery $gallery the gallery to add
+     * @return bool True if it was deleted
+     */
+    public function removeFavourite($gallery) {
+        $favourite = Favourite::findByProfile($this)->andWhere(['gallery_id', $gallery])->one();
+        if ($favourite == null) return false;
+        return $favourite->delete();
+    }
+
     /** @return bool returns if the user has favourited a particular gallery */
     public function hasFavouritedGallery($gallery) {
         return Favourite::findByProfile($this)->select(null, [ 'COUNT(*)' ])->andWhere(['gallery_id', $gallery])->one(true)['COUNT(*)'] != 0;

@@ -1,4 +1,4 @@
-<?php namespace app\controllers\api\project;
+<?php namespace app\controllers\api\gallery;
 
 use app\models\Gallery;
 use kiss\exception\HttpException;
@@ -22,7 +22,7 @@ class GalleryRoute extends Route {
 
     /**
      * Finds a project
-     * @return Project|null
+     * @return Gallery|null
      * @throws HttpException 
      */
     public function getGallery() {
