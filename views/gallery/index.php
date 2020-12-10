@@ -15,8 +15,10 @@ use kiss\Kiss;
 <?= GalleryList::widget([ 'galleries' => $top_rated ]); ?>
 
 <?php if (Kiss::$app->loggedIn()) : ?>
+    <?php if ($recommendation != null): ?>
     <h1>Recommended</h1>
-    <?= GalleryList::widget([ 'galleries' => $latest_tagged ]); ?>
+    <?= GalleryList::widget([ 'galleries' => $recommendation ]); ?>
+    <?php endif; ?>
 
     <h1>Favourites</h1>
     <?= GalleryList::widget([ 'galleries' => $favourites ]); ?>

@@ -2,6 +2,7 @@
 
 use app\models\User;
 use kiss\helpers\ArrayHelper;
+use kiss\helpers\HTML;
 use kiss\helpers\HTTP;
 use kiss\helpers\StringHelper;
 use kiss\widget\Widget;
@@ -20,12 +21,27 @@ class ProfileCard extends Widget {
     }
 
     public function begin() {
+        $profile = $this->profile;
+        
+        //Prepare the toolbar
+        $toolbaritems = [];
+        if ($profile->isMe()) {
+            $toolbaritems[] = [ 'route' => ['/profile/:profile/settings', 'profile' => $profile->profileName ], 'icon' => 'fa-pencil' ];
+        } else {
+            $toolbaritems[] = [ 'route' => ['/profile/:profile/', 'profile' => $profile->profileName ], 'icon' => 'fa-book-spells' ];
+        }
+        
+        //Prepare the HTML
         $html = '';
 
-        $profile = $this->profile;
-        $profileImageLink = $profile->profileImage ? $profile->profileImage->getThumbnail(350) : '';  
-        $image = "<div class='card-image'><img src='{$profileImageLink}' alt='{$profileImageLink}'></div>";
+        $image = '';
+        if ($profile->profileImage) {
+            $profileImageLink = $profile->profileImage->getThumbnail(350);  
+            $image = "<div class='card-image'><img src='{$profileImageLink}' alt='{$profileImageLink}'></div>";
+        }
+
         $score = '1.5K';
+        $toolbar = self::toolbar($toolbaritems);
 
         if ($this->small) {
             $profileLink = HTTP::url(['/profile/:profile/', 'profile' => $profile->profileName ]);
@@ -40,6 +56,7 @@ $html = <<<HTML
                 <div class="title"><a href="{$profileLink}" class="has-text-white">{$profile->username}</a></div>
                 <div class="subtitle"><span class="icon"><i class="fal fa-coin"></i></span> {$score}</div>
             </div>
+            {$toolbar}
         </div>
     </div>
 HTML;
@@ -50,7 +67,7 @@ HTML;
             $tags = $profile->getFavouriteTags()->limit(5)->all();
             if (count($tags) == 0) $tags = $profile->getFavouriteTagsSubmitted()->limit(5)->all();
             $tagsLinks = join(' ', ArrayHelper::map($tags, function($tag) { return '<a href="'.HTTP::url(['/gallery/search', 'tag' => $tag->name ]).'">'.$tag->name.' ( '.$tag->count.' )</a>'; }));
-        
+            
 $html = <<<HTML
     <div class="profile-card">
         <div class="card">
@@ -71,11 +88,24 @@ $html = <<<HTML
                     <div class="tag-group">{$tagsLinks}</div>
                 </div>
             </div>
+            {$toolbar}
         </div>
     </div>
 HTML;
         }
 
         echo $html;
+    }
+
+    private static function toolbar($items) {
+        if (count($items) == 0) return '';
+        $bar = HTML::begin('div', ['class' => 'toolbar']);
+        foreach($items as $item) {
+            $bar .= HTML::begin('div', ['class' => 'toolbar-item']);
+            $bar .= HTML::a($item['route'], HTML::tag('i', '', [ 'class' => 'fal ' . $item['icon'] ]));
+            $bar .= HTML::end('div');
+        }
+        $bar .= HTML::end('div');
+        return $bar;
     }
 }

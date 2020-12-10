@@ -23,6 +23,9 @@ class GalleryList extends Widget {
         echo '<section class="card-list '.($this->grid ? 'is-grid' : '').'">';
 
         foreach($this->galleries as $gallery) { 
+            if ($gallery == null) continue;
+            if ($gallery->thumbnail == null) continue;
+
             $profileLink    = HTTP::url(['/profile/:profile/', 'profile' => $gallery->founder->profileName ]);
             $galleryLink    = HTTP::url(['/gallery/:id/', 'id' => $gallery->id ]);
             $avatarLink     = $gallery->founder->avatarUrl;

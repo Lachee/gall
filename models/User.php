@@ -15,9 +15,9 @@ class User extends Identity {
     /** @var \app\components\discord\User stored discord user. */
     private $_discordUser;
     protected $profile_name = null;
-
-    public $snowflake;
+    protected $apiKey;
     protected $profile_image;
+    protected $snowflake;
 
     public static function getSchemaProperties($options = [])
     {
@@ -63,7 +63,11 @@ class User extends Identity {
     }
     /** @return ActiveQuery|Image gets the profile image */
     public function getProfileImage() {
-        if (empty($this->profile_image)) return $this->getBestGalleries()->limit(1)->one()->thumbnail;
+        if (empty($this->profile_image)) {
+            $bestGallery = $this->getBestGalleries()->limit(1)->one();
+            if ($bestGallery) return $bestGallery->thumbnail;
+            return null;
+        }
         return Image::findByKey($this->profile_image)->limit(1);
     }
     /** @return string the name of the profile page. Some users may have a custom one. */
@@ -148,9 +152,15 @@ class User extends Identity {
 
     /** @return bool returns if the user has favourited a particular gallery */
     public function hasFavouritedGallery($gallery) {
-        return Favourite::findByProfile($this)->select(null, [ 'COUNT(*)' ])->andWhere(['gallery_id', $gallery])->one(true)['COUNT(*)'] != 0;
+        return Favourite::findByProfile($this)->select(null, [ 'COUNT(*)' ])->andWhere(['gallery_id', $gallery])->andWhere(['user_id', $this])->one(true)['COUNT(*)'] != 0;
     }
 
+
+    /** @return bool is the profile the signed in user */
+    public function isMe() {
+        if (Kiss::$app->user == null) return false;
+        return $this->id == Kiss::$app->user->id;
+    }
 
     /** @return ActiveQuery|$this finds the profile from the given name */
     public static function findByProfileName($profile) {

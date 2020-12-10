@@ -78,6 +78,7 @@
             .tag-group a {
                 font-size: 8pt;
                 color: #7a7a8c;
+                white-space: pre;
                 &:hover {
                     background: linear-gradient(90deg, #ff8a00, #e52e71);
                     text-shadow: none;
@@ -87,6 +88,34 @@
                     background-clip: text;
                     border-color: white;
                     color:white;
+                }
+            }
+        }
+    }
+
+    
+    .toolbar {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 32px;
+        height: 100%;
+        padding: 5px;
+        color: white;
+
+        .toolbar-item {
+            background: #00000052;
+            padding: 8px;
+            height: 32px;
+            width: 32px;
+            margin-bottom: 10px;
+            border-radius: 100%;
+
+            a {
+                color: #c7c7c7;
+                text-align: center;
+                &:hover {
+                    color: white;
                 }
             }
         }
