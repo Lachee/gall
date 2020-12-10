@@ -16,12 +16,12 @@ module.exports = [
       chunkFilename:  'app.[name].js',
       path:           path.resolve(__dirname, './public/dist'),
       publicPath:     '/dist/',
-      library:        'app',
+      library:        'app'
     },
     module: {
       rules: [
         {
-          test: /\.m?js$/,
+          test: /\.js$/,
           exclude: /node_modules/,
           use:  {
             loader: 'babel-loader', 

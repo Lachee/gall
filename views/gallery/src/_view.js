@@ -4,6 +4,7 @@ import Cookies from 'js-cookie';
 $(document).ready(async () => {
     registerLightGallery();
     registerExpandButton();
+    registerFavouriteButton();
 });
 
 function registerLightGallery() {
@@ -42,4 +43,22 @@ function registerExpandButton() {
         Cookies.set('expanded-control', state);
         return state;
     }
+}
+
+function registerFavouriteButton() {
+    console.log('Register favourite button');
+    $('.button-bookmark').on('click', async (e) => {
+        let $icon = $('.button-bookmark .icon i');
+        let favourited = $icon.hasClass('fas');
+        console.log('bookmakr click', favourited, $icon, $icon.get(0));
+        if (favourited) {
+            $icon.removeClass('fas').addClass('fal');
+            const result = await app.api.unfavourite();
+            if (!result) $icon.addClass('fas').removeClass('fal');
+        } else {            
+            $icon.addClass('fas').removeClass('fal');
+            const result = await app.api.favourite();
+            if (!result) $icon.removeClass('fas').addClass('fal');
+        }
+    });
 }

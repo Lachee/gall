@@ -5,6 +5,9 @@ export let view;
 export let action;
 export let widgets = [];
 
+import { BaseAPI } from './api/BaseAPI';
+export const api = new BaseAPI('/api');
+
 //export const route = kiss.ROUTE || window.location.pathname.split('/'); 
 //route.shift();
 //
@@ -17,6 +20,7 @@ const actionName = kiss.ACTION;
 console.log("Loading route's JS", { sourceDirectory, actionName });
 
 //TODO: Put this in KISS
+
 
 //Load allt he widgets
 export const widgetPromise = new Promise((resolve, reject) => {
@@ -63,3 +67,4 @@ export const actionPromise = new Promise((resolve, reject) => {
 window.onbeforeunload = function(){
     //$('img').attr('src', '');
 };
+
