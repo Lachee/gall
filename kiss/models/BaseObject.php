@@ -484,7 +484,7 @@ class BaseObject implements SchemaInterface, JsonSerializable {
         // This is really basic. Probably should do a more indepth version but meh
         // If we have sub BaseObject, they will get called themselves and will exclude the shit
         $properties = [];
-        $schema = get_called_class()::getSchemaProperties();
+        $schema = get_called_class()::getSchemaProperties([ 'serializer' => 'json' ]);
         foreach($schema as $name => $property) {
             $properties[$name] = $this->{$name};
         }

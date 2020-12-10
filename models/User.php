@@ -5,6 +5,9 @@ use GALL;
 use kiss\db\ActiveQuery;
 use kiss\helpers\HTTP;
 use kiss\Kiss;
+use kiss\schema\IntegerProperty;
+use kiss\schema\RefProperty;
+use kiss\schema\StringProperty;
 
 class User extends Identity {
     
@@ -14,6 +17,17 @@ class User extends Identity {
 
     public $snowflake;
     protected $profile_image;
+
+    public static function getSchemaProperties($options = [])
+    {
+        return [
+            'id'            => new IntegerProperty('ID of the user'),
+            'snowflake'     => new IntegerProperty('Discord Snowflake id'),
+            'displayName'   => new StringProperty('Name of hte user'),
+            'profileName'   => new StringProperty('Name of the user\'s profile'),
+            'profileImage'  => new RefProperty(Image::class, 'Profile image')
+        ];
+    }
 
     /** Finds by snowflake */
     public static function findBySnowflake($snowflake) {

@@ -5,6 +5,8 @@ use GALL;
 use kiss\db\ActiveRecord;
 use kiss\helpers\HTML;
 use kiss\helpers\HTTP;
+use kiss\schema\IntegerProperty;
+use kiss\schema\StringProperty;
 
 class Image extends ActiveRecord {
     protected $id;
@@ -13,6 +15,15 @@ class Image extends ActiveRecord {
     protected $scraper;
     protected $founder_id;
     protected $gallery_id;
+
+    public static function getSchemaProperties($options = [])
+    {
+        return [
+            'id'            => new IntegerProperty('ID of the image'),
+            'url'           => new StringProperty('URL of the image'),
+            'origin'        => new StringProperty('Original URL of hte image'),
+        ];
+    }
 
     public function getFounder() {
         return User::findByKey($this->founder_id)->limit(1);

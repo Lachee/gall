@@ -42,7 +42,10 @@ class RefProperty extends Property {
         if (empty($reference) || !in_array(SchemaInterface::class, class_implements($reference)))
             throw new ArgumentException("{$reference} does not implement SchemaInterface.");
 
-        return $reference::getSchemaProperties($options);
+        $opts           = $options;
+        $opts['ref']    = $this;
+        $opts['depth']  = ($options['depth'] ?? 0) + 1;
+        return $reference::getSchemaProperties($opts);
     }
 
     /** {@inheritdoc} */

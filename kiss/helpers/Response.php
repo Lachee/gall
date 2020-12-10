@@ -15,6 +15,11 @@ class Response {
     private $headers;
     private $contentType;
     private $content;
+    
+    /** @var int $jsonFlags Flags for serializing the json */
+    public static $jsonFlags = JSON_BIGINT_AS_STRING;
+    /** @var int $jsonDepth Depth of JSON serialization */
+    public static $jsonDepth = 512;
 
     function __construct($status, $headers, $content, $contentType)
     {
@@ -128,6 +133,18 @@ class Response {
     /** Executes the response, setting the current page's response code & headers, echoing out the contents and then exiting. */
     public function respond() {
         
+        //Prepare the response data.
+        // We want to make sure the were able to parse the json data
+        $body = $this->content;
+        if ($this->contentType == HTTP::CONTENT_APPLICATION_JSON) {
+            $body = json_encode($this->content, self::$jsonFlags, self::$jsonDepth);
+            if ($body === false) {
+                $this->status       = HTTP::INTERNAL_SERVER_ERROR;
+                $this->contentType  = HTTP::CONTENT_TEXT_PLAIN;
+                $body = 'failed to parse json: ' . json_last_error_msg();
+            }
+        }
+        
         //Set the status code
         http_response_code($this->status);
 
@@ -142,14 +159,7 @@ class Response {
             header($pair == null ? $key : $key . ": " . $pair);
         }
 
-        //respond the data
-        if ($this->contentType == HTTP::CONTENT_APPLICATION_JSON) {
-            echo json_encode($this->content);
-        } else {
-            echo $this->content;
-        }
-
-        //Die
-        exit;
+        //Finally, respond with the body
+        die($body);
     }
 }

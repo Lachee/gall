@@ -27,8 +27,9 @@ set_error_handler(function($errno, $errstr, $errfile, $errline) {
 });
 
 //Handle the request and respond with its content.
-$response = handle_request();
-Kiss::$app->respond($response);
+Response::$jsonDepth = 10;
+$object = handle_request();
+Kiss::$app->respond($object);
 
 /** Handles the API request with a custom controller. Will return a response or payload. */
 function handle_request() {

@@ -8,6 +8,9 @@ use kiss\exception\ArgumentException;
 use kiss\exception\InvalidOperationException;
 use kiss\helpers\ArrayHelper;
 use kiss\Kiss;
+use kiss\schema\IntegerProperty;
+use kiss\schema\RefProperty;
+use kiss\schema\StringProperty;
 
 class Gallery extends ActiveRecord {
     protected $id;
@@ -20,6 +23,20 @@ class Gallery extends ActiveRecord {
     protected $url;
     protected $thumbnail_id;
     protected $views;
+
+    public static function getSchemaProperties($options = [])
+    {
+        return [
+            'id'            => new IntegerProperty('Unique ID of the gallery'),
+            'identifier'    => new StringProperty('Identifier of scraped data'),
+            'founder'       => new RefProperty(User::class, 'the user that found it'),
+            'title'         => new StringProperty('Title of the gallery'),
+            'description'   => new StringProperty('Description of the gallery'),
+            'url'           => new StringProperty('Original string URL'),
+            'thumbnail'     => new RefProperty(Image::class, 'Cover image'),
+            'views'         => new IntegerProperty('Number of views'),
+        ];
+    }
 
     public function getShortDescription() {
         $maxLength = 100;
