@@ -1,4 +1,7 @@
 <?php namespace kiss\db;
+
+use kiss\exception\QueryException;
+
 class ActiveQuery extends Query {
 
     public static $memoryCache = true;
@@ -50,6 +53,16 @@ class ActiveQuery extends Query {
 
     /** @inheritdoc */
     public function where($params, $method = 'and') {
+        if (!is_array($params))
+            throw new QueryException($this, "where parameter is not an array");
+
+        if (count($params) == 0)
+            throw new QueryException($this, "where parameter cannot be empty");
+
+        if (!isset($params[0]))
+            throw new QueryException($this, "where paramter needs to be an non-assoc array");
+
+            
         if (is_array($params[0])) {
             foreach($params as $p) {
                 $this->where($p, $method);

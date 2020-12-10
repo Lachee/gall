@@ -21,8 +21,9 @@ class User extends Identity {
     public static function getSchemaProperties($options = [])
     {
         return [
-            'id'            => new IntegerProperty('ID of the user'),
+            'uuid'          => new StringProperty('ID of the user'),
             'snowflake'     => new IntegerProperty('Discord Snowflake id'),
+            'username'      => new StringProperty('Name of hte user'),
             'displayName'   => new StringProperty('Name of hte user'),
             'profileName'   => new StringProperty('Name of the user\'s profile'),
             'profileImage'  => new RefProperty(Image::class, 'Profile image')
@@ -99,8 +100,23 @@ class User extends Identity {
 
     /** @return ActiveQuery|Tag[] gets the users favourite tags */
     public function getFavouriteTags() {
-        //TODO: Implement Favourite Tags
-        return Tag::find()->limit(5);
+        return Tag::find()
+                    ->fields(['*, COUNT(*) as C'])
+                    ->leftJoin('$tags', [ 'id' => 'tag_id' ])
+                    ->rightJoin(Favourite::class, ['$tags.gallery_id' => 'gallery_id'])
+                    ->groupBy('$tags.tag_id')
+                    ->where(['user_id', $this])
+                    ->orderByDesc('C')->limit(5);
+    }
+
+    /** @return ActiveQuery|Tag[] gets the tags the user most commonly submits */
+    public function getFavouriteTagsSubmitted() {
+        return Tag::find()
+                    ->fields(['*, COUNT(*) as C'])
+                    ->leftJoin('$tags', [ 'id' => 'tag_id' ])
+                    ->groupBy('$tags.tag_id')
+                    ->where(['$tags.founder_id', $this])
+                    ->orderByDesc('C')->limit(5);
     }
 
     /** Adds a gallery to the user's favourites

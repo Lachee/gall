@@ -46,7 +46,10 @@ HTML;
 
         } else {
             $favs = StringHelper::shortNumber($profile->favouriteCount);
-            $tags = join(' ', ArrayHelper::map($profile->favouriteTags, function($tag) { return '<a href="'.HTTP::url(['/gallery/search', 'tag' => $tag->name ]).'">'.$tag->name.' ( '.$tag->count.' )</a>'; }));
+
+            $tags = $profile->getFavouriteTags()->limit(5)->all();
+            if (count($tags) == 0) $tags = $profile->getFavouriteTagsSubmitted()->limit(5)->all();
+            $tagsLinks = join(' ', ArrayHelper::map($tags, function($tag) { return '<a href="'.HTTP::url(['/gallery/search', 'tag' => $tag->name ]).'">'.$tag->name.' ( '.$tag->count.' )</a>'; }));
         
 $html = <<<HTML
     <div class="profile-card">
@@ -65,7 +68,7 @@ $html = <<<HTML
                 </div>
 
                 <div class="content">
-                    <div class="tag-group">{$tags}</div>
+                    <div class="tag-group">{$tagsLinks}</div>
                 </div>
             </div>
         </div>

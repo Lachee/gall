@@ -164,6 +164,15 @@ class Query {
     public function leftJoin($table, $on) {
         return $this->join($table, $on, 'LEFT JOIN');
     }
+
+    /** Right Joins another table
+     * @param string $table the table to join
+     * @param array $on the rule to join on. In the format of ['left_column' => 'right_column']
+     * @return $this
+     */
+    public function rightJoin($table, $on) {
+        return $this->join($table, $on, 'RIGHT JOIN');
+    }
     
     /** Joins another table
      * @param string $table the table to join
@@ -171,6 +180,7 @@ class Query {
      * @return $this
      */
     public function join($table, $on, $joinType = 'JOIN') {
+        if (count($on) != 1) throw new ArgumentException('Join $on must be associative');
         $this->join[] = [
             'type'  => $joinType,
             'table' => $table,
