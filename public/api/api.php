@@ -4,7 +4,7 @@
 //defined('KISS_SESSIONLESS') or define('KISS_SESSIONLESS', true);
 defined('KISS_DEBUG') or define('KISS_DEBUG', in_array(@$_SERVER['REMOTE_ADDR'], ['127.0.0.1', '::1']));
 
-include "../../autoload.php";
+include __DIR__ . "/../../autoload.php";
 
 use kiss\exception\AggregateException;
 use kiss\exception\HttpException;
@@ -27,7 +27,6 @@ set_error_handler(function($errno, $errstr, $errfile, $errline) {
 });
 
 //Handle the request and respond with its content.
-Response::$jsonDepth = 10;
 $object = handle_request();
 Kiss::$app->respond($object);
 
@@ -45,15 +44,15 @@ function handle_request() {
     }
 
     //Just exit with no response because they are accessing the API page directly
-    if (empty($route)) exit;
+    if (empty($route)) die('no route given');
 
     //Register all the routes in the specified folder    
     $basedir = Kiss::$app->baseDir();
     RouteFactory::registerDirectory($basedir . "/controllers/api/", ["*.php", "**/*.php"]);
-
     //Break up the segments and get the controller
     $segments = explode('/', $route);
     $controller = RouteFactory::route($segments);
+    
     if ($controller == null)  return new HttpException(HTTP::NOT_FOUND, "'{$route}' is not a valid endpoint");
 
     try {

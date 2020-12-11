@@ -3,7 +3,7 @@
 chdir(__DIR__);
 
 // This line specifically tells KISS what the route is
-$_SERVER["route"] = $_SERVER["REQUEST_URI"]; 
+$_SERVER["route"] = $_REQUEST["route"] = $_SERVER["REQUEST_URI"]; 
 
 $filePath = realpath(ltrim($_SERVER["REQUEST_URI"], '/'));
 if ($filePath && is_dir($filePath)){
@@ -35,6 +35,16 @@ if ($filePath && is_file($filePath)) {
         echo "404 Not Found";
     }
 } else {
-    // rewrite to our index file
-    include __DIR__ . DIRECTORY_SEPARATOR . 'index.php';
+
+    if (strpos($_SERVER["route"], '/api') === 0) {
+
+        // rewrite to our api file
+        $_SERVER["route"] = $_REQUEST["route"] = substr($_SERVER["REQUEST_URI"], 4); 
+        include __DIR__ . DIRECTORY_SEPARATOR . '/api/api.php';
+
+    } else {
+
+        // rewrite to our index file
+        include __DIR__ . DIRECTORY_SEPARATOR . 'index.php';
+    }
 }
