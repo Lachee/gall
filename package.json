@@ -5,8 +5,7 @@
   "private": true,
   "dependencies": {
     "@creativebulma/bulma-collapsible": "^1.0.4",
-    "@fortawesome/fontawesome-free": "^5.14.0",
-    "@fortawesome/fontawesome-pro": "^5.14.0",
+    "@fortawesome/fontawesome-pro": "file:kiss/src/font-awesome/fortawesome-fontawesome-pro-5.15.1.tgz",
     "@json-editor/json-editor": "^2.2.0",
     "@sweetalert2/theme-bulma": "^4.0.0",
     "astring": "^1.4.3",
