@@ -5,7 +5,7 @@ use kiss\exception\InvalidStateException;
 use kiss\helpers\HTML;
 use kiss\helpers\HTTP;
 use kiss\helpers\Response;
-use kiss\helpers\StringHelper;
+use kiss\helpers\Strings;
 use kiss\Kiss;
 use kiss\models\BaseObject;
 use kiss\session\Session;
@@ -66,7 +66,7 @@ class Provider extends BaseObject {
     public function getSessionState($regenerate = false) {
         if (Kiss::$app->session == null) return false;
         if ($regenerate) { 
-            $state = StringHelper::token();
+            $state = Strings::token();
             Kiss::$app->session->set('oauth:' . $this->name, $state);
             return $state;
         }

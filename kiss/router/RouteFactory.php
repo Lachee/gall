@@ -2,7 +2,7 @@
 namespace kiss\router;
 
 use kiss\exception\ArgumentException;
-use kiss\helpers\StringHelper;
+use kiss\helpers\Strings;
 use kiss\models\BaseObject;
 
 class RouteFactory {
@@ -46,7 +46,7 @@ class RouteFactory {
         $score = 0;
         for ($i = count($routing) - 1; $i >= 0; $i--) {
             if (trim($routing[$i]) == trim($segments[$i]))                              $score += 2;    //We match exactly, bonus points
-            else if (StringHelper::startsWith($routing[$i], self::ARGUMENT_PREFIX))     $score += 1;    //We match in the argument, so some points
+            else if (Strings::startsWith($routing[$i], self::ARGUMENT_PREFIX))     $score += 1;    //We match in the argument, so some points
             else return 0;                                                                              //We stopped matching, so abort early.
         }
 
@@ -67,7 +67,7 @@ class RouteFactory {
         $routing = $this->getRouting();
         $properties = [];
         for ($i = 0; $i < count($routing); $i++) {
-            if (StringHelper::startsWith($routing[$i], self::ARGUMENT_PREFIX)) {
+            if (Strings::startsWith($routing[$i], self::ARGUMENT_PREFIX)) {
                 $name = substr($routing[$i], 1);
                 $properties[$name] = $segments[$i];
             }

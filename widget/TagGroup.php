@@ -3,7 +3,7 @@
 use app\models\Gallery;
 use app\models\Tag;
 use kiss\db\ActiveQuery;
-use kiss\helpers\ArrayHelper;
+use kiss\helpers\Arrays;
 use kiss\helpers\HTML;
 use kiss\helpers\HTTP;
 use kiss\widget\Widget;

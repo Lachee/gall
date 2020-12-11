@@ -4,8 +4,8 @@ console.log('Initializing Global');
 /**== Navigation Script
  * this script handles the fading of all .has-placeholder-transition objects.
  */
-const PLACEHOLDER_TRANSITION_TIME = 0.5;
-const PLACEHOLDER_TRANSITION_DELAY = 2;
+const PLACEHOLDER_TRANSITION_TIME = 1;
+const PLACEHOLDER_TRANSITION_DELAY = PLACEHOLDER_TRANSITION_TIME * 3;
 setInterval( () => transitionPlaceholders(), (PLACEHOLDER_TRANSITION_DELAY + (PLACEHOLDER_TRANSITION_TIME * 2)) * 1000);
 transitionPlaceholders(0);
 function transitionPlaceholders(transitionTime = PLACEHOLDER_TRANSITION_TIME) {

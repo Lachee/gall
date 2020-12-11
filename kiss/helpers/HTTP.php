@@ -280,7 +280,7 @@ class HTTP {
      * @return string HTML hidden input with CSRF */
     public static function CSRF() {
         $data = [
-            'tok' => StringHelper::token(), // <- generates a cryptographically secure random string
+            'tok' => Strings::token(), // <- generates a cryptographically secure random string
             'uid' => Kiss::$app->user != null ? Kiss::$app->user->id : '-1',
         ];
 

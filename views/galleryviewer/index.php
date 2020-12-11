@@ -7,7 +7,7 @@ use app\widget\ProfileCard;
 use app\widget\TagGroup;
 use kiss\helpers\HTML;
 use kiss\helpers\HTTP;
-use kiss\helpers\StringHelper;
+use kiss\helpers\Strings;
 use kiss\Kiss;
 
 /** @var Gallery $gallery */
@@ -85,7 +85,7 @@ $k = $tno;
                     <div class="level-item has-text-centered">
                         <div>
                             <p class="heading">Views</p>
-                            <p class="title"><?= StringHelper::shortNumber($gallery->views) ?></p>
+                            <p class="title"><?= Strings::shortNumber($gallery->views) ?></p>
                         </div>
                     </div>
                     <div class="level-item has-text-centered">
@@ -103,7 +103,7 @@ $k = $tno;
                     <div class="level-item has-text-centered">
                         <div>
                             <p class="heading">Favourites</p>
-                            <p class="title"><?= StringHelper::shortNumber(count($gallery->favourites)) ?></p>
+                            <p class="title"><?= Strings::shortNumber(count($gallery->favourites)) ?></p>
                         </div>
                     </div>
                 </section>

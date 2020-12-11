@@ -1,10 +1,10 @@
 <?php namespace app\widget;
 
 use app\models\User;
-use kiss\helpers\ArrayHelper;
+use kiss\helpers\Arrays;
 use kiss\helpers\HTML;
 use kiss\helpers\HTTP;
-use kiss\helpers\StringHelper;
+use kiss\helpers\Strings;
 use kiss\widget\Widget;
 
 class ProfileCard extends Widget {
@@ -65,11 +65,11 @@ $html = <<<HTML
 HTML;
 
         } else {
-            $favs = StringHelper::shortNumber($profile->favouriteCount);
+            $favs = Strings::shortNumber($profile->favouriteCount);
 
             $tags = $profile->getFavouriteTags()->limit(5)->all();
             if (count($tags) == 0) $tags = $profile->getFavouriteTagsSubmitted()->limit(5)->all();
-            $tagsLinks = join(' ', ArrayHelper::map($tags, function($tag) { return '<a href="'.HTTP::url(['/gallery/search', 'tag' => $tag->name ]).'">'.$tag->name.' ( '.$tag->count.' )</a>'; }));
+            $tagsLinks = join(' ', Arrays::map($tags, function($tag) { return '<a href="'.HTTP::url(['/gallery/search', 'tag' => $tag->name ]).'">'.$tag->name.' ( '.$tag->count.' )</a>'; }));
             
 $html = <<<HTML
     <div class="profile-card">

@@ -15,9 +15,15 @@ body {
     height: 64px;
 }
 
+.field, .navbar-item {
+    &.is-fullwidth {
+        width: 100%;
+    }
+}
+
 .has-placeholder-transition{
     &::placeholder {
-        transition: color 0.5s;
+        transition: color 1s;
     }
     &.is-transitioning::placeholder {
         color: transparent;

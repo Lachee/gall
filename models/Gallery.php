@@ -6,7 +6,7 @@ use kiss\db\ActiveQuery;
 use kiss\db\ActiveRecord;
 use kiss\exception\ArgumentException;
 use kiss\exception\InvalidOperationException;
-use kiss\helpers\ArrayHelper;
+use kiss\helpers\Arrays;
 use kiss\Kiss;
 use kiss\schema\IntegerProperty;
 use kiss\schema\RefProperty;
@@ -168,7 +168,7 @@ class Gallery extends ActiveRecord {
         // Find by Tag
         if (!empty($terms['tag'])) {
             [ $names,  $tagExcludes ] = self::_searchParseQuery($terms['tag']);
-            $wheres = ArrayHelper::map($names, function($n) { return [ 'name', $n ]; });
+            $wheres = Arrays::map($names, function($n) { return [ 'name', $n ]; });
             $links = Kiss::$app->db()->createQuery()
                             ->select('$tags')
                             ->leftJoin(Tag::tableName(), [ 'tag_id' => 'id'])
@@ -213,7 +213,7 @@ class Gallery extends ActiveRecord {
 
         if (!empty($terms['profile'])) {
             [ $names,  $excludes ] = self::_searchParseQuery($terms['profile']);
-            $profiles = ArrayHelper::mapArray($names, function($name) { return [ $name, User::findByProfileName($name)->fields(['id'])->one() ]; });
+            $profiles = Arrays::mapArray($names, function($name) { return [ $name, User::findByProfileName($name)->fields(['id'])->one() ]; });
 
             foreach($excludes as $name => $t) {
                 $founder_id = $profiles[$name]->getKey();

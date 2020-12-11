@@ -11,7 +11,7 @@ use kiss\exception\HttpException;
 use kiss\exception\UncaughtException;
 use kiss\helpers\HTTP;
 use kiss\helpers\Response;
-use kiss\helpers\StringHelper;
+use kiss\helpers\Strings;
 use kiss\Kiss;
 use kiss\router\RouteFactory;
 

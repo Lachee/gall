@@ -8,6 +8,7 @@ use kiss\helpers\Response;
 use kiss\models\BaseObject;
 use app\models\User;
 use GALL;
+use kiss\helpers\Strings;
 use kiss\Kiss;
 use Ramsey\Uuid\Uuid;
 
@@ -29,7 +30,36 @@ class GalleryController extends BaseController {
     }
 
     function actionSearch() {
-        $results = Gallery::search($_GET, HTTP::get('page', 0), HTTP::get('limit', 10));
+        //Check to see if we have an alternative version of Q.
+        // This is used to prevent chrome autofill
+        // (not required as chrome now respects autocomplete rules)
+        //if (HTTP::get('q', false) === false) {
+        //    $q =  HTTP::get('gall-q', false);
+        //    if ($q !== false) 
+        //        return Response::redirect(['/gallery/search', 'q' => $q]);
+        //}
+
+        $page       = HTTP::get('page', 0);
+        $limit      = HTTP::get('limit', 10);
+        $query      = HTTP::get('q', HTTP::get('gall-q', false));
+        /*
+        //This is what the new pipe operator would look like. Interesting.
+        $query = false
+            |> HTTP::get('gall-q', $$)
+            |> HTTP::get('q', $$)
+        */
+
+        $search     = HTTP::get();
+        $results    = [];
+        if ($query !== false) {
+
+            if (Strings::startsWith($query, 'http')) {
+                
+            }
+            $search = [ 'tag' => $query ];
+        }
+
+        $results = Gallery::search($search, $page, $limit);
         return $this->render('list', [
             'results'   => $results
         ]);

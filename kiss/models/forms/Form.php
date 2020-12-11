@@ -7,7 +7,7 @@ use kiss\exception\ArgumentException;
 use kiss\exception\InvalidOperationException;
 use kiss\helpers\HTML;
 use kiss\helpers\HTTP;
-use kiss\helpers\StringHelper;
+use kiss\helpers\Strings;
 use kiss\models\BaseObject;
 use kiss\schema\ArrayProperty;
 use kiss\schema\BooleanProperty;

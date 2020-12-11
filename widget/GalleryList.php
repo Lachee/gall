@@ -1,7 +1,7 @@
 <?php namespace app\widget;
 
 use app\models\Gallery;
-use kiss\helpers\ArrayHelper;
+use kiss\helpers\Arrays;
 use kiss\helpers\HTTP;
 use kiss\widget\Widget;
 
@@ -30,7 +30,7 @@ class GalleryList extends Widget {
             $galleryLink    = HTTP::url(['/gallery/:id/', 'id' => $gallery->id ]);
             $avatarLink     = $gallery->founder->avatarUrl;
             $thumbnailLink  = $gallery->thumbnail->getThumbnail(250);
-            $tags = join(' ', ArrayHelper::map($gallery->topTags, function($tag) { return '<a href="'.HTTP::url(['/gallery/search', 'tag' => $tag->name ]).'">'.$tag->name.' ( '.$tag->count.' )</a>'; }));
+            $tags = join(' ', Arrays::map($gallery->topTags, function($tag) { return '<a href="'.HTTP::url(['/gallery/search', 'tag' => $tag->name ]).'">'.$tag->name.' ( '.$tag->count.' )</a>'; }));
 
 $card = <<<HTML
     <div id="gallery-{$gallery->id}" class="card smart-link" loading=lazy style="background-image: url({$thumbnailLink});" data-href="{$galleryLink}">

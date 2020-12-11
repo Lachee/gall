@@ -4,7 +4,7 @@ use kiss\exception\HttpException;
 use kiss\helpers\Dump;
 use kiss\helpers\HTML;
 use kiss\helpers\HTTP;
-use kiss\helpers\StringHelper;
+use kiss\helpers\Strings;
 
 ?>
 
@@ -83,7 +83,7 @@ use kiss\helpers\StringHelper;
                                         $trace['class'] = empty($trace['class']) ? '(closure)' : $trace['class'];
                                         $trace['type'] = empty($trace['type']) ? '::' : $trace['type'];
                                     ?>
-                                    <div class='trace <?= StringHelper::startsWith($trace['class'], 'kiss') || StringHelper::startsWith($trace['class'], '(closure)') ? '' : 'is-important' ?>'>
+                                    <div class='trace <?= Strings::startsWith($trace['class'], 'kiss') || Strings::startsWith($trace['class'], '(closure)') ? '' : 'is-important' ?>'>
                                         <div class='target'><span class='class'><?= $trace['class'] ?></span><span class='type'><?= $trace['type'] ?></span><span class='func'><?= $trace['function'] ?>()</span></div>
                                         <div class='file'><a href="<?= HTTP::url(['vscode://file/:file', 'file' => urlencode($trace['file'].':' . $trace['line'])]) ?>"><span class='path'><?= $trace['file'] ?></span><span class='line'><?= $trace['line'] ?></span></a></div>
                                         <a href="#collapsible-args-<?= $i ?>" data-action="collapse">Hide / Show Arguments</a>

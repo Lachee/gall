@@ -2,7 +2,7 @@
 namespace kiss\router;
 
 use Exception;
-use kiss\helpers\StringHelper;
+use kiss\helpers\Strings;
 use kiss\models\BaseObject;
 
 class Route extends BaseObject {
@@ -49,7 +49,7 @@ class Route extends BaseObject {
 
         //Calculate hte params from the route
         for ($i = 0; $i < count($route); $i++) {
-            if (StringHelper::startsWith($route[$i], self::ARGUMENT_PREFIX)) 
+            if (Strings::startsWith($route[$i], self::ARGUMENT_PREFIX)) 
                 $params[] =  substr($route[$i], 1);
         }
 

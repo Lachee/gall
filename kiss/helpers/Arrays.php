@@ -1,6 +1,6 @@
 <?php namespace kiss\helpers;
 
-class ArrayHelper {
+class Arrays {
 
     /** Tries to get a value in the array or object
      * @param array|object $obj the object or array to get the value in

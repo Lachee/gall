@@ -2,7 +2,7 @@
 
 use app\models\Gallery;
 use app\models\Tag;
-use kiss\helpers\ArrayHelper;
+use kiss\helpers\Arrays;
 use kiss\helpers\HTML;
 use kiss\helpers\HTTP;
 use kiss\Kiss;
@@ -11,9 +11,9 @@ $user = Kiss::$app->getUser();
 
 try {
     $terms = [ 'search tag or scrape site...' ];
-    $scrapers = ArrayHelper::map(Gallery::findByRandomUniqueScraper()->fields(['url'])->flush()->ttl(120)->all(true), function($gallery) { return $gallery['url']; });
-    $tags = ArrayHelper::map(Tag::find()->orderByAsc('RAND()')->limit(10)->fields(['name'])->ttl(120)->all(true), function($tag) { return $tag['name']; });
-    $searchPlaceholderTerms = ArrayHelper::zipMerge(ArrayHelper::zipMerge($tags, $scrapers), $terms);
+    $scrapers = Arrays::map(Gallery::findByRandomUniqueScraper()->fields(['url'])->flush()->ttl(120)->all(true), function($gallery) { return $gallery['url']; });
+    $tags = Arrays::map(Tag::find()->orderByAsc('RAND()')->limit(10)->fields(['name'])->ttl(120)->all(true), function($tag) { return $tag['name']; });
+    $searchPlaceholderTerms = Arrays::zipMerge(Arrays::zipMerge($tags, $scrapers), $terms);
 }catch(Throwable $e) {
     //Provide fallback functionality
     $searchPlaceholderTerms = [ 'search tags or sites', 'http://bestsiteever.com', 'best tag', 'bestsiteever'];
@@ -40,15 +40,19 @@ try {
                 <?php if ($user): ?>
                     <a class="navbar-item" href="<?= HTTP::url('/gallery/')?>">Gallery</a>
                     
-                    <div class="navbar-item">
-                        <div class="control has-icons-left">
-                            <span class="icon is-small is-left">
-                                <i class="fas fa-search"></i>
-                            </span>
-                            <input class="input has-placeholder-transition" type="text" placeholder="" data-placeholders="<?= join('|', $searchPlaceholderTerms) ?>">
-                        </div>
+                    <div class="navbar-item is-fullwidth">
+                        <form method='GET' action='<?= HTTP::url('/gallery/search') ?>' style='margin: 0;width: 100%'>
+                            <div class="field has-addons  is-fullwidth">
+                                <div class="control has-icons-left is-expanded">
+                                    <span class="icon is-small is-left">
+                                        <i class="fas fa-search"></i>
+                                    </span>
+                                    <input name="q" autocomplete="off" class="input has-placeholder-transition" type="text" placeholder="" data-placeholders="<?= join('|', $searchPlaceholderTerms) ?>">
+                                </div>
+                                <div class="control"><a class="button">Search</a></div>
+                            </div>
+                        </form>
                     </div>
-                    
                 <?php endif;  ?>
             </div>
         </div>

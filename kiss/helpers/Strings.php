@@ -1,7 +1,7 @@
 <?php namespace kiss\helpers;
 
 
-class StringHelper {
+class Strings {
     /** checks if the string starts with another substring */
     public static function startsWith (String $string, String  $needle) : bool
     { 

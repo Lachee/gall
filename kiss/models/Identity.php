@@ -6,7 +6,7 @@ use kiss\db\ActiveQuery;
 use app\components\mixer\MixerUser;
 use kiss\exception\ArgumentException;
 use kiss\exception\InvalidOperationException;
-use kiss\helpers\ArrayHelper;
+use kiss\helpers\Arrays;
 use kiss\Kiss;
 use kiss\models\BaseObject;
 use kiss\models\OAuthContainer;
@@ -60,9 +60,9 @@ class Identity extends ActiveRecord {
     
     /** @return ActiveQuery|User|null finds a user by a JWT claim */
     public static function findByJWT($jwt) {
-        $sub = ArrayHelper::value($jwt, 'sub'); 
-        $key = ArrayHelper::value($jwt, 'key');
-        $src = ArrayHelper::value($jwt, 'src', 'login');
+        $sub = Arrays::value($jwt, 'sub'); 
+        $key = Arrays::value($jwt, 'key');
+        $src = Arrays::value($jwt, 'src', 'login');
         $var = $src == 'api' ? 'apiKey' : 'accessKey';
         return self::find()->where([ ['uuid', $sub ], [ $var, $key ] ]);
     }

@@ -3,8 +3,8 @@ namespace kiss\models;
 
 use JsonSerializable;
 use kiss\exception\InvalidOperationException;
-use kiss\helpers\ArrayHelper;
-use kiss\helpers\StringHelper;
+use kiss\helpers\Arrays;
+use kiss\helpers\Strings;
 use kiss\schema\ArrayProperty;
 use kiss\schema\BooleanProperty;
 use kiss\schema\EnumProperty;
@@ -53,7 +53,7 @@ class BaseObject implements SchemaInterface, JsonSerializable {
 
                         $this->{$key} = [];
                         foreach($pair as $i => $p) {
-                            if (StringHelper::startsWith($i, '$')) continue;
+                            if (Strings::startsWith($i, '$')) continue;
                             if ($p instanceof BaseObject) {
                                 $this->{$key}[$i] = $p;
                             } else {
@@ -313,7 +313,7 @@ class BaseObject implements SchemaInterface, JsonSerializable {
      * @return mixed the properties value, otherwise the default
      */
     public function getProperty($name, $default = null) {
-        return ArrayHelper::value($this, $name, $default);
+        return Arrays::value($this, $name, $default);
     }
 
     /**

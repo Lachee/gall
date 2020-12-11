@@ -8,7 +8,7 @@ use kiss\exception\MissingViewException;
 use kiss\exception\UncaughtException;
 use kiss\helpers\HTTP;
 use kiss\helpers\Response;
-use kiss\helpers\StringHelper;
+use kiss\helpers\Strings;
 use kiss\Kiss;
 use kiss\models\Identity;
 use kiss\router\Route;
@@ -135,7 +135,7 @@ class Controller extends Route {
         for ($i = 2; $i < $count; $i++) {
             if (empty($parts[$i])) continue;
             $lwr = strtolower($parts[$i]);
-            if (!StringHelper::startsWith($lwr, ':'))  $path .= '/' . $lwr;
+            if (!Strings::startsWith($lwr, ':'))  $path .= '/' . $lwr;
         }
         
         if (empty($path))
