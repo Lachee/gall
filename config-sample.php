@@ -1,5 +1,5 @@
 <?php
-define('BASE_URL', 'http://gall.local:81/');
+defined('BASE_URL') or define('BASE_URL', 'http://gall.local:81/');
 
 $config = function() {
     return [
