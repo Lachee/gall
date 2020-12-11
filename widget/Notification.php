@@ -20,7 +20,7 @@ class Notification extends Widget {
                     $content = $notification['raw'];
 
                 echo "<div class='notification is-{$type}'>";
-                echo '<button class="delete"></button>';
+                echo '<button class="delete" onclick="this.parentNode.classList.add(\'is-closed\')"></button>';
                 echo $content;
                 echo "</div>";
             }
