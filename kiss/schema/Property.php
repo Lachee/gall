@@ -30,6 +30,9 @@ class Property extends BaseObject implements JsonSerializable {
     /** @var bool is the field required. */
     public $required = true;
 
+    /** @var bool the field is considered a read only. Not included in the schema. */
+    public $readOnly = false;
+
     /** Validates the data
      * @param mixed $data the data to validate 
      * @var bool|string true if valid, otherwise it will return the error message. */

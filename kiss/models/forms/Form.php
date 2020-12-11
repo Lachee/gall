@@ -54,6 +54,7 @@ class Form extends BaseObject {
         //Load the properties into the object
         $schema = get_called_class()::getSchemaProperties(['serializer' => 'form']);
         foreach($schema as $property => $scheme) {
+            if ($scheme->getProperty('readOnly', false) === true) continue;
             if (($err = $scheme->validate($this->{$property})) !== true) {
                 $this->addError($err);
                 return false;
@@ -133,19 +134,13 @@ class Form extends BaseObject {
      * @return string
     */
     protected function inputString($name, $scheme, $options = []) {
-        return HTML::tag('input', '', [ 
+        return HTML::input('text', [ 
             'class'         => 'input',
-            'type'          => 'text',
             'name'          => $name,
             'placeholder'   => $scheme->default,
-            'value'         => $this->getValue($name, '')
+            'value'         => $this->getProperty($name, ''),
+            'disabled'      => $scheme->getProperty('readOnly', false)
         ]);
-    }
-
-    /** Gets the value, otherwise the default */
-    protected function getValue($field, $default = '') {
-        $v = $this->{$field};
-        return $v == null ? $default : $v;
     }
 
     /** @inheritdoc */

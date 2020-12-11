@@ -94,6 +94,20 @@ class HTML {
         return $html;
     }
 
+    /** Creates a HTML input tag
+     * @param string $type type of input
+     * @param array $options the attribute options. disabled and value are treated specially.
+     * @return string the HTML tag.
+     */
+    public static function input($type, $options = []) {
+        $disabled = $options['disabled'] ?? false;
+        $options['disabled'] = true;
+        if (!$disabled) unset($options['disabled']);
+        
+        $options['type'] = $type;
+        return self::tag('input', $type == 'textarea' ? ($options['value'] ?? '') : '', $options);
+    }
+
     /**
      * Creates a HTML A tag
      * @param mixed $route the route

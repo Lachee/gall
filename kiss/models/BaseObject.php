@@ -306,6 +306,18 @@ class BaseObject implements SchemaInterface, JsonSerializable {
         return get_called_class();
     }
    
+    /** Tries to get the property. If it doesnt exist then $default will be returned
+     * @param string $name name of the property
+     * @param mixed $default the default return value
+     * @return mixed the properties value, otherwise the default
+     */
+    public function getProperty($name, $default = null) {
+        if (!property_exists(get_called_class(), $name)) {
+            return $default;
+        }
+        return $this->{$name};
+    }
+
     /**
      * Get all the properties of the object
      * @param bool $skipNull skip null values.

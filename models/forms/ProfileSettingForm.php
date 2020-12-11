@@ -26,7 +26,7 @@ class ProfileSettingForm extends Form {
     public static function getSchemaProperties($options = [])
     {
         return [
-            'profile_name' => new StringProperty('Identifier for the profile page', 'cooldude69', [ 'title' => 'Page Name' ]),
+            'profile_name' => new StringProperty('Identifier for the profile page', 'cooldude69', [ 'title' => 'Page Name', 'readOnly' => true ]),
         ];
     }
 

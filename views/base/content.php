@@ -14,7 +14,7 @@ use app\widget\Notification;
         <?= Notification::widget(); ?>
         <?= $_VIEW; ?>
     <?php else: ?>
-        <div class="container">        
+        <div class="container is-fluid">        
             <div class="columns"> 
                 <?php if (Breadcrumb::count() > 0): ?>
                         <div class="column is-3 ">
