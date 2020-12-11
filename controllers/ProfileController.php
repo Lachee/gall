@@ -19,7 +19,7 @@ class ProfileController extends BaseController {
 
     function actionIndex() {
         /** @var User $profile */
-        $profile = User::findByProfileName($this->profile_name)->one();
+        $profile = User::findByProfileName($this->profile_name)->ttl(false)->one();
         if ($profile == null) throw new HttpException(HTTP::NOT_FOUND, 'Profile doesn\'t exist');
         return $this->render('index', [
             'profile'       => $profile,
@@ -30,19 +30,17 @@ class ProfileController extends BaseController {
 
     function actionSettings() {
         /** @var User $profile */
-        $profile = User::findByProfileName($this->profile_name)->one();
-        if ($profile != Kiss::$app->user) throw new HttpException(HTTP::FORBIDDEN, 'Can only edit your own settings');
+        $profile = User::findByProfileName($this->profile_name)->ttl(false)->one();
+        if ($profile->id != Kiss::$app->user->id) throw new HttpException(HTTP::FORBIDDEN, 'Can only edit your own settings');
         if ($profile == null) throw new HttpException(HTTP::FORBIDDEN, 'You must be logged in to edit your settings');
         
         $form = new ProfileSettingForm([ 'profile' => $profile ]);
         if (HTTP::hasPost()) {
-            if (!$form->load($_POST)) {
-                Kiss::$app->session->addNotification('Failed to load: ' . $form->errorSummary(), 'danger');
-                return Response::refresh();
+            if ($form->load(HTTP::post()) && $form->save($profile)) {
+                Kiss::$app->session->addNotification('Updated profile settings', 'success');
+                return Response::redirect(['/profile/:profile/settings', 'profile' => $profile->profileName ]);
             } else {                
-                Kiss::$app->session->addNotification('Loaded form! ' . $form->profileName, 'success');
-                Kiss::$app->session->addNotification('Loaded form! ' . $form->profileName, 'success');
-                Kiss::$app->session->addNotification('Loaded form! ' . $form->profileName, 'success');
+                Kiss::$app->session->addNotification('Failed to load: ' . $form->errorSummary(), 'danger');
                 return Response::refresh();
             }
         }

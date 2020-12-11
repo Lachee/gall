@@ -2,6 +2,7 @@
 namespace kiss\models\forms;
 
 use JsonSerializable;
+use kiss\db\ActiveRecord;
 use kiss\exception\ArgumentException;
 use kiss\exception\InvalidOperationException;
 use kiss\helpers\HTML;
@@ -21,6 +22,46 @@ use kiss\schema\StringProperty;
 
 class Form extends BaseObject {
     
+    /** Loads the data into the record and saves it.
+     * @param ActiveRecord|BaseObject $record 
+     * @return bool if successful 
+     */
+    public function save($record) {
+        $record->beforeLoad($record);
+        $fields = [];
+
+        //Load the properties into the object
+        $schema = get_called_class()::getSchemaProperties(['serializer' => 'form']);
+        foreach($schema as $property => $scheme) {
+            if (($err = $scheme->validate($this->{$property})) !== true) {
+                $this->addError($err);
+                return false;
+            }
+
+            //Load the property and store any errors
+            $fields[] = $property;
+            if (!$record->loadProperty($scheme, $property, $this->{$property})) {
+                $this->addError($record->errors());
+                return false;
+            }
+        }
+        
+        $record->afterLoad($record, true);
+        
+        //Save the object
+        if ($record instanceof ActiveRecord) {
+            if ($record->save(true, $fields)) {
+                return true;
+            } else {                    
+                $this->addError($record->errors());
+                return false;
+            }
+        }
+        
+        //Done
+        return false;
+    }
+
     /** Renders the form
      * @return string HTML form
      */

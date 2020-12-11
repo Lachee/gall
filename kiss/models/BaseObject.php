@@ -144,6 +144,11 @@ class BaseObject implements SchemaInterface, JsonSerializable {
     public function load($data = null) {
         if ($data == null) return false;
 
+        //Convert the base object into an array
+        if ($data instanceof BaseObject) {
+            $data = $data->jsonSerialize();
+        }
+
         $this->beforeLoad($data);
         $this->errors = null;
         $properties = get_called_class()::getSchemaProperties();
@@ -165,7 +170,7 @@ class BaseObject implements SchemaInterface, JsonSerializable {
                 continue;
                 
             //Validate the individual property
-            $this->loadSchemaProperty($schema, $property, $data[$property]);
+            $this->loadProperty($schema, $property, $data[$property]);
         }
 
         $success = $this->errors == null || count($this->errors) == 0;
@@ -174,17 +179,17 @@ class BaseObject implements SchemaInterface, JsonSerializable {
     }
 
     /** Loads individual properties */
-    private function loadSchemaProperty($schema, $property, $value, $append = false) {
+    protected function loadProperty($schema, $property, $value, $append = false) {
         if (($err = $schema->validate($value)) !== true) {
             $this->addError("$property: $err");
-            return;
+            return false;
         }
 
         if ($schema instanceof ArrayProperty) {
             //Iterate over every item and load them
             $this->{$property} = [];
             foreach($value as $val) {
-                $this->loadSchemaProperty($schema->items, $property, $val, true);
+                $this->loadProperty($schema->items, $property, $val, true);
             }
 
         } else {
@@ -200,7 +205,7 @@ class BaseObject implements SchemaInterface, JsonSerializable {
                 $result = filter_var($value, FILTER_VALIDATE_FLOAT, FILTER_NULL_ON_FAILURE);
                 if ($result == null){
                     $this->addError("{$property} is not a float value.");
-                    return;
+                    return false;
                 }
                 $result = floatval($result);
             }
@@ -210,7 +215,7 @@ class BaseObject implements SchemaInterface, JsonSerializable {
                 $result = filter_var($value, FILTER_VALIDATE_INT, FILTER_NULL_ON_FAILURE);
                 if ($result == null){
                     $this->addError("{$property} is not a int value.");
-                    return;
+                    return false;
                 }
                 $result = intval($result);
             }
@@ -221,7 +226,7 @@ class BaseObject implements SchemaInterface, JsonSerializable {
                 $result = filter_var($val, FILTER_VALIDATE_BOOLEAN, FILTER_NULL_ON_FAILURE);
                 if ($result === null){
                     $this->addError("{$property} is not a boolean value.");
-                    return;
+                    return false;
                 }
                 $result = boolval($result);
             }
@@ -251,7 +256,7 @@ class BaseObject implements SchemaInterface, JsonSerializable {
                 $class = $schema->getReferenceClassName();
                 if (empty($class)) {
                     $this->addError("{$property} has a invalid RefProperty as it has no class.");
-                    return;
+                    return false;
                 }
 
                 if (!method_exists($class, "load")) {
@@ -259,7 +264,7 @@ class BaseObject implements SchemaInterface, JsonSerializable {
                         $result = new $class($value);
                     } else {
                         $this->addError("{$property} has a invalid RefProperty as the class does not have a load() definition or implement a BaseObject.");
-                        return;
+                        return false;
                     }
                 } else {
                     $result = new $class();
@@ -274,6 +279,8 @@ class BaseObject implements SchemaInterface, JsonSerializable {
                 $this->{$property} = $result;
             }
         }
+
+        return true;
     }
 
     /** Adds an error */

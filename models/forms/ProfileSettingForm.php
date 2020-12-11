@@ -11,7 +11,7 @@ class ProfileSettingForm extends Form {
     /** @var User $profile */
     protected $profile;
 
-    public $profileName;
+    public $profile_name;
 
     protected function init()
     {
@@ -20,13 +20,13 @@ class ProfileSettingForm extends Form {
         if ($this->profile == null)
             throw new InvalidOperationException('profile cannot be null');
 
-        $this->profileName = $this->profile->profile_name;
+        $this->profile_name = $this->profile->profile_name;
     }
 
     public static function getSchemaProperties($options = [])
     {
         return [
-            'profileName' => new StringProperty('Identifier for the profile page', 'cooldude69', [ 'title' => 'Page Name' ]),
+            'profile_name' => new StringProperty('Identifier for the profile page', 'cooldude69', [ 'title' => 'Page Name' ]),
         ];
     }
 

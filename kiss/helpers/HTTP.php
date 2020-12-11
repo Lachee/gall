@@ -235,7 +235,8 @@ class HTTP {
     }
 
     /** Get query parameters passed with the request */
-    public static function get($variable, $default = null, $filter = null) {
+    public static function get($variable = null, $default = null, $filter = null) {
+        if ($variable === null) return $_GET;
         if ($filter == FILTER_VALIDATE_BOOLEAN && isset($_GET[$variable]) && empty($_GET[$variable])) {
             $_GET[$variable] = $default;
         }
@@ -246,16 +247,34 @@ class HTTP {
         $result = filter_var($val, $filter, FILTER_NULL_ON_FAILURE);
         return $result !== null ? $result : $default;
     }
+    
+    /** Checks if the hget data is available 
+     * @param string|null $name Name of the form. When supplied, it will check for the existance of that key specifically and that it isn't empty. Default behaviour is the entire $_POST object. 
+     * @return bool true if the data exists 
+    */
+    public static function hasGet($name = null){ 
+        if ($name !== null) return isset($_GET[$name]) && count($_GET[$name]) > 0;
+        return isset($_GET) && count($_GET) > 0; 
+    }
 
-    /** Post query parameters passed with the request */
-    public static function post($variable, $default = null, $filter = null) {
+    /** Post query parameters passed with the request 
+     * @return mixed
+    */
+    public static function post($variable = null, $default = null, $filter = null) {
+        if ($variable === null) return $_POST;
         if ($filter == null) return $_POST[$variable] ?? $default;
         $result = filter_var($_POST[$variable] ?? $default, $filter);
         return $result !== false ? $result : $default;
     }    
     
-    /** @return bool if the doc has post. */
-    public static function hasPost(){ return isset($_POST) && count($_POST) > 0; }
+    /** Checks if the post data is available 
+     * @param string|null $name Name of the form. When supplied, it will check for the existance of that key specifically and that it isn't empty. Default behaviour is the entire $_POST object. 
+     * @return bool true if the data exists 
+    */
+    public static function hasPost($name = null){ 
+        if ($name !== null) return isset($_POST[$name]) && count($_POST[$name]) > 0;
+        return isset($_POST) && count($_POST) > 0; 
+    }
 
     /** Sets the CSRF token and returns a HTML tag with it 
      * @return string HTML hidden input with CSRF */
@@ -299,10 +318,20 @@ class HTTP {
     }
 
     /** An query paramaters passed with the request */
-    public static function request($variable, $default = null, $filter = null) {
+    public static function request($variable = null, $default = null, $filter = null) {
+        if ($variable === null) return $_REQUEST;
         if ($filter == null) return $_REQUEST[$variable] ?? $default;
         $result = filter_var($_REQUEST[$variable] ?? $default, $filter);
         return $result !== false ? $result : $default;
+    }
+
+    /** Checks if the request data is available 
+     * @param string|null $name Name of the form. When supplied, it will check for the existance of that key specifically and that it isn't empty. Default behaviour is the entire $_POST object. 
+     * @return bool true if the data exists 
+    */
+    public static function hasRequest($name = null){ 
+        if ($name !== null) return isset($_REQUEST[$name]) && count($_REQUEST[$name]) > 0;
+        return isset($_REQUEST) && count($_REQUEST) > 0; 
     }
 
     /** Gets a header value. */
