@@ -21,19 +21,20 @@ console.log("Loading route's JS", { sourceDirectory, actionName });
 
 //TODO: Put this in KISS
 
-
-//Load allt he widgets
-export const widgetPromise = new Promise((resolve, reject) => {
-    import(
-        /* webpackChunkName: "[widgets]" */
-        "../widget/src/" 
-    ).then(w => {
-        if (w == null)  console.warn("Failed to load widgets");
-        console.log('Loaded Widgets');
-        widgets.push(w);
-        resolve(w);
-    }).catch(e => reject(e));
-}).catch(e => { console.warn("Failed to load widgets.", e); });
+//Actually load the actions index
+// It has to be manually written out because webpack will generate a pattern
+export const globalPromise = new Promise((resolve, reject) => {
+    document.addEventListener('DOMContentLoaded', () => {
+        import(
+            `./global-view.js` 
+        ).then(v => {
+            if (v == null)  console.error("Failed to load the global. Please ensure the global.js exists");
+            console.log('Loaded Global. Application is ready to roll!');
+            view = v;
+            resolve(v);
+        }).catch(e => reject(e));
+    });
+}).catch(e => { console.error("Failed to initialize the Global View.", e); });
 
 //Actually load the index
 // It has to be manually written out because webpack will generate a pattern
@@ -47,7 +48,7 @@ export const viewPromise = new Promise((resolve, reject) => {
         view = v;
         resolve(v);
     }).catch(e => reject(e));
-}).catch(e => { console.warn("Failed to load the view.", e); });
+}).catch(e => { console.error("Failed to initialize the View.", e); });
 
 //Actually load the actions index
 // It has to be manually written out because webpack will generate a pattern
@@ -61,10 +62,17 @@ export const actionPromise = new Promise((resolve, reject) => {
         view = v;
         resolve(v);
     }).catch(e => reject(e));
-}).catch(e => { console.warn("Failed to load the action.", e); });
+}).catch(e => { console.error("Failed to initialize the Action.", e); });
 
-
-window.onbeforeunload = function(){
-    //$('img').attr('src', '');
-};
-
+//Load allt he widgets
+export const widgetPromise = new Promise((resolve, reject) => {
+    import(
+        /* webpackChunkName: "[widgets]" */
+        "../widget/src/" 
+    ).then(w => {
+        if (w == null)  console.warn("Failed to load widgets");
+        console.log('Loaded Widgets');
+        widgets.push(w);
+        resolve(w);
+    }).catch(e => reject(e));
+}).catch(e => { console.error("Failed to initialize the Widgets.", e); });

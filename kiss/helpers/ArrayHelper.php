@@ -41,6 +41,46 @@ class ArrayHelper {
         return $merged;
     }
 
+    /**
+     * Merges two arrays like a zipping. Uneven sized arrays get items 
+     * appended to the end. 
+     * 
+     * @param array $a An array to merge
+     * @param array $b Another array to merge
+     * @return array An array of merged values
+     */
+    public static function zipMerge(array $a, array $b) {
+        $return = array();
+        
+        $count_a = count($a);
+        $count_b = count($b);
+
+        if ($count_a > $count_b) {
+            // Ensure $b is greater or equal to $a
+            $temp = $b;
+            $b = $a;
+            $a = $temp;
+
+            $count_a = count($a);
+            $count_b = count($b);
+        }
+        
+        // Zip arrays
+        for ($i = 0; $i < $count_a; $i++) {
+            $return = array_merge_recursive($return, array_slice($a, $i, 1, true));
+            $return = array_merge_recursive($return, array_slice($b, $i, 1, true));
+        }
+        
+        $difference = $count_b - $count_a;
+        if ($difference) {
+            // There are more items to add on end so pop them at the end
+            $return = array_merge_recursive($return, 
+                array_slice($b, $count_a, $difference, true));
+        }
+        
+        return $return;
+    }
+
     /** Maps the value of the array */
     public static function map($array, $callback) {
         $tmp = [];

@@ -1,6 +1,7 @@
 <?php
 
 use app\models\Gallery;
+use app\models\Tag;
 use kiss\helpers\ArrayHelper;
 use kiss\helpers\HTML;
 use kiss\helpers\HTTP;
@@ -8,18 +9,16 @@ use kiss\Kiss;
 
 $user = Kiss::$app->getUser();
 
-$placeholders = join('|', ArrayHelper::map(Gallery::findByRandomUniqueScraper()->fields(['url'])->flush()->ttl(60)->all(true), function($gallery) { return $gallery['url']; }));
+try {
+    $terms = [ 'search tag or scrape site...' ];
+    $scrapers = ArrayHelper::map(Gallery::findByRandomUniqueScraper()->fields(['url'])->flush()->ttl(120)->all(true), function($gallery) { return $gallery['url']; });
+    $tags = ArrayHelper::map(Tag::find()->orderByAsc('RAND()')->limit(10)->fields(['name'])->ttl(120)->all(true), function($tag) { return $tag['name']; });
+    $searchPlaceholderTerms = ArrayHelper::zipMerge(ArrayHelper::zipMerge($tags, $scrapers), $terms);
+}catch(Throwable $e) {
+    //Provide fallback functionality
+    $searchPlaceholderTerms = [ 'search tags or sites', 'http://bestsiteever.com', 'best tag', 'bestsiteever'];
+}
 ?>
-
-<style>
-    .has-placeholder-transition::placeholder {
-        transition: color 0.5s;
-    }
-
-    .has-placeholder-transition.is-transitioning::placeholder {
-        color: transparent;
-    }
-</style>
 
 <!-- START NAV -->
 <nav class="navbar">
@@ -46,24 +45,7 @@ $placeholders = join('|', ArrayHelper::map(Gallery::findByRandomUniqueScraper()-
                             <span class="icon is-small is-left">
                                 <i class="fas fa-search"></i>
                             </span>
-                            <input class="input has-placeholder-transition" type="text" placeholder="http://danbooru.com/post?204" data-placeholders="<?= $placeholders ?>">
-                            <script>
-                                const PLACEHOLDER_TRANSITION_TIME = 0.5;
-                                const PLACEHOLDER_TRANSITION_DELAY = 2;
-                                setInterval( () => {
-                                    const doc = document.querySelector('.has-placeholder-transition');
-                                    doc.classList.add('is-transitioning');
-                                    setTimeout(() => {
-                                        let placeholders = doc.getAttribute('data-placeholders').split('|');
-                                        let placeholder = undefined;
-                                        while (placeholder == undefined || placeholder == doc.placeholder) {
-                                            placeholder = placeholders[Math.floor(Math.random()*placeholders.length)];
-                                        }
-                                        doc.placeholder = placeholder;
-                                        doc.classList.remove('is-transitioning');
-                                    }, PLACEHOLDER_TRANSITION_TIME * 1000);
-                                }, (PLACEHOLDER_TRANSITION_DELAY + (PLACEHOLDER_TRANSITION_TIME * 2)) * 1000);
-                            </script>
+                            <input class="input has-placeholder-transition" type="text" placeholder="" data-placeholders="<?= join('|', $searchPlaceholderTerms) ?>">
                         </div>
                     </div>
                     

@@ -79,8 +79,12 @@ class Controller extends Route {
 
     /** Renders an exception */
     function renderException(HttpException $exception) {
-        $content = $this->render($this->exceptionView, [ 'exception' => $exception ]);
-        return Response::html($exception->getStatus(), $content);
+        try {
+            $content = $this->render($this->exceptionView, [ 'exception' => $exception ]);
+            return Response::html($exception->getStatus(), $content);
+        }catch(Throwable $e) {
+            return Response::html(500, '<h1>Failed to render an exception!</h1>A critical error has occured, which means we are unable to render the exception page. <pre>' . $e->getMessage());
+        }
     }
 
     /** Renders the page. */
