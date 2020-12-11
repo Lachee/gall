@@ -1,4 +1,22 @@
 <?php
+
+function shutdown_handler() {    
+    $error = error_get_last();
+    if ($error !== null && $error['type'] === E_ERROR) {
+        $errfile = $error["file"];
+        $errline = $error["line"];
+        $errstr  = $error["message"];
+
+        http_response_code(500);
+        echo "<h1>FATAL E_ERROR OCCURED</h1>";
+        echo "<h3>$errstr</h3>";
+        echo "<a href='vscode://file/$errfile:$errline'>$errfile :: <i>$errline</i></a>";
+        return;
+    }
+}
+register_shutdown_function('shutdown_handler');
+
+
 ini_set('display_errors', 1);
 ini_set('display_startup_errors', 1);
 error_reporting(E_ALL);
