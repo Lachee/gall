@@ -175,23 +175,12 @@ class BaseObject implements SchemaInterface, JsonSerializable {
 
     /** Loads individual properties */
     private function loadSchemaProperty($schema, $property, $value, $append = false) {
+        if (($err = $schema->validate($value)) !== true) {
+            $this->addError("$property: $err");
+            return;
+        }
+
         if ($schema instanceof ArrayProperty) {
-            if (!is_array($value)) {
-                $this->addError("{$property} expects an array.");
-                return;
-            }
-
-            $count = count($value);
-            if ($schema->maxItems != null && $count > $schema->maxItems) {
-                $this->addError("{$property} has too many items. Expect {$schema->maxItems} but got {$count}.");
-                return;
-            }
-
-            if ($schema->minItems != null && $count < $schema->minItems) {
-                $this->addError("{$property} has too few items. Expect {$schema->minItems} but got {$count}.");
-                return;
-            }
-
             //Iterate over every item and load them
             $this->{$property} = [];
             foreach($value as $val) {
@@ -203,16 +192,11 @@ class BaseObject implements SchemaInterface, JsonSerializable {
 
             // String Value
             if ($schema instanceof StringProperty) {
-                if (!is_string($value)) {
-                    $this->addError("{$property} is not a string.");
-                    return;
-                }
                 $result = $value;
             }
 
             // Number Value
             if ($schema instanceof NumberProperty) {
-
                 $result = filter_var($value, FILTER_VALIDATE_FLOAT, FILTER_NULL_ON_FAILURE);
                 if ($result == null){
                     $this->addError("{$property} is not a float value.");
@@ -223,7 +207,6 @@ class BaseObject implements SchemaInterface, JsonSerializable {
 
             // Int Value
             if ($schema instanceof IntegerProperty) {
-
                 $result = filter_var($value, FILTER_VALIDATE_INT, FILTER_NULL_ON_FAILURE);
                 if ($result == null){
                     $this->addError("{$property} is not a int value.");
@@ -245,42 +228,14 @@ class BaseObject implements SchemaInterface, JsonSerializable {
 
             if ($schema instanceof EnumProperty) {
 
+                $result = $value;
                 if ($schema->assoc) {
-
-                    //Make sure we are within the list
-                    $isFound = false;
-                    foreach($schema->enum as $index => $enumValue) {
-                        if ($index == $value) {
-                            $isFound = true;
-                            break;
-                        }
-                    }
-
-                    if (!$isFound) {
-                        $this->addError("{$property} is not set to an enum value.");
-                        return;
-                    }
-
+               
                     //If we are an integer enum, then upate the key
                     if ($schema->type == 'integer') { 
                         $result = intval($value);
                     }
 
-                } else {
-
-                    //Make sure we are within the list
-                    $isFound = false;
-                    foreach($schema->enum as $index => $enumValue) {
-                        if ($enumValue == $value) {
-                            $isFound = true;
-                            break;
-                        }
-                    }
-
-                    if (!$isFound) {
-                        $this->addError("{$property} is not set to an enum value.");
-                        return;
-                    }
                 }
             }
 
@@ -303,7 +258,7 @@ class BaseObject implements SchemaInterface, JsonSerializable {
                     if (is_subclass_of($class, BaseObject::class)) {
                         $result = new $class($value);
                     } else {
-                        $this->addError("{$property} has a invalid RefProperty as the class does not have a load() definition or implement a loadable.");
+                        $this->addError("{$property} has a invalid RefProperty as the class does not have a load() definition or implement a BaseObject.");
                         return;
                     }
                 } else {
@@ -334,6 +289,9 @@ class BaseObject implements SchemaInterface, JsonSerializable {
 
     /** @return string[] errors that have been generated */
     public function errors() { return $this->errors ?: []; }
+
+    /** @return string summary of all errors. */
+    public function errorSummary() { return join('. ', $this->errors()); }
 
     /** Gets the name of the current class */
     public function className() {

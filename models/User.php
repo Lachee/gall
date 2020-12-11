@@ -116,7 +116,7 @@ class User extends Identity {
                     ->rightJoin(Favourite::class, ['$tags.gallery_id' => 'gallery_id'])
                     ->groupBy('$tags.tag_id')
                     ->where(['user_id', $this])
-                    ->orderByDesc('C')->limit(5);
+                    ->orderByDesc('C')->limit(5)->ttl(5);
     }
 
     /** @return ActiveQuery|Tag[] gets the tags the user most commonly submits */
@@ -126,7 +126,7 @@ class User extends Identity {
                     ->leftJoin('$tags', [ 'id' => 'tag_id' ])
                     ->groupBy('$tags.tag_id')
                     ->where(['$tags.founder_id', $this])
-                    ->orderByDesc('C')->limit(5);
+                    ->orderByDesc('C')->limit(5)->ttl(5);
     }
 
     /** Adds a gallery to the user's favourites
@@ -152,7 +152,7 @@ class User extends Identity {
 
     /** @return bool returns if the user has favourited a particular gallery */
     public function hasFavouritedGallery($gallery) {
-        return Favourite::findByProfile($this)->select(null, [ 'COUNT(*)' ])->andWhere(['gallery_id', $gallery])->andWhere(['user_id', $this])->one(true)['COUNT(*)'] != 0;
+        return Favourite::findByProfile($this)->select(null, [ 'COUNT(*)' ])->andWhere(['gallery_id', $gallery])->andWhere(['user_id', $this])->ttl(false)->one(true)['COUNT(*)'] != 0;
     }
 
 

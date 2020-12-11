@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "8b1ebfb67cc196e5284cfc11412e8c6e",
+    "content-hash": "b6e79f8edb5d7c7bf6f15861fa830f71",
     "packages": [
         {
             "name": "amphp/amp",
@@ -571,6 +571,44 @@
                 "php"
             ],
             "time": "2020-03-25T18:49:23+00:00"
+        },
+        {
+            "name": "formr/formr",
+            "version": "1.2.2",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/formr/Formr.git",
+                "reference": "bba97c25b290becacae38028a44a5b33ce922a46"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/formr/Formr/zipball/bba97c25b290becacae38028a44a5b33ce922a46",
+                "reference": "bba97c25b290becacae38028a44a5b33ce922a46",
+                "shasum": ""
+            },
+            "require": {
+                "formr/formr": "^1.2",
+                "php": ">=5.6"
+            },
+            "type": "library",
+            "autoload": {
+                "files": [
+                    "class.formr.php"
+                ]
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "GPL-2.0-only"
+            ],
+            "authors": [
+                {
+                    "name": "Tim Gavin",
+                    "homepage": "https://formr.github.io",
+                    "role": "Original Author"
+                }
+            ],
+            "description": "Formr is a PHP micro-framework which helps you build and validate forms quickly, painlessly, and without all the messy overhead.",
+            "time": "2020-11-22T21:19:53+00:00"
         },
         {
             "name": "guzzlehttp/guzzle",

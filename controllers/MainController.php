@@ -27,6 +27,15 @@ class MainController extends BaseController {
         ]);
     }
 
+    /** View the JWT */
+    function actionJWT() {
+        return $this->render('jwt', [
+            'key' => Kiss::$app->jwtProvider->publicKey,
+            'fullWidth' => true,
+            'wrapContents' => false,
+        ]);
+    }
+
     /** Logs In */
     function actionLogin() {
         return GALL::$app->discord->redirect();

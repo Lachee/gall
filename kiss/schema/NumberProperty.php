@@ -15,4 +15,14 @@ class NumberProperty extends Property {
         $this->description = $description;
         $this->default = $default;
     }
+    
+    /** @inheritdoc */
+    public function validate($value)
+    {
+        $result = filter_var($value, FILTER_VALIDATE_FLOAT, FILTER_NULL_ON_FAILURE);
+        if ($result == null){
+            return "Expected a float.";
+        }
+        return true;
+    }
 }

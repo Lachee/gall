@@ -30,4 +30,23 @@ class ArrayProperty extends Property {
         //if (!is_array($this->items))
         //    $this->items = $this->items;
     }
+
+    /** @inheritdoc */
+    public function validate($value)
+    {
+        if (!is_array($value)) {
+            return "Expected an array.";
+        }
+
+        $count = count($value);
+        if ($this->maxItems != null && $count > $this->maxItems) {
+            return "Too many items. Expect {$this->maxItems} but got {$count}.";
+        }
+
+        if ($this->minItems != null && $count < $this->minItems) {
+            return "Too few items. Expect {$this->minItems} but got {$count}.";
+        }
+
+        return true;
+    }
 }

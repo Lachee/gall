@@ -39,4 +39,24 @@ class EnumProperty extends StringProperty {
         if (array() === $arr) return false;
         return array_keys($arr) !== range(0, count($arr) - 1);
     }
+
+    /** @inheritdoc */
+    public function validate($value)
+    {
+        if ($this->assoc) {
+            foreach($this->enum as $index => $enumValue) {
+                if ($index == $value) {
+                    return true;
+                }
+            }
+        } else {
+            foreach($this->enum as $index => $enumValue) {
+                if ($enumValue == $value) {
+                    return true;
+                }
+            }
+        }
+        
+        return "Value is not within the enum";
+    }
 }

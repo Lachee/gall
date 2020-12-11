@@ -2,6 +2,7 @@
 namespace kiss\helpers;
 
 use kiss\Kiss;
+use Throwable;
 
 class HTTP {
     const CONTINUE = 100;
@@ -256,16 +257,45 @@ class HTTP {
     /** @return bool if the doc has post. */
     public static function hasPost(){ return isset($_POST) && count($_POST) > 0; }
 
-    /** @deprecated not yet implemented. 
-     * @return string the CSRF token in a tag */
+    /** Sets the CSRF token and returns a HTML tag with it 
+     * @return string HTML hidden input with CSRF */
     public static function CSRF() {
-        $csrf = Kiss::$app->jwtProvider->encode([
-            
-        ]);
+        $data = [
+            'tok' => StringHelper::token(), // <- generates a cryptographically secure random string
+            'uid' => Kiss::$app->user != null ? Kiss::$app->user->id : '-1',
+        ];
 
-        //TODO: Implement this
-        assert(false, 'not fully implemented. Missing random component and validation of CSRF');
-        return "<input type='hidden' value='$csrf' />";
+        Kiss::$app->session->set('_csrf', $data);
+        $csrf = Kiss::$app->jwtProvider->encode($data, 3600);
+        return "<input name='_csrf' type='hidden' value='$csrf' />";
+    }
+
+    /** Validates the CSRF passed in the POST and checks it against the stored version
+     * @return bool true if it is valid, otherwise false.
+     */
+    public static function checkCSRF() {
+        $csrf = self::post('_csrf', null);
+        if ($csrf == null) return false;
+        try {
+            $csrfData = Kiss::$app->jwtProvider->decode($csrf);
+            $selfData = Kiss::$app->session->get('_csrf', null);
+            if ($selfData == null)                      
+                return false;
+
+            if ($csrfData->tok != $selfData['tok'])   // Remove this token part to allow for multi-tab editing
+                return false;
+
+            if ($csrfData->uid != $selfData['uid'])   
+                return false;
+
+            if ($csrfData->uid != (Kiss::$app->user != null ? Kiss::$app->user->id : '-1'))
+                return false;
+
+            return true;
+        } catch(Throwable $e) {
+            // Since the decode will throw if its invalid, we will catch it and return false.
+            return false;
+        }
     }
 
     /** An query paramaters passed with the request */

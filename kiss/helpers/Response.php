@@ -30,14 +30,17 @@ class Response {
     }
 
     /** Creates a new response to handle the exception. If the supplied mode is null, it will use the server's default.
-     * @param \Throwable $exception
+     * @param \Throwable $exception 
+     * @return Response the response
      */
     public static function exception($exception, $status = HTTP::INTERNAL_SERVER_ERROR, $mode = null) {
         if ($exception instanceof HttpException) return self::httpException($exception, $mode);
         return self::httpException(new HttpException($status, $exception), $mode);
     }
 
-    /** Creates a new response to handle the exception. If the supplied mode is null, it will use the server's default. */
+    /** Creates a new response to handle the exception. If the supplied mode is null, it will use the server's default. 
+     * @return Response the response
+     */
     public static function httpException(HttpException $exception, $mode = null) {
         if ($mode == null) $mode = Kiss::$app->getDefaultResponseType();
         switch ($mode){
@@ -63,22 +66,30 @@ class Response {
         }
     }
 
-    /** Creates a new plain text response */
+    /** Creates a new plain text response 
+     * @return Response the response
+     */
     public static function text($status, $data) {
         return new Response($status, [], $data, HTTP::CONTENT_TEXT_PLAIN);
     }
 
-    /** Creates a new json response */
+    /** Creates a new json response 
+     * @return Response the response
+     */
     public static function json($status, $data, $message = '') {
         return new Response($status, [], ['status' => $status, 'message' => $message, 'data' => $data ], HTTP::CONTENT_APPLICATION_JSON);
     }
 
-    /** Creates a new html response */
+    /** Creates a new html response 
+     * @return Response the response
+     */
     public static function html($status, $data) {
         return new Response($status, [], $data, HTTP::CONTENT_TEXT_HTML);
     }
 
-    /** Creates a new file response */
+    /** Creates a new file response 
+     * @return Response the response
+     */
     public static function file($filename, $data) {
         return new Response(HTTP::OK, [ 
             'Content-Transfer-Encoding' => 'Binary', 
@@ -86,19 +97,31 @@ class Response {
         ], $data, HTTP::CONTENT_APPLICATION_OCTET_STREAM);
     }
 
-    /** Creates a new javascript response */
+    /** Creates a new javascript response 
+     * @return Response the response
+     */
     public static function javascript($data) {
         return new Response(HTTP::OK, [], $data, HTTP::CONTENT_APPLICATION_JAVASCRIPT);
     }
 
-    /** Creates a new javascript response */
+    /** Creates a new javascript response 
+     * @return Response the response
+     */
     public static function image($data, $extension) {
         return new Response(HTTP::OK, [ ], $data, "image/$extension");
     }
 
-    /** Creates a new redirect response */
+    /** Creates a new redirect response 
+     * @return Response the response
+    */
     public static function redirect($location) {
         return (new Response(HTTP::OK, [], "redirecting", HTTP::CONTENT_TEXT_PLAIN))->setLocation($location);
+    }
+
+    /** Creates a new redirect response to the current route
+     * @return Response the response */
+    public static function refresh() {
+        return (new Response(HTTP::OK, [], "refreshing", HTTP::CONTENT_TEXT_PLAIN))->setLocation(HTTP::route());
     }
 
     /** Sets a header and returns the response. */

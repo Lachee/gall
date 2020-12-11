@@ -15,4 +15,12 @@ class StringProperty extends Property {
         $this->description = $description;
         $this->default = $default;
     }
+
+    /** @inheritdoc */
+    public function validate($value)
+    {
+        if (!is_string($value)) 
+            return "Expected a string.";
+        return true;
+    }
 }

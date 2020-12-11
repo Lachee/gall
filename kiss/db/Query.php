@@ -17,8 +17,9 @@ class Query {
     protected const QUERY_INCREMENT = 'INCREMENT';
 
     /** @var int $cacheDuration how long in second cached results last for. */
-    public $cacheDuration = 30;
+    public $cacheDuration = 10;
     private $cacheVersion = 4;
+    private $flushCache = false;
 
     public $remember = true;
 
@@ -216,6 +217,22 @@ class Query {
      */
     public function cache($duration) {
         $this->cacheDuration = $duration;
+        return $this;
+    }
+
+    /** Sets how long the result will be cached for. Alias of cache
+     * @param int $duration duration of cache
+     * @return $this
+     */
+    public function ttl($duration) {
+        return $this->cache($duration);
+    }
+
+    /** Ensures the value is pulled and clears the cache.
+     * @return $this
+     */
+    public function flush() {
+        $this->flushCache = true;
         return $this;
     }
 
@@ -479,13 +496,13 @@ class Query {
         $cacheKey   = 'query:' . $this->cacheVersion . ':' . md5($querySummary);
 
         //Check if its in the memory
-        if ($this->remember && isset(self::$_memcache[$cacheKey])) {
+        if (!$this->flushCache && $this->remember && isset(self::$_memcache[$cacheKey])) {
             self::$_execLog['REPEAT'][] = $querySummary;
             return self::$_memcache[$cacheKey];
         }
 
         //Get it from the cache
-        if ($redis != null && $this->cacheDuration > 0) {
+        if (!$this->flushCache && $redis != null && $this->cacheDuration > 0) {
             $cacheResults = $redis->get($cacheKey);
             if ($cacheResults != null) {
                 self::$_execLog['CACHE'][] = $querySummary;

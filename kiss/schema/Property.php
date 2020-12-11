@@ -30,6 +30,13 @@ class Property extends BaseObject implements JsonSerializable {
     /** @var bool is the field required. */
     public $required = true;
 
+    /** Validates the data
+     * @param mixed $data the data to validate 
+     * @var bool|string true if valid, otherwise it will return the error message. */
+    public function validate($value) {
+        return true;
+    }
+
     function jsonSerialize() {
         $props = $this->getProperties();
         if (!empty($this->ref)) { 
