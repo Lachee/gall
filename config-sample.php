@@ -1,21 +1,21 @@
 <?php
-define('BASE_URL', 'http://xve.local:81/');
+define('BASE_URL', 'http://gall.local:81/');
 
 $config = function() {
     return [
-        '$class'            => \kiss\Kiss::class,
-        'title'             => 'Kiss',
-        'logo'              => '/images/kiss.png',
+        '$class'            => \GALL::class,
+        'title'             => 'GALL',
+        'logo'              => '/images/gall_full.png',
         'mainController'    => \app\controllers\base\MainController::class,
         'baseUrl'           => BASE_URL,
         'db' => [
             '$assoc'    => true,
-            'dsn'       => 'mysql:dbname=database;host=localhost',
+            'dsn'       => 'mysql:dbname=xve;host=localhost',
             'user'      => 'username',
             'pass'      => 'password',
-            'prefix'    => 'xve_',
+            'prefix'    => 'gall_',
         ],
-        'redis'         => new \Predis\Client([], ['prefix' => 'XVE:']),
+        'redis'         => new \Predis\Client([], ['prefix' => 'GALL:']),
 		'jwtProvider'	=> [ 
             '$class'	    => \kiss\models\JWTProvider::class,
             'algo'          => \kiss\models\JWTProvider::ALGO_RS512,
@@ -26,16 +26,11 @@ $config = function() {
             '$assoc' => true,
             'discord' => [
                 '$class'        => \app\components\discord\Discord::class,
-                'clientId'      => '<client-id>',    // The client ID assigned to you by the provider
-                'clientSecret'  => '<client-secret>',                                                  // The client password assigned to you by the provider
-                'scopes'        => [
-                    'identify',
-                    'email',
-                ]
+                'clientId'      => 'client id',     // The client ID assigned to you by the provider
+                'clientSecret'  => 'client secret', // The client password assigned to you by the provider
+                'botToken'      => 'bot token',     // The bot token. Used so far to get profiles of those who have not registered.
+                'scopes'        => [ 'identify' ]
             ],
-            'nodes' => [
-                '$class'        => \app\components\nodes\Manager::class
-            ]
         ]
     ];
 };
