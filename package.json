@@ -1,5 +1,5 @@
 {
-  "name": "xve-php",
+  "name": "gall",
   "version": "1.0.0",
   "description": "",
   "private": true,
@@ -62,13 +62,13 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/Lachee/xve-php.git"
+    "url": "git+https://github.com/Lachee/gall.git"
   },
   "keywords": [],
   "author": "",
-  "license": "ISC",
+  "license": "MIT",
   "bugs": {
-    "url": "https://github.com/Lachee/xve-php/issues"
+    "url": "https://github.com/Lachee/gall/issues"
   },
-  "homepage": "https://github.com/Lachee/xve-php#readme"
+  "homepage": "https://github.com/Lachee/gall#readme"
 }

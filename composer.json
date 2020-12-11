@@ -1,12 +1,12 @@
 {
-    "name": "lachee/xve",
-    "description": "Visual Editor for Discord Bots",
+    "name": "lachee/gall",
+    "description": "Image Gallery project",
     "type": "project",
-    "license": "Copyright 2020 Lachee",
+    "license": "MIT",
     "authors": [
         {
             "name": "Lachee",
-            "email": "lachlan.h@hotmail.com"
+            "email": "lachee@lachee.dev"
         }
     ],
     "require": {
