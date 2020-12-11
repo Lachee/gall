@@ -2,6 +2,17 @@
 
 class ArrayHelper {
 
+    /** Tries to get a value in the array or object
+     * @param array|object $obj the object or array to get the value in
+     * @param string $key the name of the value
+     * @param mixed $default what to return when there is nothing
+     * @return $default
+     */
+    public static function value($obj, $key, $default = null) {
+        if (is_array($obj)) return $obj[$key] ?? $default;
+        return property_exists($obj, $key) ? $obj->{$key} : $default;
+    }
+
     /** Merges arrays togther. It can have any number of arguments
      * @param array $arrays the different arrays
      * @return array the returned merge

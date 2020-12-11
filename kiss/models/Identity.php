@@ -6,9 +6,11 @@ use kiss\db\ActiveQuery;
 use app\components\mixer\MixerUser;
 use kiss\exception\ArgumentException;
 use kiss\exception\InvalidOperationException;
+use kiss\helpers\ArrayHelper;
 use kiss\Kiss;
 use kiss\models\BaseObject;
 use kiss\models\OAuthContainer;
+use PhpParser\Node\Expr\Cast\Array_;
 use Ramsey\Uuid\Uuid;
 
 class Identity extends ActiveRecord {
@@ -25,8 +27,11 @@ class Identity extends ActiveRecord {
     /** @var string Display name of the user */
     protected $username;
     
-    /** @var strings Unique key that is generated for every "logout" or account. */
+    /** @var string Unique key that is generated for every "logout" or account. */
     protected $accessKey;
+
+    /** @var string Unique key that is generated for every "regenerate" of the api. If this is null, then the user cannot use the API's that require this.. */
+    protected $apiKey;
 
     protected function init() {
         if (is_string($this->uuid)) $this->uuid = Uuid::fromString($this->uuid);
@@ -62,37 +67,11 @@ class Identity extends ActiveRecord {
 
     /** @return ActiveQuery|User|null finds a user by a JWT claim */
     public static function findByJWT($jwt) {
-        $sub = ''; $key = '';
-        if (is_array($jwt)) {
-            $sub = $jwt['sub'];
-            $key = $jwt['key'];
-        } else {
-            $sub = property_exists($jwt, 'sub') ? $jwt->sub : null;
-            $key = property_exists($jwt, 'key') ? $jwt->key : null;
-        }
-        return self::find()->where([ ['uuid', $sub ], [ 'accessKey', $key ] ]);
-    }
-
-
-    /** Gets the oAuth2 container
-     * @param string $provider the OAuth provider.
-     *  @return OAuthContainer the current oauth container 
-    */
-    public function getOauthContainer($provider) {
-        return new OAuthContainer([ 
-            'application'   => $provider,
-            'identity'      => $this->uuid->toString()
-        ]);
-    }
-
-    /** Sets the current oauth tokens, storing the access token in the cache
-     * @param string $provider the OAuth provider.
-     * @param array $tokenResponse the response from the oAuth.
-     * @return OAuthContainer the newly created container
-     */
-    public function setOauthContainer($provider, $tokenResponse) {
-        $container = $this->getOauthContainer($provider);
-        return $container->setTokens($tokenResponse);
+        $sub = ArrayHelper::value($jwt, 'sub'); 
+        $key = ArrayHelper::value($jwt, 'key');
+        $src = ArrayHelper::value($jwt, 'src', 'login');
+        $var = $src == 'api' ? 'apiKey' : 'accessKey';
+        return self::find()->where([ ['uuid', $sub ], [ $var, $key ] ]);
     }
 
     /** Logs the user in and generates a new JWT */
@@ -123,6 +102,17 @@ class Identity extends ActiveRecord {
         if (!is_array($payload)) $payload = json_encode($payload);
         $payload['sub'] = $this->uuid;
         $payload['key'] = $this->accessKey;
+        $payload['src'] = 'user';
+        return Kiss::$app->jwtProvider->encode($payload, $expiry);
+    }
+
+    /** Creates an API token for this user. Similar to the JWT but strictly limited to the API */
+    public function getApiToken($metadata = [], $expiry = null) {        
+        if ($this->apiKey == null) return null;
+        if (!is_array($metadata)) $payload = json_encode($metadata);
+        $payload['sub'] = $this->uuid;
+        $payload['key'] = $this->apiKey;
+        $payload['src'] = 'api';
         return Kiss::$app->jwtProvider->encode($payload, $expiry);
     }
 }

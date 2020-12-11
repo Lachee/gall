@@ -3,6 +3,7 @@ namespace kiss\models;
 
 use JsonSerializable;
 use kiss\exception\InvalidOperationException;
+use kiss\helpers\ArrayHelper;
 use kiss\helpers\StringHelper;
 use kiss\schema\ArrayProperty;
 use kiss\schema\BooleanProperty;
@@ -312,10 +313,7 @@ class BaseObject implements SchemaInterface, JsonSerializable {
      * @return mixed the properties value, otherwise the default
      */
     public function getProperty($name, $default = null) {
-        if (!property_exists(get_called_class(), $name)) {
-            return $default;
-        }
-        return $this->{$name};
+        return ArrayHelper::value($this, $name, $default);
     }
 
     /**
