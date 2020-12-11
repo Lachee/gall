@@ -3,7 +3,7 @@
 chdir(__DIR__);
 
 // This line specifically tells KISS what the route is
-define('BASE_URL', 'http://localhost:8080/');
+define('BASE_URL', 'http://localhost:' . $_SERVER['SERVER_PORT'] . '/');
 $URL = $URI = $_SERVER["REQUEST_URI"]; 
 if (($i = strpos($URI, '?')) !== false) $URL = substr($URL, 0, $i);
 $_REQUEST['route'] = $_SERVER['REQUEST_URL'] = $URL;
