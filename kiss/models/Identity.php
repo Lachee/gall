@@ -57,14 +57,7 @@ class Identity extends ActiveRecord {
         if (is_string($this->uuid))
             $this->uuid = $this->_uuid = Uuid::fromString($this->uuid);
     }
-
-    /** @return ActiveQuery|User|null finds a user using the current session data. */
-    public static function findBySession() {        
-        if (Kiss::$app->session == null)
-            throw new InvalidOperationException("Cannot find by session because there is currently no session available.");
-        return self::findByJWT(Kiss::$app->session->getClaims());
-    }
-
+    
     /** @return ActiveQuery|User|null finds a user by a JWT claim */
     public static function findByJWT($jwt) {
         $sub = ArrayHelper::value($jwt, 'sub'); 

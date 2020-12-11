@@ -15,7 +15,6 @@ class User extends Identity {
     /** @var \app\components\discord\User stored discord user. */
     private $_discordUser;
     protected $profile_name = null;
-    protected $apiKey;
     protected $profile_image;
     protected $snowflake;
 

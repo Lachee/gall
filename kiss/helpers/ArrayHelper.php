@@ -6,9 +6,10 @@ class ArrayHelper {
      * @param array|object $obj the object or array to get the value in
      * @param string $key the name of the value
      * @param mixed $default what to return when there is nothing
-     * @return $default
+     * @return mixed the value in the array at the key, or the value of the property at the key. If neither are found or the object is null, then $default.
      */
     public static function value($obj, $key, $default = null) {
+        if ($obj == null) return $default;
         if (is_array($obj)) return $obj[$key] ?? $default;
         return property_exists($obj, $key) ? $obj->{$key} : $default;
     }

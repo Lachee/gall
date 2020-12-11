@@ -6,7 +6,6 @@ use kiss\exception\ExpiredOauthException;
 use kiss\helpers\HTML;
 use kiss\helpers\Response;
 use kiss\models\BaseObject;
-use kiss\models\OAuthContainer;
 
 /** Handles Discord Auth
  * @see https://github.com/Lachee/discord-php-kiss

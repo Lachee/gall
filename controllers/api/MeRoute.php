@@ -16,6 +16,7 @@ class MeRoute extends Route {
     public function get() {
         $user = Kiss::$app->getUser();
         if ($user == null) return null;
+
         return $user;
     }
 }

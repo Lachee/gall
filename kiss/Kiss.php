@@ -8,6 +8,7 @@ if (!defined('KISS_SESSIONLESS'))
 
 use Exception;
 use kiss\db\Connection;
+use kiss\exception\InvalidOperationException;
 use kiss\helpers\HTTP;
 use kiss\helpers\Response;
 use kiss\models\BaseObject;
@@ -90,19 +91,55 @@ class Kiss extends BaseObject {
         if ($this->db != null) 
             $this->db = new Connection($this->db['dsn'],$this->db['user'],$this->db['pass'], array(), $this->db['prefix']);
         
+        //Create the session
         if (KISS_SESSIONLESS) {
             $this->session = null;
-            $this->user = null;
         } else {
             $this->initializeObject($this->session);
             $this->session->start();
             
-            //Find the current user
-            $identityClass = $this->mainIdentityClass;
-            if (!empty($identityClass)) $this->user = $identityClass::findBySession()->one();
         }
+
+        //Login
+        $this->authorizeIdentity();
+
     }
     
+    /** Gets the identity and stores it under the user */
+    public function authorizeIdentity() {
+        //No identity class so we cant authorize
+        $identityClass = $this->mainIdentityClass;
+        if (empty($identityClass)) {
+            return false;
+        }
+
+        $jwt = null;
+
+        //Find the identity by the session.
+        if ($this->session != null) { 
+            $jwt = $this->session->getClaims();
+        }
+
+        //Find the identity by the header
+        if (($auth = HTTP::header('Authorization', false)) !== false) {
+            $parts = explode(' ', $auth, 1);
+            if ($parts[0] == 'JWT') {
+                $token = $parts[1];
+                $claims = Kiss::$app->jwtProvider->decode($token);
+                if (!empty($claims->sid)) {
+                    $jwt = $claims;
+                }
+            }
+        }
+
+        //MAke sure the JWT isnt null
+        if ($jwt == null)
+            return $this->user = null;
+
+        //"login"
+        return $this->user = $identityClass::findByJWT($jwt)->one();
+    }
+
     /** @return Connection the current database. */
     public function db() { 
         return $this->db;
