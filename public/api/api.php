@@ -35,22 +35,16 @@ function handle_request() {
 
     
     //Prepare the route we wish to use 
-    $route = $_REQUEST['route'] ?? '';
-    if (empty($route) && !empty($_SERVER['REDIRECT_URL'])) {
-        if (StringHelper::startsWith($_SERVER['REDIRECT_URL'], "/api"))
-        {
-            $route = substr($_SERVER['REDIRECT_URL'], 4);
-        }
-    }
-
     //Just exit with no response because they are accessing the API page directly
+    $route = HTTP::route();    
     if (empty($route)) die('no route given');
 
     //Register all the routes in the specified folder    
     $basedir = Kiss::$app->baseDir();
     RouteFactory::registerDirectory($basedir . "/controllers/api/", ["*.php", "**/*.php"]);
+
     //Break up the segments and get the controller
-    $segments = explode('/', $route);
+    $segments = explode('/', substr($route, 4));
     $controller = RouteFactory::route($segments);
     
     if ($controller == null)  return new HttpException(HTTP::NOT_FOUND, "'{$route}' is not a valid endpoint");

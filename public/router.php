@@ -3,7 +3,17 @@
 chdir(__DIR__);
 
 // This line specifically tells KISS what the route is
-$_SERVER["route"] = $_REQUEST["route"] = $_SERVER["REQUEST_URI"]; 
+define('BASE_URL', 'http://localhost:8080/');
+$URL = $URI = $_SERVER["REQUEST_URI"]; 
+if (($i = strpos($URI, '?')) !== false) $URL = substr($URL, 0, $i);
+$_REQUEST['route'] = $_SERVER['REQUEST_URL'] = $URL;
+
+if (strpos($_REQUEST['route'], '/api') === 0) {
+
+    // rewrite to our api file
+    //$_REQUEST["route"] = substr($_SERVER["REQUEST_URI"], 4); 
+    include __DIR__ . DIRECTORY_SEPARATOR . '/api/api.php';
+}
 
 $filePath = realpath(ltrim($_SERVER["REQUEST_URI"], '/'));
 if ($filePath && is_dir($filePath)){
@@ -35,16 +45,10 @@ if ($filePath && is_file($filePath)) {
         echo "404 Not Found";
     }
 } else {
+    
 
-    if (strpos($_SERVER["route"], '/api') === 0) {
 
-        // rewrite to our api file
-        $_SERVER["route"] = $_REQUEST["route"] = substr($_SERVER["REQUEST_URI"], 4); 
-        include __DIR__ . DIRECTORY_SEPARATOR . '/api/api.php';
-
-    } else {
-
-        // rewrite to our index file
-        include __DIR__ . DIRECTORY_SEPARATOR . 'index.php';
-    }
+    // rewrite to our index file
+    include __DIR__ . DIRECTORY_SEPARATOR . 'index.php';
+    
 }
