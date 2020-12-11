@@ -146,6 +146,12 @@ class Gallery extends ActiveRecord {
         return Gallery::find()->where(['founder_id', $founder]);
     }
 
+    /** @return ActiveQuery|Gallery[] finds 1 random gallery for each scraper */
+    public static function findByRandomUniqueScraper() {
+        //SELECT url FROM ( SELECT * FROM gall_gallery ORDER BY RAND() ) as sub GROUP BY scraper
+        return Gallery::query()->select('( SELECT * FROM $gallery ORDER BY RAND() ) as sub')->groupBy('scraper');
+    }
+
     private const SEARCH_EXCLUDE = 0;
     private const SEARCH_ADDITIONAL = 1;
     private const SEARCH_REQUIRED = 2;

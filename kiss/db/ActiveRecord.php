@@ -326,6 +326,13 @@ class ActiveRecord extends BaseObject{
      * @return ActiveQuery
     */
     public static function find() {
+        return get_called_class()::query()->select(get_called_class()::tableName());
+    }
+
+    /** Creates an active query
+     * @return ActiveQuery
+     */
+    public static function query() {
         return new ActiveQuery(Kiss::$app->db(), get_called_class());
     }
 
