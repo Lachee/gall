@@ -147,7 +147,7 @@ class RouteFactory {
     public static function getRoutes() {
         $names = [];
         foreach(self::$routes as $r) {
-            $path = $r->getRoute();
+            $path = join('/', $r->getRouting());
             $methods = [];
             $controller = new $r->className;
             if (method_exists($controller, 'get')) $methods[] = 'get'; 
