@@ -9,15 +9,15 @@ export class FontAwesome {
     constructor() { }
     
     async load() {
-        const fadata = await import(            
-            /* webpackChunkName: `fadata` */ 
-            "../../../vendor/lachee/fontawesome-5-cheatsheet/src/fontawesome.json"
-        );
-        this.#icons = {};
-        for(let key in fadata[1].data) {
-            this.#icons[fadata[1].data[key].id] = fadata[1].data[key].attributes;
-        }
-        return this.#icons;
+        // const fadata = await import(            
+        //     /* webpackChunkName: `fadata` */ 
+        //     "../../../vendor/lachee/fontawesome-5-cheatsheet/src/fontawesome.json"
+        // );
+        // this.#icons = {};
+        // for(let key in fadata[1].data) {
+        //     this.#icons[fadata[1].data[key].id] = fadata[1].data[key].attributes;
+        // }
+        // return this.#icons;
     }
 
     getIcon(name) {

@@ -16,13 +16,7 @@
         "guzzlehttp/guzzle": "^6.5",
         "ramsey/uuid": "^4.0",
         "firebase/php-jwt": "^5.2",
-        "lachee/fontawesome-5-cheatsheet": "@dev",
         "vimeo/psalm": "@dev",
         "formr/formr": "^1.2"
-    },
-    "scripts": {
-        "update-fontawesome": [
-            "lachee\\fontawesome\\Updater::postUpdate"
-        ]
     }
 }

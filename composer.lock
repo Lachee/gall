@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "b6e79f8edb5d7c7bf6f15861fa830f71",
+    "content-hash": "1110243b487c3956558570169bcf3d4e",
     "packages": [
         {
             "name": "amphp/amp",
@@ -798,42 +798,6 @@
                 "url"
             ],
             "time": "2019-07-01T23:21:34+00:00"
-        },
-        {
-            "name": "lachee/fontawesome-5-cheatsheet",
-            "version": "dev-master",
-            "source": {
-                "type": "git",
-                "url": "https://github.com/Lachee/fontawesome-5-cheatsheet.git",
-                "reference": "de99133ceabbd4c25c867e1dda69dcb3fc64a846"
-            },
-            "dist": {
-                "type": "zip",
-                "url": "https://api.github.com/repos/Lachee/fontawesome-5-cheatsheet/zipball/de99133ceabbd4c25c867e1dda69dcb3fc64a846",
-                "reference": "de99133ceabbd4c25c867e1dda69dcb3fc64a846",
-                "shasum": ""
-            },
-            "require": {
-                "php": ">=7.1"
-            },
-            "require-dev": {
-                "phpunit/phpunit": "6.*"
-            },
-            "type": "library",
-            "autoload": {
-                "psr-4": {
-                    "lachee\\fontawesome\\": "src/"
-                }
-            },
-            "notification-url": "https://packagist.org/downloads/",
-            "authors": [
-                {
-                    "name": "Lachee",
-                    "email": "lachlan@lachee.dev"
-                }
-            ],
-            "description": "Font Awesome 5 Cheatsheet",
-            "time": "2020-09-20T03:54:14+00:00"
         },
         {
             "name": "league/oauth2-client",
@@ -2771,7 +2735,6 @@
     "aliases": [],
     "minimum-stability": "stable",
     "stability-flags": {
-        "lachee/fontawesome-5-cheatsheet": 20,
         "vimeo/psalm": 20
     },
     "prefer-stable": false,
