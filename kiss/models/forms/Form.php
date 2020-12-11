@@ -22,11 +22,32 @@ use kiss\schema\StringProperty;
 
 class Form extends BaseObject {
     
+    /** @return bool validates the record */
+    public function validate() {
+        $valid = true;
+        $schema = get_called_class()::getSchemaProperties(['serializer' => 'form']);
+        foreach($schema as $property => $scheme) {
+            if (($err = $scheme->validate($this->{$property})) !== true) {
+                $this->addError($err);
+                $valid = false;
+            }
+        }
+        return $valid;
+    }
+
+
     /** Loads the data into the record and saves it.
      * @param ActiveRecord|BaseObject $record 
+     * @param bool $validate validates the record before submitting. Isn't required if loaded using Load
      * @return bool if successful 
      */
-    public function save($record) {
+    public function save($record, $validate = false) {
+
+        //Failed to load
+        if ($validate && !$this->validate()) {
+            return false;
+        }
+
         $record->beforeLoad($record);
         $fields = [];
 
@@ -59,7 +80,7 @@ class Form extends BaseObject {
         }
         
         //Done
-        return false;
+        return true;
     }
 
     /** Renders the form
@@ -136,6 +157,14 @@ class Form extends BaseObject {
             return false;
         }
 
-        return parent::load($data);
+        //send it
+        if (!parent::load($data))
+            return false;
+            
+        // Validate the load
+        if (!$this->validate())
+            return false;
+        
+        return true;
     }
 }

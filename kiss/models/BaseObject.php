@@ -174,7 +174,8 @@ class BaseObject implements SchemaInterface, JsonSerializable {
         }
 
         $success = $this->errors == null || count($this->errors) == 0;
-        $this->afterLoad($data, $success);
+        $return = $this->afterLoad($data, $success);
+        if (is_bool($return)) return $return;
         return $success;
     }
 

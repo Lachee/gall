@@ -30,5 +30,21 @@ class ProfileSettingForm extends Form {
         ];
     }
 
+    /** @inheritdoc */
+    public function validate()
+    {
+        if (!parent::validate()) 
+            return false;
+
+        if ($this->profile_name != $this->profile->profileName) {
+            $pn = User::findByProfileName($this->profile_name)->one();
+            if ($pn != null) {
+                $this->addError('Profile name is already in use');
+                return false;
+            }
+        }
+
+        return true;
+    }
 
 }

@@ -41,7 +41,7 @@ class ProfileController extends BaseController {
                 return Response::redirect(['/profile/:profile/settings', 'profile' => $profile->profileName ]);
             } else {                
                 Kiss::$app->session->addNotification('Failed to load: ' . $form->errorSummary(), 'danger');
-                return Response::refresh();
+                //return Response::refresh();
             }
         }
 
