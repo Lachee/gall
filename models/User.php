@@ -70,6 +70,17 @@ class User extends Identity {
         }
         return Image::findByKey($this->profile_image)->limit(1);
     }
+    /** Sets the profile image
+     * @param Image $image
+     * @return $this
+     */
+    protected function setProfileImage($image) {
+        if ($image instanceof Image) $image = $image->getKey();
+        $this->profile_image = $image;
+        $this->markDirty('profile_image');
+        return $this;
+    }
+
     /** @return string the name of the profile page. Some users may have a custom one. */
     public function getProfileName() {
         return !empty($this->profile_name) ? $this->profile_name : $this->snowflake;

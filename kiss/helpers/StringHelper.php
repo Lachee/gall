@@ -44,4 +44,8 @@ class StringHelper {
         
         return number_format($n, 0);
     }
+
+    public static function camelToSnake($str) {
+        
+    }
 }

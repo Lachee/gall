@@ -4,6 +4,14 @@ export class BaseAPI {
         this.baseUrl = baseUrl;
     }
 
+    async pin(gallery = null) {
+        if (gallery == null) gallery = kiss.PARAMS.gallery_id;
+        if (gallery == null) throw new Error('Cannot pin gallery without an id. Either pass an ID or visit a gallery page');
+       
+        console.log('Pinning', gallery);
+        return await this.fetch('POST', `/gallery/${gallery}/pin`);
+    }
+
     async favourite(gallery = null) {
         if (gallery == null) gallery = kiss.PARAMS.gallery_id;
         if (gallery == null) throw new Error('Cannot favourite gallery without an id. Either pass an ID or visit a gallery page');

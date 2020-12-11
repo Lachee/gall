@@ -21,7 +21,7 @@ class ActiveRecord extends BaseObject{
     public static function tableKey() { return ['id']; }
     
     public function __get($name) {
-        if (method_exists($this, "get$name")) {
+        if (is_callable(get_called_class() . "::get$name")) {
             $result = $this->{"get$name"}();
             if ($result instanceof ActiveQuery) {
                 $all = $result->all();
@@ -38,13 +38,20 @@ class ActiveRecord extends BaseObject{
     }
 
     public function __set($name, $value) {      
-        if (method_exists($this, "set$name")) {            
+        if (is_callable(get_called_class() . "::set$name")) {            
             $this->{"set$name"}($value);
-            $this->_dirty[] = $name;
         } else  if (stripos($name, '_') !== 0 && property_exists($this, $name)) {
             $this->{$name} = $value;
             $this->_dirty[] = $name;
         }         
+    }
+
+    /** Marks a variable as dirty. Maybe required when manually setting variables.
+     * @return $this
+     */
+    protected function markDirty($name) {
+        $this->_dirty[] = $name;
+        return $this;
     }
 
     /** Gets the string representation of the key

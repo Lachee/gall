@@ -27,6 +27,9 @@ class ProfileCard extends Widget {
         $toolbaritems = [];
         if ($profile->isMe()) {
             $toolbaritems[] = [ 'route' => ['/profile/:profile/settings', 'profile' => $profile->profileName ], 'icon' => 'fa-pencil' ];
+            //if ($this->small) {                
+            //    $toolbaritems[] = [ 'call' => 'app.api.pin().then(() => setTimeout(() => window.location.reload(), 1000))', 'icon' => 'fa-map-pin' ];
+            //}
         } else {
             $toolbaritems[] = [ 'route' => ['/profile/:profile/', 'profile' => $profile->profileName ], 'icon' => 'fa-book-spells' ];
         }
@@ -102,7 +105,11 @@ HTML;
         $bar = HTML::begin('div', ['class' => 'toolbar']);
         foreach($items as $item) {
             $bar .= HTML::begin('div', ['class' => 'toolbar-item']);
-            $bar .= HTML::a($item['route'], HTML::tag('i', '', [ 'class' => 'fal ' . $item['icon'] ]));
+            if (!empty($item['route'])) 
+                $bar .= HTML::a($item['route'], HTML::tag('i', '', [ 'class' => 'fal ' . $item['icon'] ]));
+            if (!empty($item['call']))
+                $bar .= HTML::tag('a', HTML::tag('i', '', [ 'class' => 'fal ' . $item['icon'] ]), [ 'onclick' => $item['call'] ]);
+
             $bar .= HTML::end('div');
         }
         $bar .= HTML::end('div');
