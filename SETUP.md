@@ -3,9 +3,8 @@
 
   
 
-This guide aims to take you throught he process of setting up your GALL instance.
-While custom instances are not official supported (defeats its purpose), its important for testing reasons.
-
+This guide aims to take you through the process of setting up your GALL instance.
+While custom instances are not officially supported (defeats its purpose), its important for testing reasons.
 
 Before we begin, please ensure you have all the dependencies installed:
 
