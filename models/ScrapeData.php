@@ -157,4 +157,10 @@ class ScrapeData extends BaseObject {
 
         return $gallery;
     }
+
+    /** Scrapes the given URL 
+     * @return $this scraped data */
+    public static function scrape($url) {
+
+    }
 }

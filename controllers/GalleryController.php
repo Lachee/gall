@@ -2,6 +2,7 @@
 
 use app\components\mixer\Mixer;
 use app\models\Gallery;
+use app\models\ScrapeData;
 use kiss\exception\HttpException;
 use kiss\helpers\HTTP;
 use kiss\helpers\Response;
@@ -53,9 +54,14 @@ class GalleryController extends BaseController {
         $results    = [];
         if ($query !== false) {
 
-            if (Strings::startsWith($query, 'http')) {
-                
+            //Search contains HTTP, so lets publish it instead.
+            if (Strings::startsWith($query, 'http') && Kiss::$app->user != null) {
+                $scrapedData = ScrapeData::scrape($query);
+                $scrapedData->publish(Kiss::$app->user);
+                return Response::redirect(['/gallery/:gallery/', 'gallery' => $gallery]);
             }
+
+            //Otherwise lets assume its a tag.
             $search = [ 'tag' => $query ];
         }
 

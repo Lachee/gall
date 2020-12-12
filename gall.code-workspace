@@ -6,9 +6,9 @@
 	],
 	"settings": {
 		"workbench.colorCustomizations": {
-			"statusBar.background": "#533b24",
-			"window.inactiveBorder": "#533b24",
-			"titleBar.activeBackground": "#533b24"
+			"statusBar.background": "#0e0e0e",
+			"window.inactiveBorder": "#0e0e0e",
+			"titleBar.activeBackground": "#0e0e0e"
 		}
 	}
 }
