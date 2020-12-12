@@ -26,19 +26,17 @@ $k = $tno;
                 <p class="heading">Actions</p>
                 
                 <p class="heading">
-                    <a class="button is-small button-bookmark">
-                        <span class="icon"><i class="<?= GALL::$app->user->hasFavouritedGallery($gallery) ? 'fas' : 'fal' ?> fa-bookmark"></i></span>
+                    <a class="button is-small button-bookmark" title="favourite">
+                        <span class="icon"><i class="<?= GALL::$app->user->hasFavouritedGallery($gallery) ? 'fas' : 'fal' ?> fa-fire"></i></span>
                     </a>
-                    <a class="button is-small expanding-artwork-control">
+                    <a class="button is-small expanding-artwork-control" title="expand/shrink image">
                         <span class="icon"><i class="fal fa-expand"></i></span>
-                        <span class="expand-label">Expand</span>
                     </a>
-                    <a href="<?= $gallery->url ?>" class="button is-small">
-                        <span class="icon"><i class="fal fa-external-link"></i></span>
-                        <span>View Source</span>
-                    </a>
-                    <a href="<?= HTTP::url(['/gallery/:gallery/download', 'gallery' => $gallery ])?>" target="_BLANK" class="button is-small">
+                    <a href="<?= HTTP::url(['/gallery/:gallery/download', 'gallery' => $gallery ])?>" target="_BLANK" class="button is-small" title="download image">
                         <span class="icon"><i class="fal fa-cloud-download"></i></span>
+                    </a>
+                    <a href="<?= $gallery->url ?>" class="button is-small" title="view source">
+                        <span class="icon"><i class="fal fa-external-link"></i></span>
                     </a>
                 </p>
             </div>
@@ -123,19 +121,11 @@ $k = $tno;
 
                 <section class="favourited">
                     <?php foreach((array) $gallery->favourites as $f): ?>
-                        <div class="avatar">
-                            <img src="<?= $f->profile->avatarUrl ?>" alt="Avatar Picture">
-                        </div>
-                    <?php endforeach; ?>
-                    <?php foreach((array) $gallery->favourites as $f): ?>
-                        <div class="avatar">
-                            <img src="<?= $f->profile->avatarUrl ?>" alt="Avatar Picture">
-                        </div>
-                    <?php endforeach; ?>
-                    <?php foreach((array) $gallery->favourites as $f): ?>
-                        <div class="avatar">
-                            <img src="<?= $f->profile->avatarUrl ?>" alt="Avatar Picture">
-                        </div>
+                        <a class="fav-profile" href="<?= HTTP::url(['/profile/:profile/', 'profile' => $f->profile->profileName ]); ?>" title="see <?= $f->profile->displayName ?>">
+                            <div class="avatar">
+                                <img src="<?= $f->profile->avatarUrl ?>" alt="Avatar Picture">
+                            </div>
+                        </a>
                     <?php endforeach; ?>
                 </section>
             </div>
