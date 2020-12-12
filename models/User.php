@@ -64,7 +64,7 @@ class User extends Identity {
     public function getProfileImage() {
         if (empty($this->profile_image)) {
             $bestGallery = $this->getBestGalleries()->limit(1)->one();
-            if ($bestGallery) return $bestGallery->thumbnail;
+            if ($bestGallery) return $bestGallery->cover;
             return null;
         }
         return Image::findByKey($this->profile_image)->limit(1);

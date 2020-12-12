@@ -22,7 +22,7 @@ class Gallery extends ActiveRecord {
     protected $type;
     protected $scraper;
     protected $url;
-    protected $thumbnail_id;
+    protected $cover_id;
     protected $views;
 
     public const TYPE_COMIC = 'comic';
@@ -38,7 +38,7 @@ class Gallery extends ActiveRecord {
             'title'         => new StringProperty('Title of the gallery'),
             'description'   => new StringProperty('Description of the gallery'),
             'url'           => new StringProperty('Original string URL'),
-            'thumbnail'     => new RefProperty(Image::class, 'Cover image'),
+            'cover'         => new RefProperty(Image::class, 'Cover image'),
             'views'         => new IntegerProperty('Number of views'),
         ];
     }
@@ -78,18 +78,31 @@ class Gallery extends ActiveRecord {
         return User::findByKey($this->founder_id)->limit(1)->ttl(60);
     }
 
-    public function getThumbnail() { 
-        return Image::findByKey($this->thumbnail_id)->limit(1)->ttl(60);
+    /** @return bool if this gallery has a cover image to display. */
+    public function hasCover() {
+        return !empty($this->cover_id) && $this->type == self::TYPE_COMIC;
     }
 
-    /** Gets all the images associated with the gallery
-     * @param int $excludeThumbnailId The ID of the thumbnail to exclude.
+    /** @return ActiveQuery|Image gets an appropriate image to display as the cover. If no cover image is present, then the first image is used. */
+    public function getCover() { 
+        if (empty($this->cover_id)) return Image::findByGallery($this->id)->orderByAsc('id')->limit(1)->ttl(60);
+        return Image::findByKey($this->cover_id)->limit(1)->ttl(60);
+    }
+
+    /** Gets all the images in the gallery.
      * @return ActiveQuery|Image[]
      */
-    public function getImages($excludeThumbnailId = false) {
-        $query = Image::findByGallery($this->id)->orderByAsc('id');
-        if ($excludeThumbnailId !== false) $query = $query->andWhere(['id', '<>', $excludeThumbnailId]);
-        return $query->ttl(30);
+    public function getImages() {
+        return Image::findByGallery($this->id)->orderByAsc('id')->ttl(60);
+    }
+
+    /** Gets all the images to be rendered on the display page. This may exclude the cover if appropriate 
+     * @return ActiveQuery|Image[]
+    */
+    public function getDisplayImages() {
+        $query = $this->getImages()->andWhere(['is_cover', 0]);
+        //if ($this->hasCover()) $query->andWhere(['id', '<>', $this->cover_id]);
+        return $query;
     }
 
     /** Get all the tags
@@ -185,6 +198,11 @@ class Gallery extends ActiveRecord {
     /** @return ActiveQuery|Gallery[] finds by the url */
     public static function findByUrl($url) {
         return Gallery::find()->where(['url', $url])->ttl(60);
+    }
+
+    /** @return ActiveQuery|Gallery[] finds by the scraper's identifier. Identifiers are only unique to the scraper. */
+    public static function findByIdentifier($scraper, $identifier) {
+        return Gallery::find()->where(['scraper', $scraper])->andWhere(['identifier', $identifier])->ttl(0);
     }
 
     private const SEARCH_EXCLUDE = 0;

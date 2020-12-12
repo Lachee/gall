@@ -72,6 +72,15 @@ class ActiveRecord extends BaseObject{
         return $this;
     }
 
+    public function __set($name, $value) {      
+        if (is_callable(get_called_class() . "::set$name")) {            
+            $this->{"set$name"}($value);
+        } else  if (stripos($name, '_') !== 0 && property_exists($this, $name)) {
+            $this->{$name} = $value;
+            $this->_dirty[] = $name;
+        }         
+    }
+
     /** Before the load */
     protected function beforeQueryLoad($data) {}
     /** After the load */

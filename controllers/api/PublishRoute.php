@@ -4,6 +4,7 @@ use app\models\ScrapeData;
 use app\models\User;
 use GALL;
 use kiss\exception\HttpException;
+use kiss\exception\NotYetImplementedException;
 use kiss\helpers\HTTP;
 use kiss\Kiss;
 use kiss\models\BaseObject;
@@ -22,6 +23,8 @@ class PublishRoute extends Route {
     }
 
     public function post() {
+        throw new NotYetImplementedException('This functionality is still a work in progress');
+        
         $json = HTTP::json(true);
         
         /** @var User $user */

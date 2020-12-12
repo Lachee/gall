@@ -5,6 +5,7 @@ use GALL;
 use kiss\db\ActiveRecord;
 use kiss\helpers\HTML;
 use kiss\helpers\HTTP;
+use kiss\schema\BooleanProperty;
 use kiss\schema\IntegerProperty;
 use kiss\schema\StringProperty;
 
@@ -15,14 +16,15 @@ class Image extends ActiveRecord {
     protected $scraper;
     protected $founder_id;
     protected $gallery_id;
-    protected $is_thumbnail;
+    protected $is_cover;
 
     public static function getSchemaProperties($options = [])
     {
         return [
             'id'            => new IntegerProperty('ID of the image'),
             'url'           => new StringProperty('URL of the image'),
-            'origin'        => new StringProperty('Original URL of hte image'),
+            'origin'        => new StringProperty('Original URL of the image'),
+            'is_cover'      => new BooleanProperty('Is the image only used as a cover'),
         ];
     }
 

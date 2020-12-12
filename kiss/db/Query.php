@@ -18,7 +18,7 @@ class Query {
 
     /** @var int $cacheDuration how long in second cached results last for. */
     public $cacheDuration = 1;
-    private $cacheVersion = 4;
+    private $cacheVersion = 5;
     private $flushCache = false;
 
     public $remember = true;

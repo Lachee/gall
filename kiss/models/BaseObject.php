@@ -137,7 +137,6 @@ class BaseObject implements SchemaInterface, JsonSerializable {
             $this->{"set$name"}($value);
         } else  if (stripos($name, '_') !== 0 && property_exists($this, $name)) {
             $this->{$name} = $value;
-            $this->_dirty[] = $name;
         }         
     }
 

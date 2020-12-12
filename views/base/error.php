@@ -85,7 +85,7 @@ use kiss\helpers\Strings;
                                     ?>
                                     <div class='trace <?= Strings::startsWith($trace['class'], 'kiss') || Strings::startsWith($trace['class'], '(closure)') ? '' : 'is-important' ?>'>
                                         <div class='target'><span class='class'><?= $trace['class'] ?></span><span class='type'><?= $trace['type'] ?></span><span class='func'><?= $trace['function'] ?>()</span></div>
-                                        <div class='file'><a href="<?= HTTP::url(['vscode://file/:file', 'file' => urlencode($trace['file'].':' . $trace['line'])]) ?>"><span class='path'><?= $trace['file'] ?></span><span class='line'><?= $trace['line'] ?></span></a></div>
+                                        <div class='file'><a href="<?= HTTP::url(['vscode://file/:file', 'file' => urlencode(($trace['file']?:'').':' . ($trace['line']?:''))]) ?>"><span class='path'><?= $trace['file'] ?: ''?></span><span class='line'><?= $trace['line'] ?: '' ?></span></a></div>
                                         <a href="#collapsible-args-<?= $i ?>" data-action="collapse">Hide / Show Arguments</a>
                                         <div id="collapsible-args-<?= $i ?>"  class='args is-collapsible'><pre><?= var_dump($trace['args']) ?></pre></div>
                                     </div>

@@ -23,24 +23,21 @@ class GalleryViewerController extends BaseController {
         $this->gallery->incrementView();
 
         /** @var Image[] $images */
-        $thumbnail = $this->gallery->thumbnail;
-        $images = $this->gallery->getImages($thumbnail->id)->all();
+        $images = $this->gallery->getDisplayImages()->all();
 
         return $this->render('index', [
             'gallery'   => $this->gallery,
-            'thumbnail' => $thumbnail,
             'images'    => $images,
         ]);
     }
 
     function actionDownload() {
         $title = $this->gallery->title;
-        $thumbnail = $this->gallery->thumbnail;
-        $images = $this->gallery->getImages($thumbnail->id)->ttl(0)->all();
+        $images = $this->gallery->getImages()->ttl(0)->all();
         $count = count($images);
         switch($count) {
             case 0:
-                return Response::redirect($thumbnail->getProxyUrl($title));
+                return Response::redirect($this->gallery->cover->getProxyUrl($title));
             case 1:
                 return Response::redirect($images[0]->getProxyUrl($title));
             default:

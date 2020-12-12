@@ -46,11 +46,11 @@ $k = $tno;
         <div class="columns is-flex-reversable">
             <div class="column is-one-fifth">
                 
-                <?php if (count($images) > 1 && $gallery->type == Gallery::TYPE_COMIC): ?>
+                <?php if ($gallery->hasCover()): ?>
                     <div class="cover-image">
                         <section class="card artwork">
                             <figure class="image expanding-artwork">
-                                <img src="<?= $thumbnail->url ?>">
+                                <img src="<?= $gallery->cover->url ?>">
                             </figure>
                         </section>  
                     </div>
@@ -72,7 +72,7 @@ $k = $tno;
             </div>
             <div class="column">
 
-                <?php if (count($images) == 0) $images = [ $thumbnail ]; ?>
+                <?php if (count($images) == 0) $images = [ $gallery->cover ];  // this hot fix just in case. Should aways have an image :\ ?>
                 <?php if (count($images) == 1) : ?>
                     <?php foreach ($images as $image) : ?>
                         <section class="artwork">

@@ -23,7 +23,7 @@ class ScrapeData extends BaseObject {
     protected $languages;
     protected $url;
     protected $images;
-    protected $thumbnail;
+    protected $cover;
     protected $pages;
 
     public static function getSchemaProperties($options = [])
@@ -36,7 +36,7 @@ class ScrapeData extends BaseObject {
             'url'           => new StringProperty('URL to source material'),
             'tags'          => new ArrayProperty(new StringProperty('Tag name')),
             'images'        => new ArrayProperty(new StringProperty('Image URL'), [ 'min' => 1 ]),
-            'thumbnail'     => new StringProperty('URL to thumbnail'),
+            'cover'         => new StringProperty('URL to cover image'),
 
             'pages'         => new IntegerProperty('Number of pages', 1, ['required' => false]),
             'description'   => new StringProperty('Description of artwork', null, ['required' => false]),
@@ -45,10 +45,34 @@ class ScrapeData extends BaseObject {
         ];
     }
 
-    /** Publishes the data to the site. Throws exception if unable. */
-    public function publish($publisher) {
+    /** Finds any existing galleries that match this scraped data
+     * @return Gallery|null returns the matching gallery
+     */
+    public function findExistingGallery() {
+        $gallery = Gallery::findByIdentifier($this->scraper, $this->id)->ttl(0)->one();
+        if ($gallery != null) return $gallery;
+
+        $gallery = Gallery::findByUrl($this->url)->ttl(0)->one();
+        if ($gallery != null) return $gallery;
+
+        return null;
+    }
+
+    /** Publish the data to the server. It will return the appropriate gallery.
+     * If the gallery already exists, it will return that unless told otherwise to ignore the check
+     * @param User $publisher the user that is publishing the gallery. Rewards will be created for this user.
+     * @param boolean $asNewGallery skips the existing gallery check and will create a new one. Default is false.
+     * @return Gallery returns the gallery associated with the data. This may or may not be a newly created gallery.
+    */
+    public function publish($publisher, $asNewGallery = false) {
         if (!($publisher instanceof User)) 
             throw new ArgumentException('Publisher must be a user');
+
+        //Check it doesnt already exist. This is relied on by the search function
+        if (!$asNewGallery) {
+            $existingGallery = $this->findExistingGallery();
+            if ($existingGallery != null) return $existingGallery;
+        }
 
         //Prepare a list of tags
         $tags = [];
@@ -108,6 +132,8 @@ class ScrapeData extends BaseObject {
             $tags[] = $tag;
         }
 
+        $lastUploadedImage = null;
+
         //Start the transaction
         Kiss::$app->db()->beginTransaction();
         {
@@ -121,7 +147,7 @@ class ScrapeData extends BaseObject {
 
             //Insert the images
             foreach($this->images as $img) {
-                $image = new Image([
+                $lastUploadedImage = $image = new Image([
                     'origin'        => $img,
                     'founder_id'    => $publisher->getKey(),
                     'gallery_id'    => $gallery->getKey(),
@@ -138,23 +164,42 @@ class ScrapeData extends BaseObject {
         }
         Kiss::$app->db()->commit();
 
-        //Finally, set the galleries thumbnail
-        $thumbnail = Image::findByOrigin($this->thumbnail)->one();
-        if ($thumbnail == null) {
-            $thumbnail = new Image([
-                'origin' => $this->thumbnail,
-                'founder_id'    => $publisher->getKey(),
-                'gallery_id'    => $gallery->getKey(),
-                'scraper'       => $this->scraper,
-            ]);
-            $thumbnail->save();
+        //Finally, set the galleries cover, first by finding it in the list, then otherwise by including it directly.
+        // We only want to set the cover if we dont have an appropriate one already.
+        if (!empty($this->cover)) {
+            $cover = Image::findByOrigin($this->cover)->one();
+            if ($cover == null) {
+                $cover = new Image([
+                    'origin'        => $this->cover,
+                    'founder_id'    => $publisher->getKey(),
+                    'gallery_id'    => $gallery->getKey(),
+                    'scraper'       => $this->scraper,
+                    'is_cover'      => true,
+                ]);
+
+                //Set the cover.
+                if ($cover->save()) {
+                    $gallery->cover_id = $cover->id;
+                    if (!$gallery->save([ 'cover_id' ])) {                    
+                        $error = $cover->errorSummary();
+                        $e = $error;
+                    }
+                } else {
+                    $error = $cover->errorSummary();
+                    $e = $error;
+                }
+            } else {
+                $gallery->cover_id = $cover->id;
+                $gallery->save([ 'cover_id' ]);
+            }
+        } else {
+            $cover = null;
         }
 
-        if ($thumbnail != null) {
-            $gallery->thumbnail_id = $thumbnail->getKey(); 
-            $gallery->save();
-        }
 
+        //Update the user's new pin
+        //$publisher->profileImage = $cover ?: $lastUploadedImage;
+        //$s = $publisher->save();
         return $gallery;
     }
 }

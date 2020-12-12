@@ -54,14 +54,19 @@ class GalleryController extends BaseController {
         $results    = [];
         if ($query !== false) {
 
+            $query = trim($query);
+
             //Search contains HTTP, so lets publish it instead.
             if (Strings::startsWith($query, 'http') && Kiss::$app->user != null) {
+                //Quick check if we have the URL already
                 $gallery = Gallery::findByUrl($query)->fields(['id'])->one();
                 if ($gallery != null)
                     return Response::redirect(['/gallery/:gallery/', 'gallery' => $gallery]);
 
+                //Scrape the data and check again if it already exists
+                //Try to publish the gallery, otherwise error out.
                 $scrapedData = GALL::$app->scraper->scrape($query);
-                if ($gallery = $scrapedData->publish(Kiss::$app->user)) {
+                if (($gallery = $scrapedData->publish(Kiss::$app->user, false)) !== false) {
                     return Response::redirect(['/gallery/:gallery/', 'gallery' => $gallery]);
                 } else {
                     Kiss::$app->session->addNotification('Failed to create post. ' . $scrapedData->errorSummary(), 'danger');
@@ -77,12 +82,4 @@ class GalleryController extends BaseController {
             'results'   => $results
         ]);
     }
-
-    function actionRecache() {
-        //GALL::$app->scraper->cacheImage('https://i1.wp.com/hentaicomicsfree.com/wp-content/uploads/2018/12/Overwatch-BdsmMaker-014-630x1024.jpg');
-
-        GALL::$app->scraper->recache();
-        //return $this->actionIndex();
-    }
-
 }
