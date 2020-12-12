@@ -43,6 +43,17 @@ class Image extends ActiveRecord {
         return self::find()->where(['origin', $origin]);
     }
 
+    /** Proxies the original URL
+     * @param string $filename if given, then the image will be given a filename in the proxy and downloaded
+     * @return string the URL
+     */
+    public function getProxyUrl($filename = false) {
+        $route = [ '/api/proxy' ];
+        $route['url'] = empty($this->url) ? $this->origin : $this->url;
+        if ($filename !== false) $route['filename'] = $filename;
+        return HTTP::url($route);
+    }
+
     /** Gets the current suitable url */
     public function getUrl() {
         return HTTP::url( ['/api/proxy', 'url' => empty($this->url) ? $this->origin : $this->url] );

@@ -27,7 +27,7 @@ class ProxyRoute extends Route {
 
     public function get() {
 
-        $size  = HTTP::get('size', 0);
+        $size   = HTTP::get('size', 0);
         $url    = HTTP::get('url');
         $algo   = HTTP::get('algo', IMG_BICUBIC);
 
@@ -44,7 +44,7 @@ class ProxyRoute extends Route {
         $cache = Kiss::$app->redis()->get($key);
         if ($cache) {
             ob_clean();
-            return Response::image(base64_decode($cache), 'jpeg');
+            return Response::image(base64_decode($cache), 'jpeg', HTTP::get('filename', false));
         }
 
         //Open a temporary 
@@ -88,8 +88,9 @@ class ProxyRoute extends Route {
         
         //Send
         ob_clean();
-        return Response::image($imdata, 'jpeg');
+        return Response::image($imdata, 'jpeg', HTTP::get('filename', false));
     }
+
 
     private static function getReferer($url) {
         return $url;

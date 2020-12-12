@@ -37,7 +37,7 @@ $k = $tno;
                         <span class="icon"><i class="fal fa-external-link"></i></span>
                         <span>View Source</span>
                     </a>
-                    <a href="<?= $gallery->url ?>" class="button is-small">
+                    <a href="<?= HTTP::url(['/gallery/:gallery/download', 'gallery' => $gallery ])?>" target="_BLANK" class="button is-small">
                         <span class="icon"><i class="fal fa-cloud-download"></i></span>
                     </a>
                 </p>

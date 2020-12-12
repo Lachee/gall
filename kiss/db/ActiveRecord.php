@@ -23,31 +23,6 @@ class ActiveRecord extends BaseObject{
     /** TODO Implement validation */
     public function validate() { return true; }
 
-    public function __get($name) {
-        if (is_callable(get_called_class() . "::get$name")) {
-            $result = $this->{"get$name"}();
-            if ($result instanceof ActiveQuery) {
-                $all = $result->all();
-                $limit = $result->getLimit();
-                if ($limit == null || $limit[1] > 1) 
-                    return $all;
-                return $all[0] ?? null;
-            }
-            return $result;
-        }
-
-        if (stripos($name, '_') !== 0 && property_exists($this, $name))
-            return $this->{$name};
-    }
-
-    public function __set($name, $value) {      
-        if (is_callable(get_called_class() . "::set$name")) {            
-            $this->{"set$name"}($value);
-        } else  if (stripos($name, '_') !== 0 && property_exists($this, $name)) {
-            $this->{$name} = $value;
-            $this->_dirty[] = $name;
-        }         
-    }
 
     /** Marks a variable as dirty. Maybe required when manually setting variables.
      * @return $this
