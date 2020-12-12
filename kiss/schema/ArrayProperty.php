@@ -32,7 +32,7 @@ class ArrayProperty extends Property {
     }
 
     /** @inheritdoc */
-    public function validate($value)
+    public function validateValue($value)
     {
         if (!is_array($value)) {
             return "Expected an array.";
@@ -47,6 +47,6 @@ class ArrayProperty extends Property {
             return "Too few items. Expect {$this->minItems} but got {$count}.";
         }
 
-        return true;
+        return parent::validateValue($value);
     }
 }

@@ -8,6 +8,7 @@ use kiss\exception\ArgumentException;
 use kiss\exception\InvalidOperationException;
 use kiss\helpers\Arrays;
 use kiss\Kiss;
+use kiss\schema\EnumProperty;
 use kiss\schema\IntegerProperty;
 use kiss\schema\RefProperty;
 use kiss\schema\StringProperty;
@@ -24,11 +25,15 @@ class Gallery extends ActiveRecord {
     protected $thumbnail_id;
     protected $views;
 
+    public const TYPE_COMIC = 'comic';
+    public const TYPE_ARTWORK = 'artwork';
+
     public static function getSchemaProperties($options = [])
     {
         return [
             'id'            => new IntegerProperty('Unique ID of the gallery'),
             'identifier'    => new StringProperty('Identifier of scraped data'),
+            'type'          => new EnumProperty('Type of the gallery', [ self::TYPE_ARTWORK, self::TYPE_COMIC ]),
             'founder'       => new RefProperty(User::class, 'the user that found it'),
             'title'         => new StringProperty('Title of the gallery'),
             'description'   => new StringProperty('Description of the gallery'),
@@ -36,6 +41,25 @@ class Gallery extends ActiveRecord {
             'thumbnail'     => new RefProperty(Image::class, 'Cover image'),
             'views'         => new IntegerProperty('Number of views'),
         ];
+    }
+
+    /** @inheritdoc */
+    public function validate()
+    {
+        if (!parent::validate()) return false;
+        if ($this->isNewRecord()) {
+            if (empty($this->url))  {
+                $this->addError('URL cannot be empty');
+                return false;
+            }
+
+            if (Gallery::findByUrl($this->url)->ttl(0)->one() != null) {
+                $this->addError('URL already exists');
+                return false;
+            }
+        }
+
+        return true;
     }
 
     public function getShortDescription() {
@@ -58,8 +82,14 @@ class Gallery extends ActiveRecord {
         return Image::findByKey($this->thumbnail_id)->limit(1);
     }
 
-    public function getImages() {
-        return Image::findByGallery($this->id)->orderByAsc('id');
+    /** Gets all the images associated with the gallery
+     * @param int $excludeThumbnailId The ID of the thumbnail to exclude.
+     * @return ActiveQuery|Image[]
+     */
+    public function getImages($excludeThumbnailId = false) {
+        $query = Image::findByGallery($this->id)->orderByAsc('id');
+        if ($excludeThumbnailId !== false) $query = $query->andWhere(['id', '<>', $excludeThumbnailId]);
+        return $query;
     }
 
     /** Get all the tags
@@ -150,6 +180,11 @@ class Gallery extends ActiveRecord {
     public static function findByRandomUniqueScraper() {
         //SELECT url FROM ( SELECT * FROM gall_gallery ORDER BY RAND() ) as sub GROUP BY scraper
         return Gallery::query()->select('( SELECT * FROM $gallery ORDER BY RAND() ) as sub')->groupBy('scraper');
+    }
+
+    /** @return ActiveQuery|Gallery[] finds by the url */
+    public static function findByUrl($url) {
+        return Gallery::find()->where(['url', $url]);
     }
 
     private const SEARCH_EXCLUDE = 0;

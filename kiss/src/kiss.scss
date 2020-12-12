@@ -82,6 +82,16 @@ $footer-padding: 1rem 1.5rem 0rem;
 }
 
 .stacktrace {
+  
+  $st-primary: #01a38e;
+  $st-primary-darker: #127d70;
+  $st-secondary: #0a0a0a;
+  $st-secondary-darker: #000000;
+  
+  $st-class: inherit;
+  $st-type: inherit;
+  $st-func: $st-primary;
+
   .trace {
     padding: 5px;
     margin: 5px;
@@ -94,9 +104,8 @@ $footer-padding: 1rem 1.5rem 0rem;
       }
 
       .file {
-        .path { background: #01a38e; }
-        .line { background: #127d70; }
-        a:hover { background: #127d70; }
+        .path { background: $st-primary; }
+        .line, a:hover { background: $st-primary-darker; }
       }
     }
 
@@ -104,27 +113,29 @@ $footer-padding: 1rem 1.5rem 0rem;
       font-size: 13pt;
       font-family: monospace; 
 
-      .class { }
+      .class {
+        color: $st-class;
+      }
       .type {
-        color: #0000004f;
+        color: $st-type;
       }
       
       .func {
-        color: #40af81;
+        color: $st-func;
       }
     }
 
     .file {
       .path {
         padding: 1px 3px 1px 5px;
-        background: #d5d6d6;
+        background: $st-secondary;
         height: 100%;
         float: left;
       }
       
       .line {
         padding: 1px 5px 1px 3px;
-        background: #bdbdbd;
+        background: $st-secondary-darker;
         font-family: monospace;
         height: 100%;
         float: left;
@@ -135,7 +146,7 @@ $footer-padding: 1rem 1.5rem 0rem;
         border: 2px solid transparent;
         overflow: hidden;
         border-radius: 5px;
-        &:hover { background: #bdbdbd; }
+        &:hover { background: $st-secondary-darker; }
       }
     }
   }

@@ -49,7 +49,7 @@ try {
                                     </span>
                                     <input name="q" autocomplete="off" class="input has-placeholder-transition" type="text" placeholder="" data-placeholders="<?= join('|', $searchPlaceholderTerms) ?>">
                                 </div>
-                                <div class="control"><a class="button">Search</a></div>
+                                <div class="control"><button class="button" type="submit">Search</button></div>
                             </div>
                         </form>
                     </div>

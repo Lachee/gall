@@ -17,10 +17,11 @@ class StringProperty extends Property {
     }
 
     /** @inheritdoc */
-    public function validate($value)
+    public function validateValue($value)
     {
         if (!is_string($value)) 
             return "Expected a string.";
-        return true;
+
+        return parent::validateValue($value);
     }
 }

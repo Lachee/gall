@@ -15,6 +15,7 @@ class Image extends ActiveRecord {
     protected $scraper;
     protected $founder_id;
     protected $gallery_id;
+    protected $is_thumbnail;
 
     public static function getSchemaProperties($options = [])
     {

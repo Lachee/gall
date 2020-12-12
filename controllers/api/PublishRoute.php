@@ -15,6 +15,12 @@ class PublishRoute extends Route {
 
     protected static function route() { return "/publish"; }
 
+    public function get() {
+        $url = HTTP::get('url', false);
+        if ($url == false) throw new HttpException(HTTP::BAD_REQUEST, 'expected url query');
+        return GALL::$app->scraper->scrape($url);
+    }
+
     public function post() {
         $json = HTTP::json(true);
         

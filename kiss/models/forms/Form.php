@@ -21,21 +21,7 @@ use kiss\schema\SchemaInterface;
 use kiss\schema\StringProperty;
 
 class Form extends BaseObject {
-    
-    /** @return bool validates the record */
-    public function validate() {
-        $valid = true;
-        $schema = get_called_class()::getSchemaProperties(['serializer' => 'form']);
-        foreach($schema as $property => $scheme) {
-            if (($err = $scheme->validate($this->{$property})) !== true) {
-                $this->addError($err);
-                $valid = false;
-            }
-        }
-        return $valid;
-    }
-
-
+  
     /** Loads the data into the record and saves it.
      * @param ActiveRecord|BaseObject $record 
      * @param bool $validate validates the record before submitting. Isn't required if loaded using Load
@@ -55,7 +41,7 @@ class Form extends BaseObject {
         $schema = get_called_class()::getSchemaProperties(['serializer' => 'form']);
         foreach($schema as $property => $scheme) {
             if ($scheme->getProperty('readOnly', false) === true) continue;
-            if (($err = $scheme->validate($this->{$property})) !== true) {
+            if (($err = $scheme->validateValue($this->{$property})) !== true) {
                 $this->addError($err);
                 return false;
             }

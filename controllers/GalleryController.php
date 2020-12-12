@@ -56,9 +56,16 @@ class GalleryController extends BaseController {
 
             //Search contains HTTP, so lets publish it instead.
             if (Strings::startsWith($query, 'http') && Kiss::$app->user != null) {
-                $scrapedData = ScrapeData::scrape($query);
-                $scrapedData->publish(Kiss::$app->user);
-                return Response::redirect(['/gallery/:gallery/', 'gallery' => $gallery]);
+                $gallery = Gallery::findByUrl($query)->fields(['id'])->one();
+                if ($gallery != null)
+                    return Response::redirect(['/gallery/:gallery/', 'gallery' => $gallery]);
+
+                $scrapedData = GALL::$app->scraper->scrape($query);
+                if ($gallery = $scrapedData->publish(Kiss::$app->user)) {
+                    return Response::redirect(['/gallery/:gallery/', 'gallery' => $gallery]);
+                } else {
+                    Kiss::$app->session->addNotification('Failed to create post. ' . $scrapedData->errorSummary(), 'danger');
+                }
             }
 
             //Otherwise lets assume its a tag.

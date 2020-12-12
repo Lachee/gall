@@ -33,10 +33,13 @@ class Property extends BaseObject implements JsonSerializable {
     /** @var bool the field is considered a read only. Not included in the schema. */
     public $readOnly = false;
 
+    /** @inheritdoc */
+    public function validate() { return true; }
+
     /** Validates the data
      * @param mixed $data the data to validate 
      * @var bool|string true if valid, otherwise it will return the error message. */
-    public function validate($value) {
+    public function validateValue($value) {
         return true;
     }
 

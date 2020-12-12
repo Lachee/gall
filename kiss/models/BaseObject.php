@@ -29,6 +29,23 @@ class BaseObject implements SchemaInterface, JsonSerializable {
     /** After the load */
     protected function afterLoad($data, $success) {}
 
+    /** Validates if this model is able to save. 
+     * This method should use [[addError]] to record the reason the object is unable to save.
+     * @return bool true if its validated.
+     */
+    public function validate() {
+        $valid = true;
+        $schema = get_called_class()::getSchemaProperties(['serializer' => 'form']);
+        foreach($schema as $property => $scheme) {
+            if (($err = $scheme->validate($this->{$property})) !== true) {
+                $this->addError($err);
+                $valid = false;
+            }
+        }
+        return $valid;
+    }
+
+
     /** Creates a new instance of the class */
     function __construct($properties = [])
     {
@@ -84,8 +101,10 @@ class BaseObject implements SchemaInterface, JsonSerializable {
                             throw new InvalidOperationException("{$key}'s class {$class} is not of type {$type}!");
                         }
 
-                        //Create obj
-                        $this->{$key} = $class == null ? $pair : self::new($class, $pair);
+                        if (is_subclass_of($class, BaseObject::class))
+                            $this->{$key} = self::new($class, $pair);
+                        else 
+                            $this->{$key} = $pair;
                     }
                 }
             }
@@ -174,6 +193,8 @@ class BaseObject implements SchemaInterface, JsonSerializable {
             $this->loadProperty($schema, $property, $data[$property]);
         }
 
+        //Run through a validation quickly
+        //$this->validate();
         $success = $this->errors == null || count($this->errors) == 0;
         $return = $this->afterLoad($data, $success);
         if (is_bool($return)) return $return;
@@ -182,7 +203,7 @@ class BaseObject implements SchemaInterface, JsonSerializable {
 
     /** Loads individual properties */
     protected function loadProperty($schema, $property, $value, $append = false) {
-        if (($err = $schema->validate($value)) !== true) {
+        if (($err = $schema->validateValue($value)) !== true) {
             $this->addError("$property: $err");
             return false;
         }

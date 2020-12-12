@@ -17,12 +17,12 @@ class NumberProperty extends Property {
     }
     
     /** @inheritdoc */
-    public function validate($value)
+    public function validateValue($value)
     {
         $result = filter_var($value, FILTER_VALIDATE_FLOAT, FILTER_NULL_ON_FAILURE);
         if ($result == null){
             return "Expected a float.";
         }
-        return true;
+        return parent::validateValue($value);
     }
 }

@@ -17,12 +17,12 @@ class IntegerProperty extends Property {
     }
 
     /** @inheritdoc */
-    public function validate($value)
+    public function validateValue($value)
     {
         $result = filter_var($value, FILTER_VALIDATE_INT, FILTER_NULL_ON_FAILURE);
         if ($result == null){
             return "Expected a integer.";
         }
-        return true;
+        return parent::validateValue($value);
     }
 }

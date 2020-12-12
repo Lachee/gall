@@ -36,3 +36,24 @@ img.lg-thumbnail {
         float: left;
     }
 }
+
+.cover-image {
+    img { object-fit: cover;}
+    .card {
+        width: 250px;
+        min-width: 250px;
+        border-radius: 16px;
+        background: #17141d;
+        background-size: cover;
+        box-shadow: -1rem 0 1rem #0000007d;
+        display: flex;
+        flex-direction: column;
+        transition: .2s;
+        margin: auto;
+        scroll-snap-align: start;
+        clear: both;
+        position: relative;
+        overflow: hidden;
+    }
+    margin-bottom: 20px;
+}

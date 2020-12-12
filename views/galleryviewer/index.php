@@ -47,7 +47,19 @@ $k = $tno;
     <section class="gallery">
         <div class="columns is-flex-reversable">
             <div class="column is-one-fifth">
+                
+                <?php if (count($images) > 1 && $gallery->type == Gallery::TYPE_COMIC): ?>
+                    <div class="cover-image">
+                        <section class="card artwork">
+                            <figure class="image expanding-artwork">
+                                <img src="<?= $thumbnail->url ?>">
+                            </figure>
+                        </section>  
+                    </div>
+                <?php endif; ?>
+                
                 <?= ProfileCard::widget(['profile' => $gallery->founder, 'small' => true ]); ?>
+
                 <?php if (!empty($gallery->description)) : ?>
                     <div class="tag-group">
                         <div class="subtitle">Description</div>
@@ -62,6 +74,7 @@ $k = $tno;
             </div>
             <div class="column">
 
+                <?php if (count($images) == 0) $images = [ $thumbnail ]; ?>
                 <?php if (count($images) == 1) : ?>
                     <?php foreach ($images as $image) : ?>
                         <section class="artwork">

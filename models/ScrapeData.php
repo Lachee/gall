@@ -35,7 +35,7 @@ class ScrapeData extends BaseObject {
             'title'         => new StringProperty('The title of the artwork'),
             'url'           => new StringProperty('URL to source material'),
             'tags'          => new ArrayProperty(new StringProperty('Tag name')),
-            'images'        => new ArrayProperty(new StringProperty('Image URL')),
+            'images'        => new ArrayProperty(new StringProperty('Image URL'), [ 'min' => 1 ]),
             'thumbnail'     => new StringProperty('URL to thumbnail'),
 
             'pages'         => new IntegerProperty('Number of pages', 1, ['required' => false]),
@@ -45,7 +45,7 @@ class ScrapeData extends BaseObject {
         ];
     }
 
-    /** Publishes the data to the site */
+    /** Publishes the data to the site. Throws exception if unable. */
     public function publish($publisher) {
         if (!($publisher instanceof User)) 
             throw new ArgumentException('Publisher must be a user');
@@ -156,11 +156,5 @@ class ScrapeData extends BaseObject {
         }
 
         return $gallery;
-    }
-
-    /** Scrapes the given URL 
-     * @return $this scraped data */
-    public static function scrape($url) {
-
     }
 }

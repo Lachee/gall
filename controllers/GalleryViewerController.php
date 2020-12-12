@@ -24,8 +24,11 @@ class GalleryViewerController extends BaseController {
         $gallery->incrementView();
 
         /** @var Image[] $images */
-        $images = $gallery->getImages()->all();
+        $thumbnail = $gallery->thumbnail;
+        $images = $gallery->getImages($thumbnail->id)->all();
+
         return $this->render('index', [
+            'thumbnail' => $thumbnail,
             'gallery'   => $gallery,
             'images'    => $images,
         ]);

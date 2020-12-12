@@ -20,6 +20,9 @@ class ActiveRecord extends BaseObject{
     /** The ID of the table */
     public static function tableKey() { return ['id']; }
     
+    /** TODO Implement validation */
+    public function validate() { return true; }
+
     public function __get($name) {
         if (is_callable(get_called_class() . "::get$name")) {
             $result = $this->{"get$name"}();
@@ -178,12 +181,6 @@ class ActiveRecord extends BaseObject{
         return false;
     }
 
-    /** Validates if this model is able to save. 
-     * This method should use [[addError]] to record the reason the object is unable to save.
-     * @return bool true if its validated.
-     */
-    public function validate() { return true;  }    //TODO: Implement Schema Validate
-
     /** Saves the active record using the tableFields. Returns false if unsuccessful.
      * @param boolean $validate should the validate function be called before saving.
      * @param array|null $fields the fields to save
@@ -192,7 +189,8 @@ class ActiveRecord extends BaseObject{
     public function save($validate = true, $fields = null, $ignoreEmpty = true) {
         
         //Validation error
-        if ($validate && !$this->validate()) return false;
+        if ($validate && !$this->validate())
+            return false;
 
         $this->beforeSave();
 
