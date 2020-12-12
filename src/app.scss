@@ -15,10 +15,18 @@ body {
     height: 64px;
 }
 
+/** Navbar Overrides */
 .field, .navbar-item {
     &.is-fullwidth {
         width: 100%;
     }
+}
+.navbar-item {
+    form { 
+        margin: auto;
+        width: 40vw;
+    }
+    #navbar-submit { width: 80px; }
 }
 
 .has-placeholder-transition{
@@ -28,4 +36,12 @@ body {
     &.is-transitioning::placeholder {
         color: transparent;
     }
+}
+
+//Sets up the navbar so we are able to have a center element
+.navbar-right { margin-right: unset; }
+.navbar-center {
+    flex-grow: 1;
+    flex-direction: column;
+    justify-content: center;
 }

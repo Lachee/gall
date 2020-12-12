@@ -38,23 +38,25 @@ try {
             <div class="navbar-start">
                     <a class="navbar-item" href="<?= HTTP::url('/')?>">Home</a>
                 <?php if ($user): ?>
-                    <a class="navbar-item" href="<?= HTTP::url('/gallery/')?>">Gallery</a>
-                    
-                    <div class="navbar-item is-fullwidth">
-                        <form method='GET' action='<?= HTTP::url('/gallery/search') ?>' style='margin: 0;width: 100%'>
-                            <div class="field has-addons  is-fullwidth">
-                                <div class="control has-icons-left is-expanded">
-                                    <span class="icon is-small is-left">
-                                        <i class="fas fa-search"></i>
-                                    </span>
-                                    <input name="q" autocomplete="off" class="input has-placeholder-transition" type="text" placeholder="" data-placeholders="<?= join('|', $searchPlaceholderTerms) ?>">
-                                </div>
-                                <div class="control"><button class="button" type="submit">Search</button></div>
-                            </div>
-                        </form>
-                    </div>
+                    <a class="navbar-item" href="<?= HTTP::url('/gallery/')?>">Gallery</a>                    
                 <?php endif;  ?>
             </div>
+            <div class="navbar-center">
+                <div class="navbar-item is-fullwidth">
+                    <form method='GET' action='<?= HTTP::url('/gallery/search') ?>'>
+                        <div class="field has-addons  is-fullwidth">
+                            <div class="control has-icons-left is-expanded">
+                                <span class="icon is-small is-left">
+                                    <i class="fas fa-search"></i>
+                                </span>
+                                <input id="navbar-search" name="q" autocomplete="off" class="input has-placeholder-transition" type="text" placeholder="" data-placeholders="<?= join('|', $searchPlaceholderTerms) ?>">
+                            </div>
+                            <div class="control"><button id="navbar-submit" class="button" type="submit">Search</button></div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+            
         </div>
 
         <!-- RHS ITEMS -->

@@ -20,3 +20,24 @@ function transitionPlaceholders(transitionTime = PLACEHOLDER_TRANSITION_TIME) {
         }, transitionTime * 1000);
     });
 }
+
+/**== Search Box
+ * this script handles the search box changing the "search" button to "post" when a URL is present
+ */
+document.getElementById('navbar-search').addEventListener('keyup', (event) => {
+    const submitButton = document.getElementById('navbar-submit');
+    const value = event.target.value;
+    if (validURL(value)) submitButton.innerText = 'Post';
+    else submitButton.innerText = 'Search';
+
+    function validURL(str) {
+        var pattern = new RegExp('^(https?:\\/\\/)?'+ // protocol
+        '((([a-z\\d]([a-z\\d-]*[a-z\\d])*)\\.)+[a-z]{2,}|'+ // domain name
+        '((\\d{1,3}\\.){3}\\d{1,3}))'+ // OR ip (v4) address
+        '(\\:\\d+)?(\\/[-a-z\\d%_.~+]*)*'+ // port and path
+        '(\\?[;&a-z\\d%_.~+=-]*)?'+ // query string
+        '(\\#[-a-z\\d_]*)?$','i'); // fragment locator
+        return !!pattern.test(str);
+    }
+        
+});
