@@ -6,6 +6,7 @@ use controllers\main\MainController;
 use \Exception;
 use kiss\controllers\Controller;
 use kiss\exception\HttpException;
+use kiss\exception\NotYetImplementedException;
 use kiss\Kiss;
 use kiss\models\BaseObject;
 
@@ -34,7 +35,8 @@ class Response {
      * @return Response the response
      */
     public static function exception($exception, $status = HTTP::INTERNAL_SERVER_ERROR, $mode = null) {
-        if ($exception instanceof HttpException) return self::httpException($exception, $mode);
+        if ($exception instanceof HttpException)                return self::httpException($exception, $mode);
+        if ($exception instanceof NotYetImplementedException)   return self::httpException(new HttpException(HTTP::NOT_IMPLEMENTED, $exception->getMessage()), $mode);
         return self::httpException(new HttpException($status, $exception), $mode);
     }
 
@@ -90,10 +92,10 @@ class Response {
     /** Creates a new file response 
      * @return Response the response
      */
-    public static function file($filename, $data) {
+    public static function file($fileName, $data) {
         return new Response(HTTP::OK, [ 
             'Content-Transfer-Encoding' => 'Binary', 
-            'Content-disposition' => 'attachment; filename="'.$filename.'"' 
+            'Content-disposition' => 'attachment; filename="'.$fileName.'"' 
         ], $data, HTTP::CONTENT_APPLICATION_OCTET_STREAM);
     }
 
@@ -105,9 +107,19 @@ class Response {
     }
 
     /** Creates a new javascript response 
+     * @param mixed $data the raw image data
+     * @param string $extension the file extension
+     * @param string $fileName optional file name. If given, then the image will be downloaded instead. File name must not contain any extension.
      * @return Response the response
      */
-    public static function image($data, $extension) {
+    public static function image($data, $extension, $fileName = false) {
+        if ($fileName != false) {
+            return new Response(HTTP::OK, [
+                        'Content-Transfer-Encoding' => 'Binary', 
+                        'Content-disposition' => 'attachment; filename="'.$fileName.'.'.$extension.'"' 
+            ], $data, "image/$extension");
+        }
+        
         return new Response(HTTP::OK, [ ], $data, "image/$extension");
     }
 
