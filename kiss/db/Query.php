@@ -17,7 +17,7 @@ class Query {
     protected const QUERY_INCREMENT = 'INCREMENT';
 
     /** @var int $cacheDuration how long in second cached results last for. */
-    public $cacheDuration = 10;
+    public $cacheDuration = 1;
     private $cacheVersion = 4;
     private $flushCache = false;
 

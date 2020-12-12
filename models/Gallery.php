@@ -75,11 +75,11 @@ class Gallery extends ActiveRecord {
     }
 
     public function getFounder() {
-        return User::findByKey($this->founder_id)->limit(1);
+        return User::findByKey($this->founder_id)->limit(1)->ttl(60);
     }
 
     public function getThumbnail() { 
-        return Image::findByKey($this->thumbnail_id)->limit(1);
+        return Image::findByKey($this->thumbnail_id)->limit(1)->ttl(60);
     }
 
     /** Gets all the images associated with the gallery
@@ -89,14 +89,14 @@ class Gallery extends ActiveRecord {
     public function getImages($excludeThumbnailId = false) {
         $query = Image::findByGallery($this->id)->orderByAsc('id');
         if ($excludeThumbnailId !== false) $query = $query->andWhere(['id', '<>', $excludeThumbnailId]);
-        return $query;
+        return $query->ttl(30);
     }
 
     /** Get all the tags
      * @return ActiveQuery|Tag[]
     */
     public function getAllTags() {
-        return Tag::find()->leftJoin('$tags', ['id' => 'tag_id'])->orderByAsc('name')->groupBy('$tags.tag_id')->where(['gallery_id', $this->id]);
+        return Tag::find()->leftJoin('$tags', ['id' => 'tag_id'])->orderByAsc('name')->groupBy('$tags.tag_id')->where(['gallery_id', $this->id])->ttl(60);
     }
 
     /** Get tags
@@ -109,14 +109,14 @@ class Gallery extends ActiveRecord {
      * @return ActiveQuery|Tag[] 
     */
     public function getArtist() {
-        return $this->getAllTags()->andWhere(['type', Tag::TYPE_ARTIST ]);
+        return $this->getAllTags()->andWhere(['type', Tag::TYPE_ARTIST ])->ttl(60);
     }
 
     /** Gets the top tags
      * @return ActiveQuery|Tag[] 
     */
     public function getTopTags() {
-        return $this->getAllTags()->orderByDesc('cnt')->limit(5);
+        return $this->getAllTags()->orderByDesc('cnt')->limit(5)->ttl(10);
     }
 
     /** Increments the views */
@@ -156,18 +156,18 @@ class Gallery extends ActiveRecord {
         if ($tag instanceof Tag) $tag = $tag->getKey();
         $query = Gallery::find()->select(Gallery::tableName() . ' g', [ 'g.*' ]);
         $query = $query->join('$tags', ['id' => 'gallery_id'], 'LEFT JOIN');
-        return $query->where(['$tags.tag_id', $tag]);
+        return $query->where(['$tags.tag_id', $tag])->ttl(10);
     }
 
     /** @return ActiveQuery|Gallery[] finds the latest galleries */
     public static function findByLatest() {
-        return Gallery::find()->orderByDesc('id');
+        return Gallery::find()->orderByDesc('id')->ttl(10);
     }
 
     /** @return ActiveQuery|Gallery[] finds the best galleries */
     public static function findByRating() {
         //TODO
-        return Gallery::find()->orderByDesc('views');
+        return Gallery::find()->orderByDesc('views')->ttl(10);
     }
 
     /** @param User|int $founder 
@@ -184,7 +184,7 @@ class Gallery extends ActiveRecord {
 
     /** @return ActiveQuery|Gallery[] finds by the url */
     public static function findByUrl($url) {
-        return Gallery::find()->where(['url', $url]);
+        return Gallery::find()->where(['url', $url])->ttl(60);
     }
 
     private const SEARCH_EXCLUDE = 0;
