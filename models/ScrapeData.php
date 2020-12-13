@@ -1,15 +1,18 @@
 <?php namespace app\models;
 
+use Exception;
 use kiss\models\Identity;
 use GALL;
 use kiss\db\ActiveRecord;
 use kiss\exception\ArgumentException;
+use kiss\helpers\Strings;
 use kiss\Kiss;
 use kiss\models\BaseObject;
 use kiss\schema\ArrayProperty;
 use kiss\schema\EnumProperty;
 use kiss\schema\IntegerProperty;
 use kiss\schema\StringProperty;
+use Throwable;
 
 class ScrapeData extends BaseObject {
 
@@ -81,13 +84,15 @@ class ScrapeData extends BaseObject {
         //Search tags, artist and languages
         if (!empty($this->tags))
             foreach($this->tags as $name) {
-                $tag = Tag::find()->where(['name', $name])->andWhere([ 'type', Tag::TYPE_TAG ])->one();
+                $name = trim(Strings::toLowerCase($name));
+                $tag = Tag::find()->where(['name', $name])->andWhere([ 'type', Tag::TYPE_TAG ])->remember(false)->ttl(0)->one();
                 if ($tag == null) $missingTags[] = [ 'name' => $name, 'type' => Tag::TYPE_TAG ];
                 else $tags[] = $tag;
             }     
 
         if (!empty($this->artist))
             foreach($this->artist as $name) {
+                $name = trim(Strings::toLowerCase($name));
                 $tag = Tag::find()->where(['name', $name])->andWhere([ 'type', Tag::TYPE_ARTIST ])->one();
                 if ($tag == null) $missingTags[] = [ 'name' => $name, 'type' => Tag::TYPE_ARTIST ];
                 else $tags[] = $tag;
@@ -95,48 +100,64 @@ class ScrapeData extends BaseObject {
 
         if (!empty($this->languages))
             foreach($this->languages as $name) {
+                $name = trim(Strings::toLowerCase($name));
                 $tag = Tag::find()->where(['name', $name])->andWhere([ 'type', Tag::TYPE_LANGUAGE ])->one();
                 if ($tag == null) $missingTags[] = [ 'name' => $name, 'type' => Tag::TYPE_LANGUAGE ];
                 else $tags[] = $tag;
             }
 
-        //Create the gallery
-        $gallery = new Gallery([
-            'founder_id'    => $publisher->getKey(),
-            'identifier'    => $this->id,
-            'title'         => $this->title,
-            'description'   => $this->description,
-            'type'          => $this->type,
-            'scraper'       => $this->scraper,
-            'url'           => $this->url,
-        ]);
+        $gallery = null;
+        $lastUploadedImage = null;
 
-        //Save the gallery
-        if (!$gallery->save()) {
-            $this->addError($gallery->errors());
-            return false;
-        }
-
-        //Create the missing tags
-        foreach($missingTags as $missing) {
-            $tag = new Tag([
-                'name' => $missing['name'],
-                'type'  => $missing['type'],
-                'founder_id' => $publisher->getKey(),
+        //Gallery and its tag transaction
+        Kiss::$app->db()->beginTransaction();
+        try {
+            //Create the gallery
+            $gallery = new Gallery([
+                'founder_id'    => $publisher->getKey(),
+                'identifier'    => $this->id,
+                'title'         => $this->title,
+                'description'   => $this->description,
+                'type'          => $this->type,
+                'scraper'       => $this->scraper,
+                'url'           => $this->url,
             ]);
-            if (!$tag->save()) {
-                $this->addError($tag->errors());
-                Kiss::$app->db()->rollBack();
+
+            //Save the gallery
+            if (!$gallery->save()) {
+                $this->addError($gallery->errors());
                 return false;
             }
-            $tags[] = $tag;
+
+            //Create the missing tags
+            foreach($missingTags as $missing) {
+                $name = trim(Strings::toLowerCase($name));
+                $tag = new Tag([
+                    'name' => $name,
+                    'type'  => $missing['type'],
+                    'founder_id' => $publisher->getKey(),
+                ]);
+                if (!$tag->save()) {
+                    $this->addError($tag->errors());
+                    Kiss::$app->db()->rollBack();
+                    return false;
+                }
+                $tags[] = $tag;
+            }
+
+            Kiss::$app->db()->commit();
+        } catch(Throwable $e) {
+            Kiss::$app->db()->rollBack();
+            throw $e;
         }
 
-        $lastUploadedImage = null;
+        //Fallthrough, just in case
+        if ($gallery == null)
+            throw new Exception('Failed to create a gallery!');
 
         //Start the transaction
         Kiss::$app->db()->beginTransaction();
-        {
+        try  {
             //Assign the tags
             $assignedids = [];
             foreach($tags as $tag) {
@@ -161,8 +182,13 @@ class ScrapeData extends BaseObject {
                     return false;
                 }
             }
+
+            Kiss::$app->db()->commit();
+        } catch (Throwable $e) {
+            Kiss::$app->db()->rollBack();
+            $gallery->delete();
+            throw $e;
         }
-        Kiss::$app->db()->commit();
 
         //Finally, set the galleries cover, first by finding it in the list, then otherwise by including it directly.
         // We only want to set the cover if we dont have an appropriate one already.

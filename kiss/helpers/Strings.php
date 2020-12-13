@@ -2,6 +2,18 @@
 
 
 class Strings {
+    /** Converts a string to lower case, respecting the encoding and not destroying UTF-8 
+     * @return string the lowercase string*/
+    public static function toLowerCase($str) {
+        return mb_strtolower($str);
+    }
+    
+    /** Converts a string to upper case, respecting the encoding and not destroying UTF-8 
+     * @return string the upper string*/
+    public static function toUpperCase($str) {
+        return mb_strtoupper($str);
+    }
+
     /** checks if the string starts with another substring */
     public static function startsWith (String $string, String  $needle) : bool
     { 

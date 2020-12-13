@@ -7,10 +7,6 @@ class Connection  extends \PDO
     protected $_table_prefix;
     protected $_table_suffix;
 
-    public $defaultQueryCache = 1;
-    public $defaultQueryRemember = true;
-
-
     public function __construct($dsn, $user = null, $password = null, $driver_options = array(), $prefix = null)
     {
         $this->_table_prefix = $prefix;
@@ -20,7 +16,6 @@ class Connection  extends \PDO
     public function exec($statement)
     {
         $statement = $this->_tablePrefixSuffix($statement);
-        $this->_log[] = $statement;
         return parent::exec($statement);
     }
 
@@ -34,8 +29,6 @@ class Connection  extends \PDO
     {
         $statement = $this->_tablePrefixSuffix($statement);
         $args      = func_get_args();
-
-        $this->_log[] = $statement;
 
         if (count($args) > 1) {
             return call_user_func_array(array($this, 'parent::query'), $args);

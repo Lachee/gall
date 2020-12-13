@@ -6,6 +6,7 @@ defined('KISS_DEBUG') or define('KISS_DEBUG', in_array(@$_SERVER['REMOTE_ADDR'],
 
 include __DIR__ . "/../../autoload.php";
 
+use kiss\db\Query;
 use kiss\exception\AggregateException;
 use kiss\exception\HttpException;
 use kiss\exception\UncaughtException;
@@ -13,10 +14,17 @@ use kiss\helpers\HTTP;
 use kiss\helpers\Response;
 use kiss\helpers\Strings;
 use kiss\Kiss;
+use kiss\models\BaseObject;
 use kiss\router\RouteFactory;
 
-//Set the default response type to JSON
+//Setup a collection of defaults
 Kiss::$app->setDefaultResponseType(HTTP::CONTENT_APPLICATION_JSON);
+BaseObject::$defaults[Query::class] = [ //Clear all the caching settings for API calls.
+    'remember'      => false,
+    'cacheDuration' => 0,
+    'cacheVersion'  => -1,
+    'flushCache'    => true,
+];
 
 //We are going to be HYPER CRITICAL in the API
 // And any error we didnt expect, we will capture and immediately terminate
