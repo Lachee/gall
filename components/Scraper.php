@@ -3,6 +3,8 @@
 use app\models\ScrapeData;
 use Exception;
 use kiss\exception\InvalidOperationException;
+use kiss\helpers\Strings;
+use kiss\Kiss;
 use kiss\models\BaseObject;
 
 class Scraper extends BaseObject {
@@ -25,6 +27,11 @@ class Scraper extends BaseObject {
      * @throws InvalidOperationException 
      */
     public function scrape($url) {
+        $cleanURL = preg_replace("(^https?://)", "", $url );
+        $cleanBase = preg_replace("(^https?://)", "", Kiss::$app->baseURL());
+        if (Strings::startsWith($cleanURL, $cleanBase))
+            throw new Exception('Cannot scrape our own site');
+
         $query = '?' . http_build_query([ 'url' => $url ]);
         $url = '/scrape' . $query;
         $response = $this->client->request('GET', 'scrape' . $query);

@@ -57,7 +57,16 @@ class Strings {
         return number_format($n, 0);
     }
 
-    public static function camelToSnake($str) {
-        
+    /** Checks if the string looks like a url 
+     * @return string|false returns the fully formed URL (with appropriate protocol) or false if it doesn't look like a url
+    */
+    public static function likeURL($str) {
+        $regex = '/(https?:\/\/)?([-a-zA-Z0-9@:%._\+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b)([-a-zA-Z0-9()@:%_\+.~#?&\/\/=]*)?/i';
+        if (preg_match($regex, $str, $matches)) {
+            $protocol = empty($matches[1]) ? 'https://' : $matches[1];
+            return $protocol . $matches[2] . $matches[3];
+        }
+
+        return false;
     }
 }

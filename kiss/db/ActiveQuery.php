@@ -9,7 +9,9 @@ class ActiveQuery extends Query {
     private static $_memcache = [];
 
     protected $className;
-    
+
+    /** @return string Class that is being queried. */
+    public function class() {return $this->className; }
 
     protected function init()
     {

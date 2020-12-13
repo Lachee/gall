@@ -55,7 +55,7 @@ try {
             <?php if ($user): ?>
                 <div class="navbar-center">
                     <div class="navbar-item is-fullwidth">
-                        <form method='GET' action='<?= HTTP::url('/gallery/search') ?>'>
+                        <form method='GET' action='<?= HTTP::url('/gallery/query') ?>'>
                             <div class="field has-addons  is-fullwidth">
                                 <div class="control has-icons-left is-expanded">
                                     <span class="icon is-small is-left">

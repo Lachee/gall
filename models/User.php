@@ -3,6 +3,7 @@
 use kiss\models\Identity;
 use GALL;
 use kiss\db\ActiveQuery;
+use kiss\exception\ArgumentException;
 use kiss\helpers\Arrays;
 use kiss\helpers\HTTP;
 use kiss\Kiss;
@@ -165,6 +166,24 @@ class User extends Identity {
         return Favourite::findByProfile($this)->select(null, [ 'COUNT(*)' ])->andWhere(['gallery_id', $gallery])->andWhere(['user_id', $this])->ttl(false)->one(true)['COUNT(*)'] != 0;
     }
 
+    /**
+     * Applies a blacklist to the gallery
+     * @param ActiveQuery $galleryQuery 
+     * @return ActiveQuery the modified query 
+     */
+    public function applyGalleryBlacklist($galleryQuery) {
+        if (!($galleryQuery instanceof ActiveQuery) || $galleryQuery->class() != Gallery::class)
+            throw new ArgumentException('Unable to apply blacklist gallery as the query is not a Gallery query');
+
+        return $galleryQuery->andWhere(['id', 'NOT', Gallery::find()
+                                ->fields(['$gallery.id'])
+                                ->leftJoin('$tags', ['id' => 'gallery_id'])
+                                ->where(['tag_id', Kiss::$app->db()->createQuery()
+                                        ->select('$blacklist', ['tag_id'])
+                                        ->where([ 'user_id', $this->id ]) 
+                                ])
+                            ]);
+    }
 
     /** @return bool is the profile the signed in user */
     public function isMe() {

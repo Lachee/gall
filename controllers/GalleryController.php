@@ -3,12 +3,15 @@
 use app\components\mixer\Mixer;
 use app\models\Gallery;
 use app\models\ScrapeData;
+use app\models\Tag;
 use kiss\exception\HttpException;
 use kiss\helpers\HTTP;
 use kiss\helpers\Response;
 use kiss\models\BaseObject;
 use app\models\User;
+use Exception;
 use GALL;
+use kiss\exception\NotYetImplementedException;
 use kiss\helpers\Strings;
 use kiss\Kiss;
 use Ramsey\Uuid\Uuid;
@@ -20,36 +23,89 @@ class GalleryController extends BaseController {
         $user = Kiss::$app->user;
         $limit = 10;
 
-        return $this->render('index', [
-            'latest'        => Gallery::findByLatest()->limit($limit)->all(),
-            'top_rated'     => Gallery::findByRating()->limit($limit)->all(),
-            'submitted'     => $user->getGalleries()->limit($limit)->all(),
-            'favourites'    =>  $user->getFavouriteGalleries()->limit($limit)->all(),
-            'recommendation' => $user->searchRecommdendedGalleries(0, $limit),
-        ]);
+        $galleries = [
+            'latest'            => Gallery::findByLatest()->limit($limit),
+            'top_rated'         => Gallery::findByRating()->limit($limit),
+            'submitted'         => $user->getGalleries()->limit($limit),
+            'favourites'        =>  $user->getFavouriteGalleries(),
+        ];
+
+        foreach($galleries as $k => $gallery)
+            $galleries[$k] = $user->applyGalleryBlacklist($gallery)->limit($limit)->all();
+        
+
+        return $this->render('index', array_merge($galleries, [ 
+            'recommendation'    => $user->searchRecommdendedGalleries(0, $limit),
+        ]));
     }
 
     function actionTest() {
-        $blacklistTagQuery      = Kiss::$app->db()->createQuery()->select('$blacklist', ['tag_id'])->where([ 'user_id', Kiss::$app->user->id ]);
-        $blacklistGalleryQuery  = Gallery::find()->fields(['$gallery.id'])->leftJoin('$tags', ['id' => 'gallery_id'])->where(['tag_id', $blacklistTagQuery ]);
-        $query = Gallery::findByLatest()->where(['id', 'NOT', $blacklistGalleryQuery]);
-        
-        
-        $results =  Gallery::findByLatest()
-                        ->where(['id', 'NOT', Gallery::find()
-                                ->fields(['$gallery.id'])
-                                ->leftJoin('$tags', ['id' => 'gallery_id'])
-                                ->where(['tag_id', Kiss::$app->db()->createQuery()
-                                            ->select('$blacklist', ['tag_id'])
-                                            ->where([ 'user_id', Kiss::$app->user->id ]) 
-                                ])
-                        ])
-                        ->limit(10)
-                        ->all();
-                        
+        $tag = Tag::findByName('pokemon')->one();
+        $query = Gallery::findByTag($tag);
+        GALL::$app->user->applyGalleryBlacklist($query);
+        $preview = $query->previewStatement();
+        $results = $query->all();
         return $this->render('list', [
             'results'   => $results
         ]);
+    }
+
+    function actionQuery() {
+        $query = HTTP::get('q', HTTP::get('gall-q', false));
+        if ($query === false || empty($query))
+            return Response::redirect(['/gallery/']);
+
+        if (Kiss::$app->user == null) 
+            throw new HttpException(HTTP::FORBIDDEN, 'You need to be logged in to query');
+
+        //Return to ourselves
+        if (Strings::startsWith($query, '@me')) {
+            $requests = explode(' ', $query);
+            return Response::redirect(['/profile/' . join('/', $requests)]);
+        }
+
+        //If its an interger, probably a gallery
+        if (is_numeric($query)) {
+            $gallery = Gallery::findByKey($query)->fields(['id'])->one();
+            if ($gallery) return Response::redirect(['/gallery/:gallery/', 'gallery' => $gallery]);
+        }
+
+        //If the query starts with HTTP then we want to find based of url
+        if (($link = Strings::likeURL($query)) !== false) {        
+            //If it exists, lets go to it
+            $gallery = Gallery::findByUrl($link)->fields(['id'])->one();
+            if ($gallery == null) {
+
+                //See if we are trying to scrape ourseles
+                $cleanURL = preg_replace("(^https?://)", "", $link );
+                $cleanBase = preg_replace("(^https?://)", "", Kiss::$app->baseURL());
+                if (Strings::startsWith($cleanURL, $cleanBase)) {
+                    $fio = strpos($cleanURL, '/');
+                    $cleanURL = substr($cleanURL, $fio);
+                    if (preg_match('/\/gallery\/([0-9]*)\/?/', $cleanURL, $matches)) {
+                        return Response::redirect(['/gallery/:gallery/', 'gallery' => $matches[1]]);                        
+                    }
+
+                    //Just give up
+                    throw new Exception('Gallery does not exist');
+                }
+
+                
+                //It doesn't exist, so lets make a new post
+                $scraped_data = GALL::$app->scraper->scrape($link);
+                if (!($gallery = $scraped_data->publish(Kiss::$app->user))) {
+
+                    //We failed to publish the gallery, oh dear :c
+                    Kiss::$app->session->addNotification('Failed to create the gallery. ' . $scraped_data->errorSummary(), 'danger');
+                    return Response::redirect(['/gallery/']);
+                }
+            }
+
+            //Redirect to the gallery
+            return Response::redirect(['/gallery/:gallery/', 'gallery' => $gallery]);
+        }
+
+        throw new HttpException(HTTP::NO_CONTENT, 'There was nothing here at all');
     }
 
     function actionSearch() {
