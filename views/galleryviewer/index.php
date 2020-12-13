@@ -73,7 +73,7 @@ $k = $tno;
             <div class="column">
 
                 <?php if (count($images) == 0) $images = [ $gallery->cover ];  // this hot fix just in case. Should aways have an image :\ ?>
-                <?php if (count($images) == 1) : ?>
+                <?php if ($gallery->type != Gallery::TYPE_COMIC): //count($images) == 1) : ?>
                     <?php foreach ($images as $image) : ?>
                         <section class="artwork">
                             <figure class="image is-16by9 expanding-artwork" data-expanding-class="is-16by9">
