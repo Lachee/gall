@@ -26,5 +26,28 @@ $form->fastForm($rules);
 
 <form method='POST'>
   <?= $model->render(); ?>
+  
+  <div class="field">
+      <div class="control has-icons-left" >
+          <span class="select"  style="width: 100%">
+              <select name="event" id="event-selector">
+              </select>
+          </span>
+          <span class="icon is-small is-left">
+              <i class="fal fa-${Graph.getTypeIconName('event')}"></i>
+          </span>
+        </div>
+  </div>
+
   <button class="button" type="submit">Submit</button>
 </form>
+
+<script>
+$('#event-selector').select2({
+    width: '100%',
+    ajax: {
+        url: '/api/tags',
+        data: (params) => new Object({ q: params.term, page: params.page || 1, select2: true })
+    }
+});
+</script>
