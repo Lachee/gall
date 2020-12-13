@@ -5,8 +5,9 @@ use kiss\exception\ArgumentException;
 use kiss\exception\QueryException;
 use kiss\exception\SQLException;
 use kiss\Kiss;
+use kiss\models\BaseObject;
 
-class Query {
+class Query extends BaseObject{
 
     protected const QUERY_SELECT = 'SELECT';
     protected const QUERY_SELECT_MINIMISE = 'SELECT_MINIMISE';
@@ -36,6 +37,7 @@ class Query {
     protected $join = [];
     protected $groupBy = null;
     protected $incrementAmount = 1;
+
     
     /** @var mixed An array of arrays. Each sub array represents the joiner, field, operator, value */
     protected $wheres = [];
@@ -44,9 +46,10 @@ class Query {
     private static $_execLog = [ 'QUERY' => [],  'CACHE' => [], 'REPEAT' => [] ];
     public static function getLog() { return self::$_execLog; }
 
-    public function __construct(Connection $conn)
-    {
-        $this->conn = $conn;
+    protected function init() {
+        parent::init();
+        if ($this->conn == null)
+            throw new ArgumentException('Query cannot have a null connection');
     }
 
     /** The current DB connection */
@@ -226,6 +229,12 @@ class Query {
      */
     public function ttl($duration) {
         return $this->cache($duration);
+    }
+
+    /** Tells the query if it should remember or not. */
+    public function remember($state = true) {
+        $this->remember = $state;
+        return $this;
     }
 
     /** Ensures the value is pulled and clears the cache.

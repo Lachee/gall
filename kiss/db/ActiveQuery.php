@@ -8,13 +8,12 @@ class ActiveQuery extends Query {
     private static $_memcacheVersion = 0;
     private static $_memcache = [];
 
-    private $className;
+    protected $className;
 
-    public function __construct(Connection $conn, $class) 
+    protected function init()
     {
-        parent::__construct($conn);
-        $this->className = $class;
-        $this->select($class::tableName());
+        parent::init();
+        $this->select($this->className);
     }
 
     /** Fetches a single record 

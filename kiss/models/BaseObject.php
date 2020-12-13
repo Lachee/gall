@@ -157,7 +157,7 @@ class BaseObject implements SchemaInterface, JsonSerializable {
 
         //Set the class and return the new object
         $properties['$class'] = $subclass;
-        return self::newObject($properties);
+        return new $subclass($properties);
     }
 
     /** Creates a class, tries to get the class from the properties */
@@ -173,7 +173,7 @@ class BaseObject implements SchemaInterface, JsonSerializable {
             throw new InvalidOperationException("Cannot create {$class} because its not a BaseObject");
 
         //Create a new object with the class
-        return new $class($properties);
+        return self::new($class, $properties);
     }
 
     /** Checks the object. If it is an array with $class set, it will be created */

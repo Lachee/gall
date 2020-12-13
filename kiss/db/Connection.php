@@ -1,10 +1,15 @@
 <?php namespace kiss\db;
 
+use kiss\models\BaseObject;
+
 class Connection  extends \PDO
 {
     protected $_table_prefix;
     protected $_table_suffix;
-    
+
+    public $defaultQueryCache = 1;
+    public $defaultQueryRemember = true;
+
 
     public function __construct($dsn, $user = null, $password = null, $driver_options = array(), $prefix = null)
     {
@@ -49,8 +54,11 @@ class Connection  extends \PDO
         return str_replace("$", $this->_table_prefix, $statement);
     }
 
-    /** Creates a new query */
-    public function createQuery() {
-        return new Query($this);
+    /** Creates a new query with some options
+     * @return Query the query
+     */
+    public function createQuery($options = []) {
+        $options['conn'] = $this;
+        return BaseObject::new(Query::class, $options);
     }
 }
