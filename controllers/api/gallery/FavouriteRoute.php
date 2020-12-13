@@ -25,16 +25,16 @@ class FavouriteRoute extends GalleryRoute {
 
     /** Creates a new favourite */
     public function post($data) {
-        $gallery = $this->getGallery();
-        $user = GALL::$app->user;
+        $gallery    = $this->getGallery();
+        $user       = $this->actingUser;
         if ($user == null) throw new HttpException(HTTP::UNAUTHORIZED, 'Cannot favourite without an active user');        
         return $user->addFavourite($gallery);
     }    
     
     /** Deletes a new favourite */
     public function delete() {
-        $gallery = $this->getGallery();
-        $user = GALL::$app->user;
+        $gallery    = $this->getGallery();
+        $user       = $this->actingUser;
         if ($user == null) throw new HttpException(HTTP::UNAUTHORIZED, 'Cannot favourite without an active user');        
         return $user->removeFavourite($gallery);
     }

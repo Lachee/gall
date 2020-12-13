@@ -64,4 +64,20 @@ class Scope {
         //Return the results
         return $success;
     }
+
+    /** Checks if the identity has the correct scope
+     * @param Identity $identity the user we are validating against
+     * @param string $scope the scope
+     * @return bool
+     */
+    public static function check($identity, $scope) {
+        
+        if ($identity == null) return false;
+        if (!($identity instanceof Identity)) 
+            throw new ArgumentException('invalid type of identity');
+
+        $auth = $identity->authorization();
+        $scopes = Arrays::value($auth, 'scopes', []);
+        return in_array($scope, $scopes);
+    }
 }

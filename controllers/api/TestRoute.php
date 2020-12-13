@@ -5,7 +5,7 @@ use kiss\Kiss;
 use kiss\router\Route;
 use kiss\router\RouteFactory;
 
-class TestRoute extends ApiRoute {
+class TestRoute extends BaseApiRoute {
 
     //We are going to return our routing. Any segment that starts with : is a property.
     // Note that more explicit routes get higher priority. So /example/apple will take priority over /example/:fish

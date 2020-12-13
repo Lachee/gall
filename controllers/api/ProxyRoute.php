@@ -13,7 +13,7 @@ use kiss\router\Route;
 use kiss\router\RouteFactory;
 use Ramsey\Uuid\Uuid;
 
-class ProxyRoute extends ApiRoute {
+class ProxyRoute extends BaseApiRoute {
 
     public const CACHE_DURATION = 60 * 60 * 24 * 7;
     public const CACHE_VERSION = 9;

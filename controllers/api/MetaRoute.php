@@ -6,7 +6,7 @@ use kiss\helpers\HTTP;
 use kiss\router\Route;
 use kiss\router\RouteFactory;
 
-class MetaRoute extends ApiRoute {
+class MetaRoute extends BaseApiRoute {
     
     //We are going to return our routing. Any segment that starts with : is a property.
     // Note that more explicit routes get higher priority. So /example/apple will take priority over /example/:fish
@@ -20,16 +20,5 @@ class MetaRoute extends ApiRoute {
     // Supports get, delete
     public function get() {
         return RouteFactory::getRoutes();
-    }
-
-    public function post($data) {
-        throw new HttpException(HTTP::NOT_IMPLEMENTED);
-        
-        
-        $data = HTTP::json();
-        $jwt = HTTP::header('X-XVE-Webhook');
-        file_put_contents('tmp.json', json_encode($data, JSON_PRETTY_PRINT));
-        file_put_contents('tmp2.json', $jwt);
-        return 'roger that!';
     }
 }

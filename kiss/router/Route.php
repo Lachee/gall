@@ -8,6 +8,7 @@ use kiss\helpers\HTTP;
 use kiss\helpers\Scope;
 use kiss\helpers\Strings;
 use kiss\models\BaseObject;
+use kiss\models\Identity;
 
 class Route extends BaseObject {
 
@@ -26,6 +27,7 @@ class Route extends BaseObject {
     protected function scopes() { return null; }
 
     /** Checks if hte identity has the requried scopes.
+     * @param Identity $identity
      * @return bool true if they have meet all the scope requirements
     */
     public function authenticate($identity) {

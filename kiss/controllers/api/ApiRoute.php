@@ -8,6 +8,7 @@ use kiss\router\Route;
 
 class ApiRoute extends Route {
 
+
     /** @inheritdoc */
     protected function scopes() { 
         $perm = get_called_class()::route();

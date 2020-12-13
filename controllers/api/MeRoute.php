@@ -1,11 +1,12 @@
 <?php namespace app\controllers\api;
 
+use GALL;
 use kiss\controllers\api\ApiRoute;
 use kiss\Kiss;
 use kiss\router\Route;
 use kiss\router\RouteFactory;
 
-class MeRoute extends ApiRoute {
+class MeRoute extends BaseApiRoute {
 
     //We are going to return our routing. Any segment that starts with : is a property.
     // Note that more explicit routes get higher priority. So /example/apple will take priority over /example/:fish
@@ -18,11 +19,10 @@ class MeRoute extends ApiRoute {
     // Throw an exception to send exceptions back.
     // Supports get, delete
     public function get() {
-        $user = Kiss::$app->getUser();
-        if ($user == null) return null;
         return [
-            'user'      => $user,
-            'auth'      => $user->authorization(),
+            'auth'      => GALL::$app->user->authorization(),
+            'user'      => GALL::$app->user,
+            'acting'    => $this->actingUser == GALL::$app->user ? null : $this->actingUser
         ];
     }
 }

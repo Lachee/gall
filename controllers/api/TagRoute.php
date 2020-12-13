@@ -9,7 +9,7 @@ use kiss\helpers\Response;
 use kiss\router\Route;
 use kiss\router\RouteFactory;
 
-class TagRoute extends ApiRoute {
+class TagRoute extends BaseApiRoute {
 
     const DEFAULT_PAGE_SIZE = 10;
     const MAX_PAGE_SIZE = 150;
