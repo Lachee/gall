@@ -27,28 +27,30 @@ $form->fastForm($rules);
 <form method='POST'>
   <?= $model->render(); ?>
 
-    <div class="field has-addons  is-fullwidth">
-        <div class="control has-icons-left is-expanded">
-            <span class="icon is-small is-left">
-                <i class="fas fa-search"></i>
-            </span>
-            <input style="direction: rtl;" id="navbar-search" name="q" autocomplete="off" class="input has-placeholder-transition" type="text" placeholder="you do not have an API key available" value="<?= $key ?>" readonly>
+    <div class="field ">
+        <label class="label">API Key</label>
+        <div class="field has-addons is-fullwidth">
+            <div class="control" style="flex: 1">
+                <input class="input" name="profile_name" placeholder="cooldude69" value="<?= $key ?>" type="text" readonly>
+            </div>  
+            <div class="control"><a href="<?= HTTP::url(['settings', 'regen' => true]) ?>" class="button" type="submit">Regenerate</a></div>
         </div>
-        <div class="control"><a href="<?= HTTP::url(['settings', 'regen' => true]) ?>" class="button" type="submit">Regenerate</a></div>
+        <p class="help">Used to access the API</p>
     </div>
-
-
-  <div class="field">
-      <div class="control has-icons-left" >
+    
+    
+    <div class="field">
+        <label class="label">Blacklisted Labels</label>
+        <div class="control has-icons-left" >
           <span class="select"  style="width: 100%">
-              <select name="event" id="event-selector">
+              <select name="event" id="event-selector" multiple>
               </select>
           </span>
           <span class="icon is-small is-left">
-              <i class="fal fa-${Graph.getTypeIconName('event')}"></i>
+              <i class="fal fa-tag"></i>
           </span>
         </div>
-  </div>
+    </div>
 
   <button class="button" type="submit">Submit</button>
 </form>
