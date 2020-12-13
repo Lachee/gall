@@ -90,7 +90,7 @@ class Kiss extends BaseObject {
             
         if ($this->db != null) {
             $this->db = new Connection($this->db['dsn'],$this->db['user'],$this->db['pass'], array(), $this->db['prefix']);
-            //$this->db->exec("SET NAMES 'utf8mb4'");
+            $this->db->exec("SET NAMES 'utf8mb4'");
         }
         
         //Create the session
