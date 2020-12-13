@@ -23,10 +23,18 @@ class GalleryController extends BaseController {
         return $this->render('index', [
             'latest'        => Gallery::findByLatest()->limit($limit)->all(),
             'top_rated'     => Gallery::findByRating()->limit($limit)->all(),
-
             'submitted'     => $user->getGalleries()->limit($limit)->all(),
             'favourites'    =>  $user->getFavouriteGalleries()->limit($limit)->all(),
             'recommendation' => $user->searchRecommdendedGalleries(0, $limit),
+        ]);
+    }
+
+    function actionTest() {
+        $otherQuery = Kiss::$app->db()->createQuery()->select('$blacklist')->where(['user_id', '<>', Kiss::$app->user->id ])->execute();
+        
+        $query = Gallery::findByLatest()->andWhere(['id', 'NOT', ]);
+        return $this->render('list', [
+            'results'   => $query->ttl(0)->all()
         ]);
     }
 

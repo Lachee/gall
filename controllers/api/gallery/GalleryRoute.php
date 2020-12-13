@@ -26,7 +26,8 @@ class GalleryRoute extends Route {
      * @throws HttpException 
      */
     public function getGallery() {
-        $gallery = Gallery::findByKey($this->gallery_id)->one();
+        $query = Gallery::findByKey($this->gallery_id)->limit(1);
+        $gallery = $query->one();
         if ($gallery == null) throw new HttpException(HTTP::NOT_FOUND);
         return $gallery;
     }

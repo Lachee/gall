@@ -21,6 +21,14 @@ class Tag extends ActiveRecord {
     protected $cnt;
     protected $rating;
 
+    /** @inheritdoc */
+    protected function beforeSave()
+    {
+        //We are going to clear out hte name and make sure it is clean and valid.
+        
+        return parent::beforeSave();
+    }
+
     public function getFounder() {
         return User::findByKey($this->founder_id)->limit(1);
     }

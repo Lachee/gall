@@ -315,7 +315,8 @@ class ActiveRecord extends BaseObject{
      * @return ActiveQuery
      */
     public static function query() {
-        return new ActiveQuery(Kiss::$app->db(), get_called_class());
+        return BaseObject::new(ActiveQuery::class, [ 'conn' => Kiss::$app->db(), 'className' => get_called_class() ]);
+        //return new ActiveQuery(Kiss::$app->db(), get_called_class());
     }
 
     /** Finds the query by keys.

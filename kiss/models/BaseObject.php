@@ -18,6 +18,9 @@ use kiss\schema\StringProperty;
 
 class BaseObject implements SchemaInterface, JsonSerializable {
     
+    /** @property array[string] $defaults list of default settings for objects created using BaseObject::new. It is indexed by the class name.*/
+    public static $defaults = [];
+
     /** @var string[] errors from validation */
     private $errors = null;
 
@@ -141,7 +144,8 @@ class BaseObject implements SchemaInterface, JsonSerializable {
     }
 
     /** Creates an object of the class.
-     * If the properties has a $class, then it will validate that it extends it
+     * If the properties has a $class, then it will validate that it extends it.
+     * It will call initializationDefaults to setup the default settings.
      * @return $class the newly created object
     */
     public static function new($class, $properties = []) {
@@ -155,9 +159,31 @@ class BaseObject implements SchemaInterface, JsonSerializable {
         if ($class != $subclass && !is_subclass_of($class, BaseObject::class)) 
             throw new InvalidOperationException("Cannot create {$subclass} because its not a {$class}");
 
+        //Apply the defaults if we have any
+        if (empty(BaseObject::$defaults)) {
+            $configuration = $properties;
+        } else {
+            $configuration = array_merge(
+                                $subclass::initializationDefaults(),
+                                $properties
+                            );
+        }
+        
         //Set the class and return the new object
-        $properties['$class'] = $subclass;
-        return new $subclass($properties);
+        //$properties['$class'] = $subclass;
+        return new $subclass($configuration);
+    }
+
+    /** Recursively scans upwards the inheritence tree and builds an array of default values,
+     * with the higher inheritence overriding below.
+     * @return array array of default configurations.
+     */
+    public static function initializationDefaults() {
+        $class = get_called_class();
+        if ($class == BaseObject::class) return [];
+        $parent = get_parent_class($class);
+        if ($parent == false) return [];
+        return array_merge($parent::initializationDefaults(), BaseObject::$defaults[$class] ?? []);
     }
 
     /** Creates a class, tries to get the class from the properties */
