@@ -26,7 +26,18 @@ $form->fastForm($rules);
 
 <form method='POST'>
   <?= $model->render(); ?>
-  
+
+    <div class="field has-addons  is-fullwidth">
+        <div class="control has-icons-left is-expanded">
+            <span class="icon is-small is-left">
+                <i class="fas fa-search"></i>
+            </span>
+            <input style="direction: rtl;" id="navbar-search" name="q" autocomplete="off" class="input has-placeholder-transition" type="text" placeholder="you do not have an API key available" value="<?= $key ?>" readonly>
+        </div>
+        <div class="control"><a href="<?= HTTP::url(['settings', 'regen' => true]) ?>" class="button" type="submit">Regenerate</a></div>
+    </div>
+
+
   <div class="field">
       <div class="control has-icons-left" >
           <span class="select"  style="width: 100%">

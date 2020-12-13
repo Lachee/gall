@@ -13,14 +13,16 @@ use GALL;
 use kiss\Kiss;
 use Ramsey\Uuid\Uuid;
 
+/**
+ * @property User $profile
+ */
 class ProfileController extends BaseController {
     public $profile_name;
     public static function route() { return "/profile/:profile_name"; }
 
     function actionIndex() {
         /** @var User $profile */
-        $profile = User::findByProfileName($this->profile_name)->ttl(false)->one();
-        if ($profile == null) throw new HttpException(HTTP::NOT_FOUND, 'Profile doesn\'t exist');
+        $profile = $this->profile;
         return $this->render('index', [
             'profile'       => $profile,
             'submissions'   => $profile->getBestGalleries()->limit(4)->all(),
@@ -30,23 +32,40 @@ class ProfileController extends BaseController {
 
     function actionSettings() {
         /** @var User $profile */
-        $profile = User::findByProfileName($this->profile_name)->ttl(false)->one();
-        if ($profile->id != Kiss::$app->user->id) throw new HttpException(HTTP::FORBIDDEN, 'Can only edit your own settings');
-        if ($profile == null) throw new HttpException(HTTP::FORBIDDEN, 'You must be logged in to edit your settings');
+        if ($this->profile->id != Kiss::$app->user->id) throw new HttpException(HTTP::FORBIDDEN, 'Can only edit your own settings');
         
-        $form = new ProfileSettingForm([ 'profile' => $profile ]);
+        //Regenerate the API key if we are told to
+        if (HTTP::get('regen', false, FILTER_VALIDATE_BOOLEAN)) {
+            if ($this->profile->regenerateApiKey()) {
+                Kiss::$app->session->addNotification('Regenerated your API key', 'success');
+            } else {
+                Kiss::$app->session->addNotification('Failed to regenerate your API key', 'danger');
+            }
+            return Response::refresh();
+        }
+    
+        $form = new ProfileSettingForm([ 'profile' => $this->profile ]);
         if (HTTP::hasPost()) {
-            if ($form->load(HTTP::post()) && $form->save($profile)) {
+            if ($form->load(HTTP::post()) && $form->save( $this->profile )) {
                 Kiss::$app->session->addNotification('Updated profile settings', 'success');
-                return Response::redirect(['/profile/:profile/settings', 'profile' => $profile->profileName ]);
+                return Response::redirect(['/profile/:profile/settings', 'profile' => $this->profile->profileName ]);
             } else {                
                 Kiss::$app->session->addNotification('Failed to load: ' . $form->errorSummary(), 'danger');
             }
         }
 
         return $this->render('settings', [
-            'profile'       => $profile,
+            'profile'       => $this->profile,
             'model'         => $form,
+            'key'           => $this->api_key = $this->profile->apiToken([ 'scopes' => [ 'gallery', 'gallery.favourite', 'gallery.pin' ] ])
         ]);
+    }
+
+    private $_profile;
+    public function getProfile() {
+        if ($this->_profile != null) return $this->_profile;        
+        $this->_profile = User::findByProfileName($this->profile_name)->ttl(false)->one();
+        if ($this->_profile == null) throw new HttpException(HTTP::NOT_FOUND, 'Profile doesn\'t exist');
+        return $this->_profile;
     }
 }

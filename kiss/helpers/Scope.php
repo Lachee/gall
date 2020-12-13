@@ -44,6 +44,7 @@ class Scope {
                 $value = Arrays::value($auth, $parts[1], null);
                 if ($value === null) return false;
                 if ($value != $parts[2]) return false;
+                continue;
             }
         
             if (Strings::startsWith($scope, 'ctrl:')) {
