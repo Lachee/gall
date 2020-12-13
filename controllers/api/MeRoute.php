@@ -1,10 +1,11 @@
 <?php namespace app\controllers\api;
 
+use kiss\controllers\api\ApiRoute;
 use kiss\Kiss;
 use kiss\router\Route;
 use kiss\router\RouteFactory;
 
-class MeRoute extends Route {
+class MeRoute extends ApiRoute {
 
     //We are going to return our routing. Any segment that starts with : is a property.
     // Note that more explicit routes get higher priority. So /example/apple will take priority over /example/:fish
@@ -16,7 +17,9 @@ class MeRoute extends Route {
     public function get() {
         $user = Kiss::$app->getUser();
         if ($user == null) return null;
-
-        return $user;
+        return [
+            'user'      => $user,
+            'auth'      => $user->authorization(),
+        ];
     }
 }

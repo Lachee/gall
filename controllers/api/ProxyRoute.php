@@ -3,6 +3,7 @@
 use app\models\ScrapeData;
 use app\models\User;
 use GALL;
+use kiss\controllers\api\ApiRoute;
 use kiss\exception\HttpException;
 use kiss\helpers\HTTP;
 use kiss\helpers\Response;
@@ -12,7 +13,7 @@ use kiss\router\Route;
 use kiss\router\RouteFactory;
 use Ramsey\Uuid\Uuid;
 
-class ProxyRoute extends Route {
+class ProxyRoute extends ApiRoute {
 
     public const CACHE_DURATION = 60 * 60 * 24 * 7;
     public const CACHE_VERSION = 9;

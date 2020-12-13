@@ -105,6 +105,10 @@ class GalleryController extends BaseController {
             return Response::redirect(['/gallery/:gallery/', 'gallery' => $gallery]);
         }
 
+        //Check to see if it is a profile?
+        if (($profile = User::findByProfileName($query)->one()))
+            return Response::redirect(['/profile/:profile/', 'profile' => $profile->profileName]);
+
         throw new HttpException(HTTP::NO_CONTENT, 'There was nothing here at all');
     }
 

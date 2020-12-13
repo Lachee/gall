@@ -1,6 +1,7 @@
 <?php namespace app\controllers\api;
 
 use app\models\Tag;
+use kiss\controllers\api\ApiRoute;
 use kiss\exception\HttpException;
 use kiss\helpers\Arrays;
 use kiss\helpers\HTTP;
@@ -8,7 +9,7 @@ use kiss\helpers\Response;
 use kiss\router\Route;
 use kiss\router\RouteFactory;
 
-class TagRoute extends Route {
+class TagRoute extends ApiRoute {
 
     const DEFAULT_PAGE_SIZE = 10;
     const MAX_PAGE_SIZE = 150;

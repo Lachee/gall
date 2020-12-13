@@ -1,11 +1,12 @@
 <?php namespace app\controllers\api\gallery;
 
 use app\models\Gallery;
+use kiss\controllers\api\ApiRoute;
 use kiss\exception\HttpException;
 use kiss\helpers\HTTP;
 use kiss\router\Route;
 
-class GalleryRoute extends Route {
+class GalleryRoute extends ApiRoute {
 
     protected $gallery_id;
     

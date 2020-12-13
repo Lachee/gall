@@ -3,6 +3,7 @@
 use app\models\ScrapeData;
 use app\models\User;
 use GALL;
+use kiss\controllers\api\ApiRoute;
 use kiss\exception\HttpException;
 use kiss\exception\NotYetImplementedException;
 use kiss\helpers\HTTP;
@@ -13,7 +14,7 @@ use kiss\router\RouteFactory;
 use Ramsey\Uuid\Uuid;
 use Throwable;
 
-class BulkPublishRoute extends Route {
+class BulkPublishRoute extends ApiRoute {
 
     protected static function route() { return "/bulkpublish"; }
 
@@ -23,9 +24,8 @@ class BulkPublishRoute extends Route {
         return GALL::$app->scraper->scrape($url);
     }
 
-    public function post() {
-        $json = HTTP::json(true);
-        
+    public function post($data) {
+        $json = $data;
         /** @var User $user */
         $user = GALL::$app->getUser();
         if (HTTP::header('Author', false) !== false) {

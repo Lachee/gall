@@ -1,10 +1,11 @@
 <?php namespace app\controllers\api;
 
+use kiss\controllers\api\ApiRoute;
 use kiss\Kiss;
 use kiss\router\Route;
 use kiss\router\RouteFactory;
 
-class TestRoute extends Route {
+class TestRoute extends ApiRoute {
 
     //We are going to return our routing. Any segment that starts with : is a property.
     // Note that more explicit routes get higher priority. So /example/apple will take priority over /example/:fish

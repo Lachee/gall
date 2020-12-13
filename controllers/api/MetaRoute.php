@@ -1,11 +1,12 @@
 <?php namespace app\controllers\api;
 
+use kiss\controllers\api\ApiRoute;
 use kiss\exception\HttpException;
 use kiss\helpers\HTTP;
 use kiss\router\Route;
 use kiss\router\RouteFactory;
 
-class MetaRoute extends Route {
+class MetaRoute extends ApiRoute {
 
     //We are going to return our routing. Any segment that starts with : is a property.
     // Note that more explicit routes get higher priority. So /example/apple will take priority over /example/:fish
@@ -18,7 +19,7 @@ class MetaRoute extends Route {
         return RouteFactory::getRoutes();
     }
 
-    public function post() {
+    public function post($data) {
         throw new HttpException(HTTP::NOT_IMPLEMENTED);
         
         

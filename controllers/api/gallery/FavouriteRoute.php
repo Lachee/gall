@@ -24,7 +24,7 @@ class FavouriteRoute extends GalleryRoute {
     }
 
     /** Creates a new favourite */
-    public function post() {
+    public function post($data) {
         $gallery = $this->getGallery();
         $user = GALL::$app->user;
         if ($user == null) throw new HttpException(HTTP::UNAUTHORIZED, 'Cannot favourite without an active user');        

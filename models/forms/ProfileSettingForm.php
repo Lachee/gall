@@ -22,14 +22,18 @@ class ProfileSettingForm extends Form {
             throw new InvalidOperationException('profile cannot be null');
 
         $this->profile_name = $this->profile->profile_name;
-        $this->api_key = $this->profile->getApiToken();
+        $this->api_key = $this->profile->apiToken([
+            'scopes' => [
+                'publish', 'gallery:lookup'
+            ]
+        ]);
     }
 
     public static function getSchemaProperties($options = [])
     {
         return [
             'profile_name' => new StringProperty('Identifier for the profile page', 'cooldude69', [ 'title' => 'Page Name' ]),
-            'api_key'       => new StringProperty('Authorization Token for the API', '', [ 'title' => 'API Key', 'readOnly' => true ]),
+            'api_key'       => new StringProperty('Authorization Token for the API', '', [ 'title' => 'API Key', 'required' => false, 'readOnly' => true ]),
         ];
     }
 

@@ -3,6 +3,7 @@
 use app\models\ScrapeData;
 use app\models\User;
 use GALL;
+use kiss\controllers\api\ApiRoute;
 use kiss\exception\HttpException;
 use kiss\exception\NotYetImplementedException;
 use kiss\helpers\HTTP;
@@ -12,7 +13,7 @@ use kiss\router\Route;
 use kiss\router\RouteFactory;
 use Ramsey\Uuid\Uuid;
 
-class PublishRoute extends Route {
+class PublishRoute extends ApiRoute {
 
     protected static function route() { return "/publish"; }
 
@@ -22,10 +23,10 @@ class PublishRoute extends Route {
         return GALL::$app->scraper->scrape($url);
     }
 
-    public function post() {
+    public function post($data) {
         throw new NotYetImplementedException('This functionality is still a work in progress');
         
-        $json = HTTP::json(true);
+        $json = $data;
         
         /** @var User $user */
         $user = GALL::$app->getUser();

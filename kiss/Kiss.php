@@ -8,9 +8,11 @@ if (!defined('KISS_SESSIONLESS'))
 
 use Exception;
 use kiss\db\Connection;
+use kiss\exception\HttpException;
 use kiss\exception\InvalidOperationException;
 use kiss\helpers\HTTP;
 use kiss\helpers\Response;
+use kiss\helpers\Strings;
 use kiss\models\BaseObject;
 use kiss\models\JWTProvider;
 use kiss\models\Identity;
@@ -124,13 +126,15 @@ class Kiss extends BaseObject {
 
         //Find the identity by the header
         if (($auth = HTTP::header('Authorization', false)) !== false) {
-            $parts = explode(' ', $auth, 1);
-            if ($parts[0] == 'JWT') {
+            $parts = explode(' ', $auth, 2);
+            if (Strings::toLowerCase($parts[0]) == 'bearer') {
                 $token = $parts[1];
                 $claims = Kiss::$app->jwtProvider->decode($token);
-                if (!empty($claims->sid)) {
-                    $jwt = $claims;
+                if (empty($claims->sub)) {
+                    $this->respond(new HttpException(HTTP::UNAUTHORIZED, 'Invalid Authorization'));
+                    exit;
                 }
+                $jwt = $claims;
             }
         }
 
@@ -138,8 +142,10 @@ class Kiss extends BaseObject {
         if ($jwt == null)
             return $this->user = null;
 
-        //"login"
-        return $this->user = $identityClass::findByJWT($jwt)->one();
+        //Get the user and authorize the JWT
+        $this->user = $identityClass::findByJWT($jwt)->one();
+        if ($this->user != null) $this->user->authorize($jwt);
+        return $this->user;
     }
 
     /** @return Connection the current database. */

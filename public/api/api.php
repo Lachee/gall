@@ -6,6 +6,7 @@ defined('KISS_DEBUG') or define('KISS_DEBUG', in_array(@$_SERVER['REMOTE_ADDR'],
 
 include __DIR__ . "/../../autoload.php";
 
+use kiss\controllers\api\ApiRoute;
 use kiss\db\Query;
 use kiss\exception\AggregateException;
 use kiss\exception\HttpException;
@@ -16,6 +17,7 @@ use kiss\helpers\Strings;
 use kiss\Kiss;
 use kiss\models\BaseObject;
 use kiss\router\RouteFactory;
+use PhpParser\Node\Expr\Cast;
 
 //Setup a collection of defaults
 Kiss::$app->setDefaultResponseType(HTTP::CONTENT_APPLICATION_JSON);
@@ -34,14 +36,7 @@ set_error_handler(function($errno, $errstr, $errfile, $errline) {
     exit;
 });
 
-//Handle the request and respond with its content.
-$object = handle_request();
-Kiss::$app->respond($object);
-
-/** Handles the API request with a custom controller. Will return a response or payload. */
-function handle_request() {
-
-    
+try {
     //Prepare the route we wish to use 
     //Just exit with no response because they are accessing the API page directly
     $route = HTTP::route();    
@@ -55,54 +50,17 @@ function handle_request() {
     $segments = explode('/', substr($route, 4));
     $controller = RouteFactory::route($segments);
     
-    if ($controller == null)  return new HttpException(HTTP::NOT_FOUND, "'{$route}' is not a valid endpoint");
+    if ($controller == null) 
+        throw new HttpException(HTTP::NOT_FOUND, "'{$route}' is not a valid endpoint");
 
-    try {
-        //Depending on the method, we want to execute specific functions
-        //TODO: Catch exceptions and return them
-        switch ($_SERVER['REQUEST_METHOD']) {
-            default: break;
-
-            case 'OPTIONS': 
-                if (method_exists($controller, 'options'))
-                    return $controller->options();
-                break;      
-
-            case 'GET': 
-                if (method_exists($controller, 'get'))
-                    return $controller->get();
-                break;          
-            case 'HEAD': 
-                if (method_exists($controller, 'get')) {
-                    $response = $controller->get();
-                    $response->setContent(null);
-                    return $response;
-                }
-                break;      
-            
-            case 'DELETE': 
-                if (method_exists($controller, 'delete'))
-                    return $controller->delete();
-                break;
-
-            case 'PUT':
-            case 'PATCH':
-                if (method_exists($controller, 'put'))
-                    return $controller->put(HTTP::json());
-                break;
-
-            case 'POST':
-                if (method_exists($controller, 'post'))
-                    return $controller->post(HTTP::json());
-                break;            
-        }
-    }
-    catch(\Throwable $e) 
-    {
-        //Otherwise just return the regular exception
-        return $e;
-    }
-
-    //We didn't return before, so the method is obviously not supported on this endpoint
-    return new HttpException(HTTP::METHOD_NOT_ALLOWED, 'method is not supported on this endpoint');
+    if (!($controller instanceof ApiRoute))
+        throw new HttpException(HTTP::INTERNAL_SERVER_ERROR, 'route is not a valid API route');
+    
+    //Invoke the event
+    $response = $controller->action($route);
+    return Kiss::$app->respond($response);
+} catch(HttpException $exception) {
+    return Kiss::$app->respond($exception);
+} catch(\Throwable $exception) {
+    return Kiss::$app->respond(new HttpException(HTTP::INTERNAL_SERVER_ERROR, $exception));
 }

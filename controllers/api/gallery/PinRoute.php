@@ -18,7 +18,7 @@ class PinRoute extends GalleryRoute {
 
 
     /** Sets the user's profile image */
-    public function post() {
+    public function post($data) {
 
         $gallery = $this->getGallery();
         $user = GALL::$app->user;

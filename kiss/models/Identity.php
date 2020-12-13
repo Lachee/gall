@@ -33,6 +33,9 @@ class Identity extends ActiveRecord {
     /** @var string Unique key that is generated for every "regenerate" of the api. If this is null, then the user cannot use the API's that require this.. */
     protected $apiKey;
 
+    /** @var object The current JWT used for the login */
+    protected $jwt = null;
+
     protected function init() {
         if (is_string($this->uuid)) $this->uuid = Uuid::fromString($this->uuid);
         $this->_uuid = $this->uuid;
@@ -46,7 +49,15 @@ class Identity extends ActiveRecord {
         $this->uuid = $this->_uuid->toString();
 
         //The current access key is in a illegal state, lets fix that
-        if ($this->accessKey == null) $this->accessKey = substr(bin2hex(random_bytes(32)), 0, 32);
+        if ($this->accessKey == null)   {
+            $this->accessKey = substr(bin2hex(random_bytes(32)), 0, 32);
+            $this->markDirty('accessKey');
+        }
+
+        if ($this->apiKey == null) { 
+            $this->apiKey = substr(bin2hex(random_bytes(32)), 0, 32);
+            $this->markDirty('apiKey');
+        }
     }
     protected function afterSave() {
         parent::afterSave();
@@ -78,6 +89,7 @@ class Identity extends ActiveRecord {
 
         //Set the JWT
         Kiss::$app->session->setJWT($jwt);
+        $this->authorize($jwt);
         return $this->save();
     }
 
@@ -86,6 +98,26 @@ class Identity extends ActiveRecord {
         $this->accessKey = null;
         Kiss::$app->session->stop()->start();
         return $this->save();
+    }
+
+    /** Sets up the internal JWT
+     * @return $this
+     */
+    public function authorize($jwt) {
+        $this->jwt = $jwt;
+        return $this;
+    }
+
+    /** Returns thw JWT used to authorize us
+     * @return object
+     */
+    public function authorization() {
+        return $this->jwt;
+    }
+
+    /** Gets the current authorization scopes, if any */
+    public function scopes() {
+        return $this->jwt->scopes ?? [];
     }
 
     /** Creates a new JWT for this user 
@@ -100,9 +132,9 @@ class Identity extends ActiveRecord {
     }
 
     /** Creates an API token for this user. Similar to the JWT but strictly limited to the API */
-    public function getApiToken($metadata = [], $expiry = null) {        
+    public function apiToken($metadata = [], $expiry = null) {        
         if ($this->apiKey == null) return null;
-        if (!is_array($metadata)) $payload = json_encode($metadata);
+        $payload = $metadata;
         $payload['sub'] = $this->uuid;
         $payload['key'] = $this->apiKey;
         $payload['src'] = 'api';

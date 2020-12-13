@@ -143,6 +143,11 @@ class HTTP {
         return 'Unkown Exception';
     }
 
+    /** @return string the HTTP method */
+    public static function method() {
+        return strtoupper($_SERVER['REQUEST_METHOD']);
+    }
+
     /** Gets the routed URL
      * 
      * @param string|array|null $action
