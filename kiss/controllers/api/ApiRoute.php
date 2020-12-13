@@ -9,7 +9,13 @@ use kiss\router\Route;
 class ApiRoute extends Route {
 
     /** @inheritdoc */
-    protected function scopes() { return []; } // APIs required min
+    protected function scopes() { 
+        $perm = get_called_class()::route();
+        $perm = preg_replace('/\/:[a-zA-Z_]*/', '', $perm);
+        $perm = str_replace('/', '.', $perm);
+        $perm = substr($perm, 1);
+        return [ $perm ];
+     }
 
     public function action($endpoint) {
         //We are going to be HYPER CRITICAL in the API

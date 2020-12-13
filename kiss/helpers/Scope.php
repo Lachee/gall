@@ -34,6 +34,9 @@ class Scope {
         if ($auth->iss != Kiss::$app->baseURL()) 
             return false;
 
+        $success = true;
+        $control = [];
+        
         //Verify each scope
         foreach($scopes as $scope) {
             if (Strings::startsWith($scope, 'jwt:')) {
@@ -42,8 +45,22 @@ class Scope {
                 if ($value === null) return false;
                 if ($value != $parts[2]) return false;
             }
+        
+            if (Strings::startsWith($scope, 'ctrl:')) {
+                $parts = explode(':', $scope, 3);
+                $control[$parts[1]] = $parts[3] ?? true;
+                continue;
+            }
+
+            $scopes = Arrays::value($auth, 'scopes', []);
+            if (!in_array($scope, $scopes)) $success = false;
         }
 
-        return true;
+        //If we are login scoped and we have allowed users specifically then allow all
+        if (Arrays::value($control, 'allow_users', false) && $auth->src == 'user') 
+            $success = true;
+
+        //Return the results
+        return $success;
     }
 }

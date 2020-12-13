@@ -14,6 +14,12 @@ class GalleryRoute extends ApiRoute {
     // Note that more explicit routes get higher priority. So /example/apple will take priority over /example/:fish
     protected static function route() { return "/gallery/:gallery_id"; }
 
+    protected function scopes() {
+        return array_merge(parent::scopes(), [ 
+            'ctrl:allow_users'
+        ]);
+    }
+
     //HTTP GET on the route. Return an object and it will be sent back as JSON to the client.
     // Throw an exception to send exceptions back.
     // Supports get, delete

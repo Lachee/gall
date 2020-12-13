@@ -24,7 +24,7 @@ class ProfileSettingForm extends Form {
         $this->profile_name = $this->profile->profile_name;
         $this->api_key = $this->profile->apiToken([
             'scopes' => [
-                'publish', 'gallery:lookup'
+                '.meta'
             ]
         ]);
     }

@@ -32,7 +32,7 @@ class Route extends BaseObject {
         //TODO: Put RBAC system here.
         if (!Scope::authenticate($identity, $this->scopes())) {
             if ($identity == null) throw new HttpException(HTTP::UNAUTHORIZED, 'Papers, Please');
-            throw new HttpException(HTTP::FORBIDDEN, 'These papers are incorrect, you need correct scopes. Glory to Arstotzka!');
+            throw new HttpException(HTTP::FORBIDDEN, 'Invalid Scopes. Required: ' . join(', ', $this->scopes()));
         }
     }
 
