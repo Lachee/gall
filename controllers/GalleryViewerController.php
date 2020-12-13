@@ -20,11 +20,12 @@ class GalleryViewerController extends BaseController {
     function actionIndex() {
 
         /** @var Gallery $gallery */
-        $this->gallery->incrementView();
-        $this->gallery->updateTags();
+        $gallery = $this->gallery;
+        $gallery->incrementView();
+        $gallery->updateTags();
         
         /** @var Image[] $images */
-        $images = $this->gallery->getDisplayImages()->all();
+        $images = $gallery->getDisplayImages()->all();
 
         return $this->render('index', [
             'gallery'   => $this->gallery,

@@ -24,7 +24,7 @@ class PinRoute extends GalleryRoute {
         $user = GALL::$app->user;
         if ($user == null) throw new HttpException(HTTP::UNAUTHORIZED, 'Cannot favourite without an active user');        
 
-        $user->profileImage = $gallery->thumbnail_id;
+        $user->profileImage = $gallery->getCover()->fields(['id'])->one()->id;
         return $user->save();
     }    
 }

@@ -276,7 +276,7 @@ class Query extends BaseObject{
             $field = $params[0];
             $value = $params[1];
             if ($value instanceof Query || is_array($value)) { $operator = ''; }
-            if ($value == null) $operator = 'IS';
+            if ($value === null) $operator = 'IS';
         } else {
             $field = $params[0];
             $operator = $params[1];
@@ -450,7 +450,7 @@ class Query extends BaseObject{
                 
                 $prefix = empty($wheres) ? " WHERE" : " {$w[0]}";
                 
-                if ($w[3] == null) {
+                if ($w[3] === null) {
                     $wheres .= "{$prefix} {$w[1]} {$w[2]} NULL";
                 } else if ($w[3] instanceof Query) {
                     /** @var Query $q */
