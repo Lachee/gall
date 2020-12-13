@@ -27,6 +27,12 @@ class GalleryRoute extends ApiRoute {
         return $this->getGallery();
     }
 
+    //public function get() { throw new HttpException(HTTP::METHOD_NOT_ALLOWED); }
+    public function options() { throw new HttpException(HTTP::METHOD_NOT_ALLOWED); }
+    public function delete() { throw new HttpException(HTTP::METHOD_NOT_ALLOWED); }
+    public function put($data) { throw new HttpException(HTTP::METHOD_NOT_ALLOWED); }    
+    public function post($data) { throw new HttpException(HTTP::METHOD_NOT_ALLOWED); }
+
     /**
      * Finds a project
      * @return Gallery|null
@@ -39,4 +45,5 @@ class GalleryRoute extends ApiRoute {
         return $gallery;
     }
 
+    
 }
