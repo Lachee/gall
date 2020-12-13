@@ -39,7 +39,8 @@ class Query extends BaseObject{
     protected $incrementAmount = 1;
 
     
-    /** @var mixed An array of arrays. Each sub array represents the joiner, field, operator, value */
+    /** @var mixed Stores the where rules.
+     * Array of arrays, where the inner array looks like this: [$method, $field, $operator, $value ] */
     protected $wheres = [];
     
     private static $_memcache = [];
@@ -274,12 +275,12 @@ class Query extends BaseObject{
         if (count($params) == 2) {       
             $field = $params[0];
             $value = $params[1];
+            if ($value instanceof Query) { $operator = ''; }
         } else {
             $field = $params[0];
             $operator = $params[1];
             $value = $params[2];
         }
-
 
         $this->wheres[] = [$method, $field, $operator, $value ];
         return $this;
@@ -445,13 +446,29 @@ class Query extends BaseObject{
         $wheres = "";
         if ($this->wheres != null && is_array($this->wheres)) {
             foreach ($this->wheres as $w) {
-                if (is_bool($w[3])) $w[3] = $w[3] === true ? 1 : 0;
-                if (empty($wheres)) { 
-                    $wheres .= " WHERE {$w[1]} {$w[2]} ?";
+                
+                $prefix = empty($wheres) ? " WHERE" : " {$w[0]}";
+                
+                if ($w[3] instanceof Query) {
+                    /** @var Query $q */
+                    $q = $w[3];
+
+                    //Validate the query type
+                    if ($q->query != self::QUERY_SELECT && $q->query != self::QUERY_SELECT_MINIMISE)
+                        throw new ArgumentException('IN sub queries have to be a SELECT query!');
+                    
+                    //Make sure we dont minimise it
+                    $q->query = self::QUERY_SELECT;
+
+                    //Build the query.
+                    [ $wQuery, $wBindings ] = $q->build();
+                    $wheres .= "{$prefix} {$w[1]} {$w[2]} IN ({$wQuery})";
+                    $bindings = array_merge($bindings, $wBindings);
                 } else {
-                    $wheres .= " {$w[0]} {$w[1]} {$w[2]} ?";
+                    if (is_bool($w[3])) $w[3] = $w[3] === true ? 1 : 0;
+                    $wheres .= "{$prefix} {$w[1]} {$w[2]} ?";
+                    $bindings[] = $w[3];
                 }
-                $bindings[] = $w[3];
             }
         }
         $query .= $wheres;

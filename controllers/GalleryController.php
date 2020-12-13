@@ -30,11 +30,25 @@ class GalleryController extends BaseController {
     }
 
     function actionTest() {
-        $otherQuery = Kiss::$app->db()->createQuery()->select('$blacklist')->where(['user_id', '<>', Kiss::$app->user->id ])->execute();
+        $blacklistTagQuery      = Kiss::$app->db()->createQuery()->select('$blacklist', ['tag_id'])->where([ 'user_id', Kiss::$app->user->id ]);
+        $blacklistGalleryQuery  = Gallery::find()->fields(['$gallery.id'])->leftJoin('$tags', ['id' => 'gallery_id'])->where(['tag_id', $blacklistTagQuery ]);
+        $query = Gallery::findByLatest()->where(['id', 'NOT', $blacklistGalleryQuery]);
         
-        $query = Gallery::findByLatest()->andWhere(['id', 'NOT', ]);
+        
+        $results =  Gallery::findByLatest()
+                        ->where(['id', 'NOT', Gallery::find()
+                                ->fields(['$gallery.id'])
+                                ->leftJoin('$tags', ['id' => 'gallery_id'])
+                                ->where(['tag_id', Kiss::$app->db()->createQuery()
+                                            ->select('$blacklist', ['tag_id'])
+                                            ->where([ 'user_id', Kiss::$app->user->id ]) 
+                                ])
+                        ])
+                        ->limit(10)
+                        ->all();
+                        
         return $this->render('list', [
-            'results'   => $query->ttl(0)->all()
+            'results'   => $results
         ]);
     }
 
