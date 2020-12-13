@@ -466,6 +466,10 @@ class Query extends BaseObject{
                     $bindings = array_merge($bindings, $wBindings);
                 } else if (is_array($w[3])) {
 
+                    if (count($w[3]) == 0)
+                        throw new ArgumentException('IN lists require to have some elements');
+
+                    //Skip this condition and replace with "0 = 1"
                     if (!isset($w[3][0]))
                         throw new ArgumentException('IN lists have to be indexed!');
                 

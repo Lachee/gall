@@ -219,10 +219,12 @@ class Gallery extends ActiveRecord {
         }
 
         //Remove tags we dont need
-        $query = Kiss::$app->db()->createQuery();
-        $query->delete('$tags')->where(['gallery_id', $this->getKey() ])->andWhere(['tag_id', array_keys($remove_tags)])->execute();
+        if (count($remove_tags) > 0) {
+            $query = Kiss::$app->db()->createQuery();
+            $query->delete('$tags')->where(['gallery_id', $this->getKey() ])->andWhere(['tag_id', array_keys($remove_tags)])->execute();
 
-        //TODO: Remove Score Rewards
+            //TODO: Remove Score Rewards
+        }
     }
 
     /** Finds a gallery by the given tag
