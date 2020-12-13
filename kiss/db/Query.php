@@ -19,8 +19,8 @@ class Query extends BaseObject{
 
     /** @var int $cacheDuration how long in second cached results last for. */
     public $cacheDuration = 1;
-    private $cacheVersion = 5;
-    private $flushCache = false;
+    protected $cacheVersion = 5;
+    protected $flushCache = false;
 
     public $remember = true;
 
@@ -425,7 +425,7 @@ class Query extends BaseObject{
                 foreach($this->fields as $field)
                     $increments[] = "{$field} = {$field} + {$this->incrementAmount}";
                 
-                $query = "UPDATE {$this->form} SET " . join(', ', $increments);
+                $query = "UPDATE {$this->from} SET " . join(', ', $increments);
                 break;
         }
 
