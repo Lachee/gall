@@ -211,6 +211,9 @@ class Controller extends Route {
             throw new HttpException(HTTP::NOT_FOUND, 'Action not found');
         }
 
+        //verify our authentication
+        $this->authenticate(Kiss::$app->user);
+
         //Define some JS actions
         $this->registerJsVariable("BASE", Kiss::$app->baseURL(), self::POS_HEAD, 'kiss');
         $this->registerJsVariable("ROUTE", get_called_class()::route(), self::POS_HEAD, 'kiss');

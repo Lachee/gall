@@ -25,6 +25,10 @@ class ProxyRoute extends ApiRoute {
     ];
 
     protected static function route() { return "/proxy"; }
+    
+    
+    /** @inheritdoc */
+    protected function scopes() { return null; } // Proxy doesn't need any scopes.
 
     public function get() {
 

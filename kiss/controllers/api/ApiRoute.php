@@ -7,6 +7,10 @@ use kiss\Kiss;
 use kiss\router\Route;
 
 class ApiRoute extends Route {
+
+    /** @inheritdoc */
+    protected function scopes() { return []; } // APIs required min
+
     public function action($endpoint) {
         //We are going to be HYPER CRITICAL in the API
         // And any error we didnt expect, we will capture and immediately terminate
@@ -16,6 +20,8 @@ class ApiRoute extends Route {
             exit;
         });
 
+        //verify our authentication
+        $this->authenticate(Kiss::$app->user);
 
         //Depending on the method, we want to execute specific functions
         //TODO: Catch exceptions and return them

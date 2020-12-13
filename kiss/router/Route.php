@@ -2,7 +2,10 @@
 namespace kiss\router;
 
 use Exception;
+use kiss\exception\HttpException;
 use kiss\exception\NotYetImplementedException;
+use kiss\helpers\HTTP;
+use kiss\helpers\Scope;
 use kiss\helpers\Strings;
 use kiss\models\BaseObject;
 
@@ -17,20 +20,20 @@ class Route extends BaseObject {
         return str_replace('\\', '/', $class);
     }
 
-    /** @return string[] a list of scopes that are required for this route. If none are required, then a false will be returned */
-    protected function scopes() {
-        return false;
-    }
+    /** @return string[] a list of scopes that are required for this route. Return null for no scopes required.
+     * jwt:key:value for JWT specific scopes (like API checks)
+     */
+    protected function scopes() { return null; }
 
     /** Checks if hte identity has the requried scopes.
      * @return bool true if they have meet all the scope requirements
     */
-    public function hasScopes($identity) {
+    public function authenticate($identity) {
         //TODO: Put RBAC system here.
-        $scopes = $this->scopes();
-        if ($scopes === false) return true;
-
-        throw new NotYetImplementedException();
+        if (!Scope::authenticate($identity, $this->scopes())) {
+            if ($identity == null) throw new HttpException(HTTP::UNAUTHORIZED, 'Papers, Please');
+            throw new HttpException(HTTP::FORBIDDEN, 'These papers are incorrect, you need correct scopes. Glory to Arstotzka!');
+        }
     }
 
     /** @return string[] Gets the routing itself */
