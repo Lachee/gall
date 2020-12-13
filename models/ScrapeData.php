@@ -131,7 +131,7 @@ class ScrapeData extends BaseObject {
 
             //Create the missing tags
             foreach($missingTags as $missing) {
-                $name = trim(Strings::toLowerCase($name));
+                $name = trim(Strings::toLowerCase($missing['name']));
                 $tag = new Tag([
                     'name' => $name,
                     'type'  => $missing['type'],

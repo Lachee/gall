@@ -81,7 +81,18 @@ button.card-footer-item {
 .card-footer-item:hover { background: $scheme-main-ter; }
 
 //Fixes the navbar margin
-nav.navbar { margin-bottom: $navbar-margin; }
+nav.navbar { 
+    margin-bottom: $navbar-margin; 
+    .is-tab { transition: border 0.25s; }
+    .navbar-item.has-icon {
+        min-width: $navbar-height;
+        i {
+            text-align: center;
+            width: 100%;
+            font-size: 14pt;
+        }
+    }
+}
 
 //Setsup the page
 .page {

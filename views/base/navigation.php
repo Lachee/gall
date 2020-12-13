@@ -5,6 +5,7 @@ use app\models\Tag;
 use kiss\helpers\Arrays;
 use kiss\helpers\HTML;
 use kiss\helpers\HTTP;
+use kiss\helpers\Strings;
 use kiss\Kiss;
 
 $user = Kiss::$app->getUser();
@@ -36,27 +37,38 @@ try {
         <!-- ITEMS -->
         <div id="navMenu" class="navbar-menu">
             <div class="navbar-start">
-                    <a class="navbar-item" href="<?= HTTP::url('/')?>">Home</a>
+<!--
+            <a class="navbar-item" href="<?= HTTP::url('/')?>" title="home">Home</a>
+            <a class="navbar-item" href="<?= HTTP::url('/gallery/')?>">Gallery</a>
+            <a class="navbar-item" href="<?= HTTP::url('/profile/@me/favouries')?>">Favourites</a>
+            <a class="navbar-item" href="<?= HTTP::url('/profile/@me/submissions')?>">Submissions</a>
+-->
+
+                <!--<a class="navbar-item has-icon"  title="Home" href="<?= HTTP::url('/')?>"><i class="fal fa-home"></i></a>-->
                 <?php if ($user): ?>
-                    <a class="navbar-item" href="<?= HTTP::url('/gallery/')?>">Gallery</a>                    
+                    <a class="navbar-item has-icon is-tab <?= !Strings::startsWith(HTTP::route(), '/gallery/') ?: 'is-active' ?>" title="Gallery" href="<?= HTTP::url('/gallery/')?>"><i class="fal fa-images"></i></a>
+                    <a class="navbar-item has-icon is-tab <?= !Strings::startsWith(HTTP::route(), '/profile/@me/favourites') ?: 'is-active' ?>" title="Favourites" href="<?= HTTP::url('/profile/@me/favourites')?>"><i class="fal fa-fire"></i></a>
+                    <a class="navbar-item has-icon is-tab <?= !Strings::startsWith(HTTP::route(), '/profile/@me/submissions') ?: 'is-active' ?>" title="Submissions" href="<?= HTTP::url('/profile/@me/submissions')?>"><i class="fal fa-books-medical"></i></a>
                 <?php endif;  ?>
             </div>
-            <div class="navbar-center">
-                <div class="navbar-item is-fullwidth">
-                    <form method='GET' action='<?= HTTP::url('/gallery/search') ?>'>
-                        <div class="field has-addons  is-fullwidth">
-                            <div class="control has-icons-left is-expanded">
-                                <span class="icon is-small is-left">
-                                    <i class="fas fa-search"></i>
-                                </span>
-                                <input id="navbar-search" name="q" autocomplete="off" class="input has-placeholder-transition" type="text" placeholder="" data-placeholders="<?= join('|', $searchPlaceholderTerms) ?>">
-                            </div>
-                            <div class="control"><button id="navbar-submit" class="button" type="submit">Search</button></div>
-                        </div>
-                    </form>
-                </div>
-            </div>
             
+            <?php if ($user): ?>
+                <div class="navbar-center">
+                    <div class="navbar-item is-fullwidth">
+                        <form method='GET' action='<?= HTTP::url('/gallery/search') ?>'>
+                            <div class="field has-addons  is-fullwidth">
+                                <div class="control has-icons-left is-expanded">
+                                    <span class="icon is-small is-left">
+                                        <i class="fas fa-search"></i>
+                                    </span>
+                                    <input id="navbar-search" name="q" autocomplete="off" class="input has-placeholder-transition" type="text" placeholder="" data-placeholders="<?= join('|', $searchPlaceholderTerms) ?>">
+                                </div>
+                                <div class="control"><button id="navbar-submit" class="button" type="submit">Search</button></div>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            <?php endif;  ?>
         </div>
 
         <!-- RHS ITEMS -->

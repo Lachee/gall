@@ -9,6 +9,7 @@ class ActiveQuery extends Query {
     private static $_memcache = [];
 
     protected $className;
+    
 
     protected function init()
     {
@@ -16,31 +17,6 @@ class ActiveQuery extends Query {
         $this->select($this->className);
     }
 
-    /** Fetches a single record 
-     * @param bool $assoc Should associative arrays be returned instead? 
-     * @param bool $extractScalar Should scalar values be removed from their object? Useful for just quering a single entry value (for example, getting username from a record id).
-     * @return ActiveRecord|null|false the records
-    */
-    public function one($assoc = false, $extractScalar = false) {
-        //Execute the query
-        $result = $this->limit(1)->execute();
-        if ($result !== false) {
-            foreach($result as $r) {
-
-                if ($assoc) { 
-                    $instance =  $extractScalar && count($this->fields) == 1 ? $r[$this->fields[0]] : $r;
-                } else {
-                    //Create a new instance of the class
-                    $instance = new $this->className;
-                    $instance->setQueryResult($r);
-                }
-                
-                return $instance; 
-            }
-        }
-
-        return false;
-    }
 
     /** @inheritdoc */
     public function join($table, $on, $joinType = 'JOIN') {
@@ -78,6 +54,33 @@ class ActiveQuery extends Query {
         return parent::where($params, $method);
     }
 
+    
+    /** Fetches a single record 
+     * @param bool $assoc Should associative arrays be returned instead? 
+     * @param bool $extractScalar Should scalar values be removed from their object? Useful for just quering a single entry value (for example, getting username from a record id).
+     * @return ActiveRecord|null|false the records
+    */
+    public function one($assoc = false, $extractScalar = false) {
+        //Execute the query
+        $result = $this->limit(1)->execute();
+        if ($result !== false) {
+            foreach($result as $r) {
+
+                if ($assoc) { 
+                    $instance =  $extractScalar && count($this->fields) == 1 ? $r[$this->fields[0]] : $r;
+                } else {
+                    //Create a new instance of the class
+                    $instance = new $this->className;
+                    $instance->setQueryResult($r);
+                }
+                
+                return $instance; 
+            }
+        }
+
+        return false;
+    }
+    
     /** Fetch all records.
      * @param $assoc Should associative arrays be returned instead?
      * @param $extractScalar Should scalar values be removed from their object?
