@@ -23,7 +23,7 @@ class User extends Identity {
     {
         return [
             'uuid'          => new StringProperty('ID of the user'),
-            'snowflake'     => new IntegerProperty('Discord Snowflake id'),
+            'snowflake'     => new StringProperty('Discord Snowflake id'),
             'username'      => new StringProperty('Name of hte user'),
             'displayName'   => new StringProperty('Name of hte user'),
             'profileName'   => new StringProperty('Name of the user\'s profile'),

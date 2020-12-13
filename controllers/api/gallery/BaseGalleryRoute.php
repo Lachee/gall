@@ -34,7 +34,7 @@ class BaseGalleryRoute extends BaseApiRoute {
             throw new HttpException(HTTP::UNAUTHORIZED, 'No available user');
 
         //We need the json
-        if (empty($json))
+        if (empty($data))
             throw new HttpException(HTTP::BAD_REQUEST, 'Missing data');
 
             

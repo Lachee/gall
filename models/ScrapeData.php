@@ -48,6 +48,15 @@ class ScrapeData extends BaseObject {
         ];
     }
 
+    public function validate()
+    {
+        if ($this->scraper == 'generic') {
+            $this->addError('cannot scrape generic links');
+            return false;
+        }
+        return parent::validate();
+    }
+
     /** Finds any existing galleries that match this scraped data
      * @return Gallery|null returns the matching gallery
      */
