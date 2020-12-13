@@ -57,7 +57,7 @@ class ProfileController extends BaseController {
         return $this->render('settings', [
             'profile'       => $this->profile,
             'model'         => $form,
-            'key'           => $this->api_key = $this->profile->apiToken([ 'scopes' => [ 'gallery', 'gallery.favourite', 'gallery.pin', 'bot.impersonate' ] ])
+            'key'           => $this->api_key = $this->profile->apiToken([ 'scopes' => [ 'gallery', 'gallery.favourite', 'gallery.pin', 'gallery.publish', 'bot.impersonate' ] ])
         ]);
     }
 
