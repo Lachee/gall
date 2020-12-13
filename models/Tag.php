@@ -3,6 +3,7 @@
 use kiss\models\Identity;
 use GALL;
 use kiss\db\ActiveRecord;
+use kiss\helpers\Strings;
 
 class Tag extends ActiveRecord {
 
@@ -37,6 +38,11 @@ class Tag extends ActiveRecord {
         return Tag::findByKey($this->alias_id)->limit(1);
     }
 
+    /** @return boolean true if this is an alias */
+    public function isAlias() {
+        return !empty($this->alias_id);
+    }
+
     public function getId() {
         return empty($this->alias_id) ? $this->id : $this->alias_id;
     }
@@ -63,5 +69,10 @@ class Tag extends ActiveRecord {
                 ];
                 return $ratings[$this->rating];
         }
+    }
+
+    /** @return \kiss\db\ActiveQuery|Tag[] tags with the matching name*/
+    public static function findByName($name) {
+        return self::find()->where(['name', Strings::toLowerCase($name) ]);
     }
 }

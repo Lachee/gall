@@ -21,7 +21,8 @@ class GalleryViewerController extends BaseController {
 
         /** @var Gallery $gallery */
         $this->gallery->incrementView();
-
+        $this->gallery->updateTags();
+        
         /** @var Image[] $images */
         $images = $this->gallery->getDisplayImages()->all();
 

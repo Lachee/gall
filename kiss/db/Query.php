@@ -275,7 +275,7 @@ class Query extends BaseObject{
         if (count($params) == 2) {       
             $field = $params[0];
             $value = $params[1];
-            if ($value instanceof Query) { $operator = ''; }
+            if ($value instanceof Query || is_array($value)) { $operator = ''; }
         } else {
             $field = $params[0];
             $operator = $params[1];
@@ -464,6 +464,16 @@ class Query extends BaseObject{
                     [ $wQuery, $wBindings ] = $q->build();
                     $wheres .= "{$prefix} {$w[1]} {$w[2]} IN ({$wQuery})";
                     $bindings = array_merge($bindings, $wBindings);
+                } else if (is_array($w[3])) {
+
+                    if (!isset($w[3][0]))
+                        throw new ArgumentException('IN lists have to be indexed!');
+                
+                    $bs     = str_repeat('?, ', count($w[3]));
+                    $wQuery = trim($bs, ', ');
+                    $wheres .= "{$prefix} {$w[1]} {$w[2]} IN ({$wQuery})";
+                    $bindings = array_merge($bindings, $w[3]);
+
                 } else {
                     if (is_bool($w[3])) $w[3] = $w[3] === true ? 1 : 0;
                     $wheres .= "{$prefix} {$w[1]} {$w[2]} ?";

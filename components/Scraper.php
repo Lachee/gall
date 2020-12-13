@@ -33,7 +33,7 @@ class Scraper extends BaseObject {
         $json = json_decode($jsonstr, true);
         $data = new ScrapeData($json);
 
-        if (!$data->validate()) 
+        if ($data->validate()) 
             throw new Exception('Unable to validate the scraped data. ' . $data->errorSummary());
 
         return $data;        

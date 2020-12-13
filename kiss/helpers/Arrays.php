@@ -100,7 +100,9 @@ class Arrays {
         return $tmp;
     }
     
-    /** Maps an array. The callback needs to return an array with exactly 2 values.*/
+    /** Maps an array. The callback needs to return an array with exactly 2 values.
+     * callback($item) : ( $key, $value )
+    */
     public static function mapArray($array, $callback) {
         $tmp = [];
         foreach($array as $p) {

@@ -223,6 +223,9 @@ class ScrapeData extends BaseObject {
         }
 
 
+        //Force the gallery to update its tags
+        $gallery->updateTags();
+
         //Update the user's new pin
         //$publisher->profileImage = $cover ?: $lastUploadedImage;
         //$s = $publisher->save();

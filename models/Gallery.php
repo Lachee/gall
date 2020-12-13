@@ -161,6 +161,70 @@ class Gallery extends ActiveRecord {
         ], '$tags' )->execute();
     }
 
+    /** Removes a specific tag */
+    public function removeTag($tag) {
+        if (is_string($tag)) $tag = Tag::findByName($tag)->one();
+        if ($tag == null) throw new ArgumentException('Tag cannot be null');
+        
+        $query = Kiss::$app->db()->createQuery();
+        return $query->delete('$tags')->where(['tag_id', $tag->getKey() ])->andWhere(['gallery_id', $this->getKey() ])->execute();
+    }
+
+    /** Checks the tags and removes any duplicates */
+    public function updateTags() {        
+        $tags = Tag::find()
+                        ->fields(['*', '$tags.founder_id as FID'])
+                        ->leftJoin('$tags', ['id' => 'tag_id'])
+                        ->groupBy('$tags.tag_id')
+                        ->where(['gallery_id', $this->id])
+                        ->ttl(60)
+                        ->all(true);
+
+        $ids = Arrays::mapArray($tags, function($tag) { return [ $tag['id'], $tag ]; });
+        
+        //List of tags we need
+        $create_tags = [];
+        $remove_tags = [];
+
+        foreach($tags as $tag) {
+            if (empty($tag['alias_id']))
+                continue;
+        
+            //Scan for the root tag
+            $alias = $tag; $iteration = 0;
+            while ($alias != null && !empty($alias['alias_id']) && $iteration++ < 10) {
+                $FID = $alias['FID'];
+                $alias = Tag::find()->where(['id', $alias['alias_id']])->one(true);
+                $alias['FID'] = $FID;
+            }
+
+            //Add to the appriopriate lists
+            $remove_tags[$tag['id']] = $tag;
+            $create_tags[$alias['id']] = $alias;
+        }
+
+        //Add tags we need
+        $adding_tags = array_filter($create_tags, function($t) use ($ids) { return !isset($ids[$t['id']]); });
+        foreach($create_tags as $id => $t) {
+            if (isset($ids[$id])) continue;
+
+            $query = Kiss::$app->db()->createQuery();
+            $query->insert([
+                'tag_id'        => $id,
+                'gallery_id'    => $this->getKey(),
+                'founder_id'    => $t['FID'],
+            ], '$tags' )->execute();
+
+            //TODO: Add Score Rewards
+        }
+
+        //Remove tags we dont need
+        $query = Kiss::$app->db()->createQuery();
+        $query->delete('$tags')->where(['gallery_id', $this->getKey() ])->andWhere(['tag_id', array_keys($remove_tags)])->execute();
+
+        //TODO: Remove Score Rewards
+    }
+
     /** Finds a gallery by the given tag
      * @param Tag $tag the tag
      * @return ActiveQuery|Gallery[] the gallery
