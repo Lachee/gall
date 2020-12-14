@@ -24,12 +24,29 @@ class Guild extends ActiveRecord {
         ];
     }
 
+    /** @return ActiveQuery|Emote[] all the emotes this guild has */
+    public function getEmotes() {
+        return Emote::findByGuild($this);
+    }
+
     /**
      * Updates the emotes from this server, removing, adding and modifying
      * @param array $discord_emotes 
      * @return $this 
      */
     public function updateDiscordEmotes($discord_emotes) {
+
+        //TODO: Map these
+
+        Emote::findByGuild($this)->delete();
+        foreach($discord_emotes as $emoteData) {
+            (new Emote([
+                'guild_id'      => $this->id,
+                'snowflake'     => $emoteData['id'],
+                'name'          => $emoteData['name'],
+                'animated'      => $emoteData['animated'],
+            ]))->save();
+        }
         return $this;
     }
 

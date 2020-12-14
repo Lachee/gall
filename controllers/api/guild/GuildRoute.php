@@ -1,4 +1,4 @@
-<?php namespace app\controllers\api\gallery;
+<?php namespace app\controllers\api\guild;
 
 use app\controllers\api\BaseApiRoute;
 use app\models\Gallery;
@@ -74,7 +74,7 @@ class GuildRoute extends BaseApiRoute {
         if ($this->_guild) return $this->_guild;
         $query = Guild::findByKey($this->guild_id)->orWhere(['snowflake', $this->guild_id])->limit(1);
         $this->_guild = $query->one();
-        if ($this->_guild == null) throw new HttpException(HTTP::NOT_FOUND);
+        if ($this->_guild == null) throw new HttpException(HTTP::NOT_FOUND, 'Could not find guild');
         return $this->_guild;
     }
 

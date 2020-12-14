@@ -1,5 +1,6 @@
-<?php namespace app\controllers\api;
+<?php namespace app\controllers\api\guild;
 
+use app\controllers\api\BaseApiRoute;
 use app\models\Guild;
 use app\models\ScrapeData;
 use app\models\User;
