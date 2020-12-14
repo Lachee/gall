@@ -2,7 +2,7 @@
 
 function shutdown_handler() {    
     $error = error_get_last();
-    if ($error !== null && $error['type'] === E_ERROR) {
+    if ($error !== null && $error['type'] === E_ERROR | E_COMPILE_ERROR) {
         $errfile = $error["file"];
         $errline = $error["line"];
         $errstr  = $error["message"];

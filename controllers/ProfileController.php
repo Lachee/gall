@@ -17,6 +17,12 @@ use Ramsey\Uuid\Uuid;
  * @property User $profile
  */
 class ProfileController extends BaseController {
+    public const SCOPES = [
+        'guild', 'guild.publish', 'guild.remove', 'guild.update', 
+        'gallery', 'gallery.favourite', 'gallery.pin', 'gallery.publish', 
+        'bot.impersonate'
+    ];
+
     public $profile_name;
     public static function route() { return "/profile/:profile_name"; }
 
@@ -57,7 +63,7 @@ class ProfileController extends BaseController {
         return $this->render('settings', [
             'profile'       => $this->profile,
             'model'         => $form,
-            'key'           => $this->api_key = $this->profile->apiToken([ 'scopes' => [ 'gallery', 'gallery.favourite', 'gallery.pin', 'gallery.publish', 'bot.impersonate' ] ])
+            'key'           => $this->api_key = $this->profile->apiToken([ 'scopes' => self::SCOPES ])
         ]);
     }
 

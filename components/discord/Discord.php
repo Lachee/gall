@@ -31,6 +31,12 @@ class Discord extends Provider  {
         return BaseObject::new($this->identityClass, $json);
     }
 
+    /** Gets a guild object */
+    public function getGuild($snowflake) {
+        $json = $this->request('GET', "/guilds/{$snowflake}");
+        return $json;
+    }
+
 
     /** Createsa  new bot request and returns the response */
     private function request($method, $endpoint) {
@@ -39,6 +45,7 @@ class Discord extends Provider  {
             'headers' => [
                 'content-type'  => 'application/json',
                 'authorization' => 'Bot ' . $this->botToken,
+                'user-agent'    => 'KissPHP (https://github.com/lachee, 1)'
             ]
         ]);
         $json = json_decode($response->getBody()->getContents(), true);

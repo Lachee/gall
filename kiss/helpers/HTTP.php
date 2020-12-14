@@ -5,6 +5,12 @@ use kiss\Kiss;
 use Throwable;
 
 class HTTP {
+    const DELETE = 'DELETE';
+    const PUT = 'PUT';
+    const POST = 'POST';
+    const GET = 'GET';
+    const HEAD = 'HEAD';
+
     const CONTINUE = 100;
     const SWITCHING_PROTOCOLS = 101;
     const PROCESSING = 102;            // RFC2518
