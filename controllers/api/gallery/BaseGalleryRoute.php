@@ -1,5 +1,6 @@
 <?php namespace app\controllers\api;
 
+use app\models\Guild;
 use app\models\ScrapeData;
 use app\models\User;
 use GALL;
@@ -37,7 +38,18 @@ class BaseGalleryRoute extends BaseApiRoute {
         if (empty($data))
             throw new HttpException(HTTP::BAD_REQUEST, 'Missing data');
 
+        $message_snowflake = $data['message_id'] ?? null;
+        $channel_snowflake = $data['channel_id'] ?? null;
+        $guild_id = $data['guild_id'] ?? null;
             
+        if (!empty($guild_id)) {
+            $guild = Guild::findByKey($guild_id)->orWhere(['snowflake', $guild_id])->one();
+            $guild_id = $guild == null ? null : $guild->getKey();
+        }
+
+        if (!empty($message_snowflake) && (empty($guild_id) || empty($channel_snowflake)))
+            throw new HttpException(HTTP::BAD_REQUEST, 'Message Snowflake must have channel and guild given too');
+
         if (isset($data['url']) || isset($data['urls'])) {
 
             //Scrape the URLS and save them
@@ -48,7 +60,19 @@ class BaseGalleryRoute extends BaseApiRoute {
                     $scrapedData = GALL::$app->scraper->scrape($url);
                     if ($scrapedData !== false) {
                         $gallery = $scrapedData->publish($user);
+
                         if ($gallery !== false) {
+                            
+                            if (!empty($guild_id))
+                                $gallery->guild_id = $guild_id;
+
+                            if (!empty($channel_snowflake))
+                                $gallery->channel_snowflake = $channel_snowflake;
+
+                            if (!empty($message_snowflake))
+                                $gallery->message_snowflake = $message_snowflake;
+
+                            $gallery->save(false, [ 'guild_id', 'channel_snowflake', 'message_snowflake' ]);
                             $results[$url] = $gallery;
                         } else {
                             $results[$url] = $scrapedData->errorSummary();

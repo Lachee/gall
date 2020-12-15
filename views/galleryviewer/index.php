@@ -14,6 +14,7 @@ use kiss\Kiss;
 /** @var Image[] $images */
 
 $tno = $gallery->favourites;
+$msg = $gallery->messageLink;
 $k = $tno;
 ?>
 <div class="container">
@@ -35,6 +36,13 @@ $k = $tno;
                     <a href="<?= HTTP::url(['/gallery/:gallery/download', 'gallery' => $gallery ])?>" target="_BLANK" class="button is-small" title="download image">
                         <span class="icon"><i class="fal fa-cloud-download"></i></span>
                     </a>
+                    
+                    <?php if ($gallery->getMessageLink() != null): ?>
+                        <a href="<?= $gallery->getMessageLink() ?>" target="_BLANK" class="button is-small" title="view discord message">
+                            <span class="icon"><i class="fab fa-discord"></i></span>
+                        </a>
+                    <?php endif; ?>
+                    
                     <a href="<?= $gallery->url ?>" class="button is-small" title="view source">
                         <span class="icon"><i class="fal fa-external-link"></i></span>
                     </a>

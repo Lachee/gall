@@ -17,6 +17,11 @@ class Gallery extends ActiveRecord {
     protected $id;
     protected $identifier;
     protected $founder_id;
+    
+    protected $guild_id;
+    protected $channel_snowflake;
+    protected $message_snowflake;
+
     protected $title;
     protected $description;
     protected $type;
@@ -25,21 +30,28 @@ class Gallery extends ActiveRecord {
     protected $cover_id;
     protected $views;
 
+
+
+
     public const TYPE_COMIC = 'comic';
     public const TYPE_ARTWORK = 'artwork';
 
     public static function getSchemaProperties($options = [])
     {
         return [
-            'id'            => new IntegerProperty('Unique ID of the gallery'),
-            'identifier'    => new StringProperty('Identifier of scraped data'),
-            'type'          => new EnumProperty('Type of the gallery', [ self::TYPE_ARTWORK, self::TYPE_COMIC ]),
-            'founder'       => new RefProperty(User::class, 'the user that found it'),
-            'title'         => new StringProperty('Title of the gallery'),
-            'description'   => new StringProperty('Description of the gallery'),
-            'url'           => new StringProperty('Original string URL'),
-            'cover'         => new RefProperty(Image::class, 'Cover image'),
-            'views'         => new IntegerProperty('Number of views'),
+            'id'                => new IntegerProperty('Unique ID of the gallery'),
+            'identifier'        => new StringProperty('Identifier of scraped data'),
+            'type'              => new EnumProperty('Type of the gallery', [ self::TYPE_ARTWORK, self::TYPE_COMIC ]),
+            'founder'           => new RefProperty(User::class, 'the user that found it'),
+            'guild'             => new RefProperty(Guild::class, 'the guild that it is in'),
+            'channel_snowflake' => new StringProperty('Snowflake of the discord channel'),
+            'message_snowflake' => new StringProperty('Snowflake of the discord message'),
+            'title'             => new StringProperty('Title of the gallery'),
+            'description'       => new StringProperty('Description of the gallery'),
+            'url'               => new StringProperty('Original string URL'),
+            'cover'             => new RefProperty(Image::class, 'Cover image'),
+            'views'             => new IntegerProperty('Number of views'),
+            'messageLink'       => new StringProperty('Link to the discord message'),
         ];
     }
 
@@ -74,6 +86,24 @@ class Gallery extends ActiveRecord {
         return $this->title;
     }
 
+    /** Gets the discord message link
+     * @return string link to the message, otherwise null
+     */
+    public function getMessageLink() {
+        if (empty($this->guild_id)) return null;
+        if (empty($this->message_snowflake)) return null;
+        if (empty($this->channel_snowflake)) return null;
+        $guild = $this->getGuild()->fields(['snowflake'])->one();
+        if ($guild == null) return null;
+        return "https://discord.com/channels/{$this->guild->snowflake}/{$this->channel_snowflake}/{$this->message_snowflake}";
+    }
+
+    /** @return ActiveQuery|User gets the guild this gallery is in */
+    public function getGuild() {
+        return Guild::findByKey($this->guild_id)->limit(1)->ttl(60);
+    }
+
+    /** @return ActiveQuery|User gets the user that found this gallery */
     public function getFounder() {
         return User::findByKey($this->founder_id)->limit(1)->ttl(60);
     }
