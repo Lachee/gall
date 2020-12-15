@@ -8,6 +8,15 @@ class HTML {
     public static $title = 'KISS Dev';
     public static $route = '';
 
+
+    /** Creates a HTML comment
+     * @param string $comment the comment
+     * @param string resulting html
+     */
+    public static function comment($comment) {
+        return '<!-- ' . str_replace('-->', '→', $comment) . ' -->';
+    }
+
     /** Prepares a URL with special prefix:
      * http - indicates the full URL should be used
      * @    - relative route.

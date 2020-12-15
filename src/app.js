@@ -44,7 +44,7 @@ export const viewPromise = new Promise((resolve, reject) => {
         `../views${sourceDirectory}/_view.js`
     ).then(v => {
         if (v == null)  console.warn("Failed to find the view ", sourceDirectory + "/_view.js");
-        console.log('Loaded View');
+        console.log('Loaded View', `${sourceDirectory}/_view.js`);
         view = v;
         resolve(v);
     }).catch(e => reject(e));
@@ -58,7 +58,7 @@ export const actionPromise = new Promise((resolve, reject) => {
         "../views" + sourceDirectory + `/${actionName}.js` 
     ).then(v => {
         if (v == null)  console.warn("Failed to find the action ", sourceDirectory + actionName + ".js");
-        console.log('Loaded Action');
+        console.log('Loaded Action', sourceDirectory + `/${actionName}.js` );
         view = v;
         resolve(v);
     }).catch(e => reject(e));

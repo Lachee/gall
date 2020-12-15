@@ -10,6 +10,7 @@ use kiss\models\BaseObject;
 use app\models\User;
 use app\widget\Notification;
 use GALL;
+use kiss\helpers\HTML;
 use kiss\Kiss;
 use Ramsey\Uuid\Uuid;
 
@@ -52,7 +53,7 @@ class ProfileController extends BaseController {
     
         $form = new ProfileSettingForm([ 'profile' => $this->profile ]);
         if (HTTP::hasPost()) {
-            if ($form->load(HTTP::post()) && $form->save( $this->profile )) {
+            if ($form->load(HTTP::post()) && $form->save()) {
                 Kiss::$app->session->addNotification('Updated profile settings', 'success');
                 return Response::redirect(['/profile/:profile/settings', 'profile' => $this->profile->profileName ]);
             } else {                

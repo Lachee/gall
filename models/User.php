@@ -3,6 +3,7 @@
 use kiss\models\Identity;
 use GALL;
 use kiss\db\ActiveQuery;
+use kiss\db\Query;
 use kiss\exception\ArgumentException;
 use kiss\helpers\Arrays;
 use kiss\helpers\HTTP;
@@ -166,6 +167,23 @@ class User extends Identity {
         return Favourite::findByProfile($this)->select(null, [ 'COUNT(*)' ])->andWhere(['gallery_id', $gallery])->andWhere(['user_id', $this])->ttl(false)->one(true)['COUNT(*)'] != 0;
     }
 
+    /** Adds a tag to the blacklist
+     * @param Tag|int $tag the tag to add
+     * @return bool true if it was added
+     */
+    public function addBlacklist($tag) {
+        return Kiss::$app->db()->createQuery()
+                                ->insert(['user_id' => $this->id, 'tag_id' => $tag instanceof Tag ? $tag->getKey() : $tag ], '$blacklist')
+                                ->execute();
+    }
+
+    /** @return Query returns the active query for the basic blacklists */
+    public function getBlacklist() {
+        return Kiss::$app->db()->createQuery()
+                                    ->select('$blacklist')
+                                    ->where([ 'user_id', $this->id ]);
+    }
+
     /**
      * Applies a blacklist to the gallery
      * @param ActiveQuery $galleryQuery 
@@ -178,10 +196,7 @@ class User extends Identity {
         return $galleryQuery->andWhere(['id', 'NOT', Gallery::find()
                                 ->fields(['$gallery.id'])
                                 ->leftJoin('$tags', ['id' => 'gallery_id'])
-                                ->where(['tag_id', Kiss::$app->db()->createQuery()
-                                        ->select('$blacklist', ['tag_id'])
-                                        ->where([ 'user_id', $this->id ]) 
-                                ])
+                                ->where(['tag_id', $this->getBlacklist()->fields([ 'tag_id' ]) ])
                             ]);
     }
 

@@ -22,18 +22,22 @@ use kiss\schema\StringProperty;
 
 class Form extends BaseObject {
   
-    /** Loads the data into the record and saves it.
-     * @param ActiveRecord|BaseObject $record 
+    /** Saves the form
      * @param bool $validate validates the record before submitting. Isn't required if loaded using Load
      * @return bool if successful 
      */
-    public function save($record, $validate = false) {
+    public function save($validate = false) {
 
         //Failed to load
         if ($validate && !$this->validate()) {
             return false;
         }
 
+        return true;
+    }
+
+    /** TODO: Implement this as base? */
+    private function saveRecord($record, $validate) {
         $record->beforeLoad($record);
         $fields = [];
 
@@ -93,9 +97,16 @@ class Form extends BaseObject {
         $propertyType = $scheme->type;
         $renderer = "input{$propertyType}";
         if (!method_exists($this, $renderer)) 
-            throw new ArgumentException('Form does not have a ' . $propertyType . ' renderer');
+        {
+            $renderer = "field{$name}";
+            if (!method_exists($this, $renderer)) {
+                //throw new ArgumentException('Form does not have a `input' . $propertyType . '()` renderer');
+                return;
+            }
+        }
         
-        $field = HTML::begin('div', [ 'class' => 'field' ]); 
+        $field = HTML::comment("'$name' input");
+        $field .= HTML::begin('div', [ 'class' => 'field' ]); 
         {
             if (!empty($scheme->title))
                 $field .= HTML::tag('label', $scheme->title, [ 'class' => 'label' ]);
