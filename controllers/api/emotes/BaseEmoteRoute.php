@@ -1,6 +1,8 @@
-<?php namespace app\controllers\api;
+<?php namespace app\controllers\api\emotes;
 
+use app\controllers\api\BaseApiRoute;
 use app\models\Emote;
+use app\models\Guild;
 use app\models\Tag;
 use kiss\controllers\api\ApiRoute;
 use kiss\exception\HttpException;
@@ -10,7 +12,7 @@ use kiss\helpers\Response;
 use kiss\router\Route;
 use kiss\router\RouteFactory;
 
-class EmoteRoute extends BaseApiRoute {
+class BaseEmoteRoute extends BaseApiRoute {
 
     const DEFAULT_PAGE_SIZE = 10;
     const MAX_PAGE_SIZE = 150;
@@ -20,12 +22,15 @@ class EmoteRoute extends BaseApiRoute {
     protected static function route() { return "/emotes"; }
 
     /** @inheritdoc */
-    protected function scopes() { return [ 'jwt:src:user' ]; } 
+    protected function scopes() { 
+        switch(HTTP::method()) {        
+            default: return [ 'jwt:src:user'  ];
+            case HTTP::POST: return [ 'emote.publish' ];
+        }
+    }
 
-    //HTTP GET on the route. Return an object and it will be sent back as JSON to the client.
-    // Throw an exception to send exceptions back.
-    // Supports get, delete
-public function get() {
+    /** Searches emote */
+    public function get() {
         $term           = HTTP::get('term', HTTP::get('q', ''));
         $id             = HTTP::get('id', false);
         $page           = HTTP::get('page', 1);
@@ -64,5 +69,32 @@ public function get() {
                 'more'  => count($results) == $pageLimit
             ]
         ], HTTP::CONTENT_APPLICATION_JSON);
+    }
+
+    /** Posts a new emote */
+    public function post($data) {
+        if (empty($data['guild_id']))   throw new HttpException(HTTP::BAD_REQUEST, 'Missing guild_id');
+        if (empty($data['id']))         throw new HttpException(HTTP::BAD_REQUEST, 'Missing id');
+
+        //Setup the guild
+        $guild = Guild::findByKey($data['guild_id'])->orWhere(['snowflake', $data['guild_id']])->one();
+        if ($guild == null) throw new HttpException(HTTP::BAD_REQUEST, 'Invalid guild');
+
+        //Check its unique
+        $emote = Emote::findBySnowflake($data['id'])->one();
+        if ($emote != null) throw new HttpException(HTTP::BAD_REQUEST, 'Emote already exists');
+
+        //Create the emtoe
+        $emote = new Emote([
+            'guild_id'  => $guild->getKey(),
+            'snowflake' => $data['id'],
+            'name'      => $data['name'],
+            'animated'  => $data['animated'],
+        ]);
+
+        if (!$emote->save()) 
+            throw new HttpException(HTTP::BAD_REQUEST, $emote->errors());
+
+        return $emote;
     }
 }
