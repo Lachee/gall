@@ -164,7 +164,13 @@ class Gallery extends ActiveRecord {
 
     /** Increments the views */
     public function incrementView() {
-        return self::find()->increment([ 'views' ])->where([ 'id', $this ])->execute();
+        $this->views++;
+        self::find()->increment([ 'views' ])->where([ 'id', $this ])->execute();
+
+        if ($this->views % 1000 == 0) {
+            //TODO: Award 1000K View points
+            // but make sure its atomic
+        }
     }
 
     /** @return ActiveQuery|Favourite list of all people that favourited this gallery */

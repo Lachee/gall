@@ -21,8 +21,13 @@ class GalleryViewerController extends BaseController {
 
         /** @var Gallery $gallery */
         $gallery = $this->gallery;
-        $gallery->incrementView();
+
+        //Force our tags to update
         $gallery->updateTags();
+
+        //Dont trigger the views if its your own
+        if ($gallery->founder_id != Kiss::$app->user->id)
+            $gallery->incrementView();
         
         /** @var Image[] $images */
         $images = $gallery->getDisplayImages()->all();
