@@ -57,7 +57,7 @@ $html = <<<HTML
                     <img src="{$profile->avatarUrl}" alt="Avatar Picture">
                 </div>
                 <div class="title"><a href="{$profileLink}" class="has-text-white">{$profile->username}</a></div>
-                <div class="subtitle"><span class="icon"><i class="fal fa-coin"></i></span> {$score}</div>
+                <div class="subtitle"><span class="icon"><i class="fal fa-sparkles"></i></span> {$score}</div>
             </div>
             {$toolbar}
         </div>
