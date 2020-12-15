@@ -12,6 +12,10 @@ use kiss\schema\IntegerProperty;
 use kiss\schema\RefProperty;
 use kiss\schema\StringProperty;
 
+/**
+ * @property int $sparkles the number of sparkles a user has
+ * @package app\models
+ */
 class User extends Identity {
     
     /** @var \app\components\discord\User stored discord user. */
@@ -19,6 +23,7 @@ class User extends Identity {
     protected $profile_name = null;
     protected $profile_image;
     protected $snowflake;
+    protected $score;
 
     public static function getSchemaProperties($options = [])
     {
@@ -28,7 +33,8 @@ class User extends Identity {
             'username'      => new StringProperty('Name of hte user'),
             'displayName'   => new StringProperty('Name of hte user'),
             'profileName'   => new StringProperty('Name of the user\'s profile'),
-            'profileImage'  => new RefProperty(Image::class, 'Profile image')
+            'profileImage'  => new RefProperty(Image::class, 'Profile image'),
+            'sparkles'      => new StringProperty('Number of sparkles the user has', [ 'readOnly' => true ])
         ];
     }
 
@@ -204,6 +210,22 @@ class User extends Identity {
     public function isMe() {
         if (Kiss::$app->user == null) return false;
         return $this->id == Kiss::$app->user->id;
+    }
+
+    /** @return int number of sparkles the user has */
+    public function getSparkles() { return $this->score; }
+    /** Recomputes the number of sparkles the user has. 
+     * @return int number of sparkles */
+    public function recalculateSparkles() {
+        $query = Kiss::$app->db()->createQuery()
+                        ->select('$sparkles', [ 'SUM(score) as SCORE' ])
+                        ->where(['user_id', $this->getKey() ])
+                        ->execute();
+        
+        $sparkles = $query[0]['SCORE'];
+        $this->score = $sparkles;
+        $this->save(false, ['score']);
+        return $sparkles;
     }
 
     /** @return ActiveQuery|$this finds the profile from the given name */

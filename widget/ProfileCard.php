@@ -43,7 +43,7 @@ class ProfileCard extends Widget {
             $image = "<div class='card-image'><img src='{$profileImageLink}' alt='{$profileImageLink}'></div>";
         }
 
-        $score = '1.5K';
+        $score = Strings::shortNumber($profile->sparkles);
         $toolbar = self::toolbar($toolbaritems);
 
         if ($this->small) {
@@ -83,8 +83,8 @@ $html = <<<HTML
                 <div class="subtitle">@{$profile->displayName}</div>
 
                 <div class="content">
-                    <div class="metric"><span class="icon"><i class="fal fa-coin"></i></span> {$score}</div>
-                    <div class="metric"><span class="icon"><i class="fal fa-bookmark"></i></span> {$favs}</div>
+                    <div class="metric" title="sparkles"><span class="icon"><i class="fal fa-sparkles"></i></span> {$score}</div>
+                    <div class="metric" title="favourites"><span class="icon"><i class="fal fa-fire"></i></span> {$favs}</div>
                 </div>
 
                 <div class="content">

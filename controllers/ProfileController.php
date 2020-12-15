@@ -53,6 +53,10 @@ class ProfileController extends BaseController {
     
         $form = new ProfileSettingForm([ 'profile' => $this->profile ]);
         if (HTTP::hasPost()) {
+        
+            //Force the profile to recaculate its sparkles
+            $this->profile->recalculateSparkles();
+
             if ($form->load(HTTP::post()) && $form->save()) {
                 Kiss::$app->session->addNotification('Updated profile settings', 'success');
                 return Response::redirect(['/profile/:profile/settings', 'profile' => $this->profile->profileName ]);
