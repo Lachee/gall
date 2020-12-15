@@ -17,7 +17,7 @@ $('.emote-selector').each(async (i, elm) => {
 
     //If we have a value selected, search for it and concatinate it to our list
     if (elm.value) {
-        const response = await fetch('/api/emotes?select2=true&id=1');// + elm.value);
+        const response = await fetch('/api/emotes?select2=true&id=' + elm.value);
         const result = await response.json();
         data = data.concat(result.results);
     }

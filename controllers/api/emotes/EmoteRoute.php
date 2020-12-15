@@ -24,7 +24,7 @@ class EmoteRoute extends ApiRoute {
         switch(HTTP::method()) {
             default:            return [ ];
             case HTTP::PUT:     return [ 'emote.update' ];
-            case HTTP::DELETE:  return [ 'emote.delete' ];
+            case HTTP::DELETE:  return [ 'emote.remove' ];
         }
     }
 

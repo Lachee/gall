@@ -19,6 +19,7 @@ use Ramsey\Uuid\Uuid;
  */
 class ProfileController extends BaseController {
     public const SCOPES = [
+        'emote.update', 'emote.publish', 'emote.remove',
         'guild', 'guild.publish', 'guild.remove', 'guild.update', 
         'gallery', 'gallery.favourite', 'gallery.pin', 'gallery.publish', 
         'bot.impersonate'
