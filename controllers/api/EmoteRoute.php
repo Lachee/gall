@@ -27,6 +27,7 @@ class EmoteRoute extends BaseApiRoute {
     // Supports get, delete
 public function get() {
         $term           = HTTP::get('term', HTTP::get('q', ''));
+        $id             = HTTP::get('id', false);
         $page           = HTTP::get('page', 1);
         $pageLimit      = HTTP::get('limit', self::DEFAULT_PAGE_SIZE);
         $asSelect2      = HTTP::get('select2', false, FILTER_VALIDATE_BOOLEAN);
@@ -37,15 +38,20 @@ public function get() {
         if ($pageLimit > self::MAX_PAGE_SIZE)
             throw new HttpException(HTTP::BAD_REQUEST, "Cannot request more than " . self::MAX_PAGE_SIZE . " items");
 
-        $query = Emote::find()->where([ 'name', 'like', "%{$term}%"])->limit($pageLimit, ($page-1) * $pageLimit);
-        $results = $query->all();
+        if ($id === false) {
+            $query = Emote::find()->where([ 'name', 'like', "%{$term}%"]);
+        } else {
+            $query = Emote::find()->where(['id', $id]);
+        }
+    
+        $results = $query->limit($pageLimit, ($page-1) * $pageLimit)->all();
         if (!$asSelect2) return $results;
-
         $results = Arrays::map($results, function($t) { 
             return [
                 'id'        => $t->id,
-                'guild_id'  => $t->guild_id,
                 'text'      => $t->name,
+                'name'      => $t->name,
+                'guild_id'  => $t->guild_id,
                 'animated'  => $t->animated,
                 'url'       => $t->url,
             ]; 

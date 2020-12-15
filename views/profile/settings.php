@@ -28,8 +28,12 @@ $form->fastForm($rules);
 </style>
 
 <form method='POST'>
-  <?= $model->render(); ?>
-
+    <?= $model->render(); ?>
+    <button class="button" type="submit">
+        <span class="icon"><i class="fal fa-save"></i></span>
+        <span>Save</span>
+    </button>
+    <hr>
     <div class="field ">
         <label class="label">API Key</label>
         <div class="field has-addons is-fullwidth">
@@ -40,44 +44,4 @@ $form->fastForm($rules);
         </div>
         <p class="help">Used to access the API</p>
     </div>
-    
-    <label class="label">Reaction Tags</label>    
-    <table class="table is-fullwidth">
-        <thead>
-            <tr>
-                <th width="250px">Emote</th>
-                <th width="500px">Tags</th>
-            </tr>
-        </thead>
-        <tbody>
-            <?php for($i = 0; $i < 10; $i++): ?>
-            <tr>
-                <td>
-                    <div class="field">
-                        <div class="control" >
-                            <span class="select"  style="width: 100%">
-                                <select name="event" class="emote-selector">
-                                </select>
-                            </span>
-                        </div>
-                    </div>
-                </td>
-                <td>
-                    <div class="field">
-                        <div class="control has-icons-left" >
-                            <span class="select"  style="width: 100%">
-                                <select name="event" class="tag-selector" multiple>
-                                </select>
-                            </span>
-                            <span class="icon is-small is-left"><i class="fal fa-tag"></i></span>
-                        </div>
-                    </div>
-                </td>
-            </tr>
-            <?php endfor; ?>
-        </tbody>
-    </table>
-
-
-  <button class="button" type="submit">Submit</button>
 </form>

@@ -5,6 +5,7 @@ use GALL;
 use kiss\db\ActiveQuery;
 use kiss\db\Query;
 use kiss\exception\ArgumentException;
+use kiss\exception\NotYetImplementedException;
 use kiss\helpers\Arrays;
 use kiss\helpers\HTTP;
 use kiss\Kiss;
@@ -62,6 +63,7 @@ class User extends Identity {
         return GALL::$app->discord->validateAccessToken($storage);
     }
 
+#region Profile
     /** Gets the URL of the users avatar
      * @return string the URL
      */
@@ -96,17 +98,9 @@ class User extends Identity {
     public function getDisplayName() {
         return !empty($this->profile_name) ? $this->profile_name :  $this->username;
     }
+#endregion
 
-    /** @return ActiveQuery|Favourite[] gets the favourites */
-    public function getFavouriteCount() {
-        return Favourite::findByProfile($this)->select(null, [ 'COUNT(*)' ])->one(true)['COUNT(*)'];
-    }
-
-    /** @return ActiveQuery|Gallery[] get the favourite galleries */
-    public function getFavouriteGalleries() {
-        return Gallery::find()->leftJoin(Favourite::class, [ '$gallery.id' => 'gallery_id' ])->where(['user_id', $this ]);
-    }
-
+#region Galleries
     /** @return ActiveQuery|Gallery[] the best galleries the user has submitted */
     public function getBestGalleries() {
         return $this->getGalleries()->orderByDesc('views');
@@ -125,7 +119,9 @@ class User extends Identity {
         $search = join(',', Arrays::map($tags, function($t) { return '|' . $t->name; }));
         return Gallery::search([ 'tag' => $search ], $page, $limit);
     }
+#endregion
 
+#region Favourites
     /** @return ActiveQuery|Tag[] gets the users favourite tags */
     public function getFavouriteTags() {
         return Tag::find()
@@ -172,15 +168,29 @@ class User extends Identity {
     public function hasFavouritedGallery($gallery) {
         return Favourite::findByProfile($this)->select(null, [ 'COUNT(*)' ])->andWhere(['gallery_id', $gallery])->andWhere(['user_id', $this])->ttl(false)->one(true)['COUNT(*)'] != 0;
     }
+    
+    /** @return ActiveQuery|Favourite[] gets the favourites */
+    public function getFavouriteCount() {
+        return Favourite::findByProfile($this)->select(null, [ 'COUNT(*)' ])->one(true)['COUNT(*)'];
+    }
 
+    /** @return ActiveQuery|Gallery[] get the favourite galleries */
+    public function getFavouriteGalleries() {
+        return Gallery::find()->leftJoin(Favourite::class, [ '$gallery.id' => 'gallery_id' ])->where(['user_id', $this ]);
+    }
+
+#endregion
+
+#region Blacklist
     /** Adds a tag to the blacklist
      * @param Tag|int $tag the tag to add
-     * @return bool true if it was added
+     * @return $this
      */
     public function addBlacklist($tag) {
-        return Kiss::$app->db()->createQuery()
+        Kiss::$app->db()->createQuery()
                                 ->insert(['user_id' => $this->id, 'tag_id' => $tag instanceof Tag ? $tag->getKey() : $tag ], '$blacklist')
                                 ->execute();
+        return $this;
     }
 
     /** @return Query returns the active query for the basic blacklists */
@@ -205,6 +215,32 @@ class User extends Identity {
                                 ->where(['tag_id', $this->getBlacklist()->fields([ 'tag_id' ]) ])
                             ]);
     }
+#endregion Blacklist
+
+#region Auto-Tag
+    /** @return Query returns the query for the auto tags */
+    public function getAutoTags() {
+        return Kiss::$app->db()->createQuery()
+                                    ->select('$auto_tags')
+                                    ->where(['user_id', $this->id]);
+    }
+
+    /** Creates an autotag
+     * @param Emote|int $emote the emote
+     * @param Tag|int $tag the tag
+     * @return $this
+     */
+    public function addAutoTag($emote, $tag) {
+        Kiss::$app->db()->createQuery()
+                            ->insert([
+                                'user_id'   => $this->id, 
+                                'tag_id'    => $tag instanceof Tag ? $tag->getKey() : $tag,
+                                'emote_id'  => $emote instanceof Emote ? $emote->getKey() : $emote,
+                            ], '$auto_tags')
+                            ->execute();
+        return $this;
+    }
+#endregion
 
     /** @return bool is the profile the signed in user */
     public function isMe() {
@@ -212,6 +248,9 @@ class User extends Identity {
         return $this->id == Kiss::$app->user->id;
     }
 
+    public function giveSparkles() { 
+        throw new NotYetImplementedException();
+    }
     /** @return int number of sparkles the user has */
     public function getSparkles() { return $this->score; }
     /** Recomputes the number of sparkles the user has. 

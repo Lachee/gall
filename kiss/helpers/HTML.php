@@ -143,12 +143,20 @@ class HTML {
 
     /** Starts a HTML tag */
     public static function begin($tag, $options = []) {
-        return "<{$tag} " . join(' ', self::attributes($options)) . ">";
+        $tags = explode(' ', $tag);
+        $html = '';
+        foreach ($tags as $t)
+            $html .= "<{$t} " . join(' ', self::attributes($options)) . ">";
+        return $html;
     }
 
     /** Ends a HTML tagg */
     public static function end($tag) {
-        return "</{$tag}>";
+        $tags = explode(' ', $tag);
+        $html = '';
+        foreach ($tags as $t)
+            $html .= "</{$t}>";
+        return $html;
     }
 
     /** Turns the array of options into HTML ready attributes

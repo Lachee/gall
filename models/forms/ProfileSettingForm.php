@@ -9,6 +9,7 @@ use kiss\helpers\HTML;
 use kiss\Kiss;
 use kiss\models\forms\Form;
 use kiss\schema\ArrayProperty;
+use kiss\schema\ObjectProperty;
 use kiss\schema\StringProperty;
 
 class ProfileSettingForm extends Form {
@@ -18,6 +19,8 @@ class ProfileSettingForm extends Form {
 
     public $profile_name;
     public $blacklist = [ ];
+    public $reaction_emotes = [];
+    public $reaction_tags = [];
 
     protected function init()
     {
@@ -28,6 +31,12 @@ class ProfileSettingForm extends Form {
 
         $this->profile_name = $this->profile->profile_name;
         $this->blacklist = Arrays::map($this->profile->getBlacklist()->fields(['tag_id'])->ttl(0)->execute(), function($t) { return $t['tag_id']; });
+    
+        $autoTags = $this->profile->getAutoTags()->ttl(0)->execute();
+        foreach($autoTags as $at) {
+            $this->reaction_emotes[] = $at['emote_id'];
+            $this->reaction_tags[] = $at['tag_id'];
+        }
     }
 
     public static function getSchemaProperties($options = [])
@@ -35,6 +44,8 @@ class ProfileSettingForm extends Form {
         return [
             'profile_name'      => new StringProperty('Identifier for the profile page', 'cooldude69', [ 'title' => 'Page Name' ]),
             'blacklist'         => new ArrayProperty(new StringProperty('Tag name'), [ 'title' => 'Tag Blacklist', 'description' => 'Tags that will be hidden in recommendations']),
+            'reaction_emotes'   => new ArrayProperty(new StringProperty('Reaction id'), [ 'title' => 'Auto Tag', 'description' => 'Automatically tags items when you react with one of these']),
+            'reaction_tags'   => new ArrayProperty(new StringProperty('')),
             //'api_key'       => new StringProperty('Authorization Token for the API', '', [ 'title' => 'API Key', 'required' => false, 'readOnly' => true ]),
         ];
     }
@@ -55,6 +66,58 @@ class ProfileSettingForm extends Form {
             $html .= HTML::end('select');
         }
         $html .= HTML::end('span');
+        return $html;
+    }
+
+    protected function fieldReaction_tags($name, $scheme, $options) { return ''; }
+    protected function fieldReaction_emotes($name, $scheme, $options) {
+$rowTemplate = <<<HTML
+<td>
+    <div class="field">
+        <div class="control" >
+            <span class="select"  style="width: 100%">
+                <select name="reaction_emotes[]" class="emote-selector"><option value="{emoteKey}" selected>{emoteName}</option></select>
+            </span>
+        </div>
+    </div>
+</td>
+<td>
+    <div class="field">
+        <div class="control has-icons-left" >
+            <span class="select"  style="width: 100%">
+                <select name="reaction_tags[]" class="tag-selector"><option value="{tagKey}">{tagName}</option></select>
+            </span>
+            <span class="icon is-small is-left"><i class="fal fa-tag"></i></span>
+        </div>
+    </div>
+</td>
+HTML;
+
+        $html = HTML::comment('complicated tables woo');
+        $html .= HTML::begin('table', ['class' => 'table is-fullwidth']); {
+            $html .= HTML::begin('thead tr'); {
+                $html .= HTML::tag('th', 'Emote', [ 'width' => '25%']);
+                $html .= HTML::tag('th', 'Tag');
+            } $html .= HTML::end('thead tr');
+            $html .= HTML::begin('tbody'); {
+                foreach($this->reaction_emotes as $index => $emoteKey) {
+                    if (empty($emoteKey)) continue;              
+
+                    $tagKey = $this->reaction_tags[$index];
+                    if (empty($tagKey)) continue;
+
+                    $tag = Tag::findByKey($tagKey)->fields(['name'])->one();
+                    if ($tag == null) continue;
+
+                    $tagName = $tag->name;
+                    $html .= HTML::begin('tr');      
+                    $html .= str_replace([ '{emoteKey}', '{emoteName}', '{tagKey}', '{tagName}'], [ $emoteKey, '', $tagKey, $tagName ], $rowTemplate);
+                    $html .= HTML::end('tr');
+                }
+
+                $html .= str_replace([ '{emoteKey}', '{emoteName}', '{tagKey}', '{tagName}'], '', $rowTemplate);
+            } $html .= HTML::end('tbody');
+        } $html .= HTML::end('table');
         return $html;
     }
 
@@ -87,6 +150,7 @@ class ProfileSettingForm extends Form {
         $this->profile->profile_name = $this->profile_name;
         if (!$this->profile->save()) return false;
 
+        // === BLACKLIST
         //Prepare a list of blacklist items we did have
         $current_blacklist =  Arrays::map($this->profile->getBlacklist()->fields(['tag_id'])->ttl(0)->execute(), function($t) { return $t['tag_id']; });
        
@@ -102,6 +166,22 @@ class ProfileSettingForm extends Form {
         //Add all the items we do want (have to do it once at a time)
         $add_list = array_diff($this->blacklist, $current_blacklist);
         foreach($add_list as $id) $this->profile->addBlacklist($id);
+
+
+        // === AUTOTAGS
+        //Clear all the auto tags (its easier this way)
+        Kiss::$app->db()->createQuery()
+                        ->delete('$auto_tags')
+                        ->where(['user_id', $this->profile->getKey()])
+                        ->execute();
+
+        //add all the new auto tags
+        foreach($this->reaction_emotes as $index => $emoteKey) {
+            if (empty($emoteKey)) continue;
+            if (empty($this->reaction_tags[$index])) continue;
+            $this->profile->addAutoTag($emoteKey, $this->reaction_tags[$index]);
+        }
+
         return true;
     }
 
