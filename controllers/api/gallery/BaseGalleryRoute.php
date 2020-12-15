@@ -1,5 +1,6 @@
 <?php namespace app\controllers\api;
 
+use app\models\Gallery;
 use app\models\Guild;
 use app\models\ScrapeData;
 use app\models\User;
@@ -7,7 +8,9 @@ use GALL;
 use kiss\controllers\api\ApiRoute;
 use kiss\exception\HttpException;
 use kiss\exception\NotYetImplementedException;
+use kiss\helpers\Arrays;
 use kiss\helpers\HTTP;
+use kiss\helpers\Response;
 use kiss\Kiss;
 use kiss\models\BaseObject;
 use kiss\router\Route;
@@ -17,11 +20,61 @@ use Throwable;
 
 class BaseGalleryRoute extends BaseApiRoute {
 
+    const DEFAULT_PAGE_SIZE = 1;
+    const MAX_PAGE_SIZE = 5;
+
     protected static function route() { return "/gallery"; }
 
     /** @inheritdoc */
     public function scopes() {
-        return [ 'gallery.publish' ];
+        switch(HTTP::method()) {
+            default:            return [ 'ctrl:allow_users', 'gallery.search' ];
+            case HTTP::POST:    return [ 'gallery.publish' ];
+        }
+    }
+
+    public function get() {
+        $term           = HTTP::get('term', HTTP::get('q', ''));
+        $id             = HTTP::get('id', false);
+        $page           = HTTP::get('page', 1);
+        $pageLimit      = HTTP::get('limit', self::DEFAULT_PAGE_SIZE);
+        $asSelect2      = HTTP::get('select2', false, FILTER_VALIDATE_BOOLEAN);
+
+        //They probably actually meant page 1
+        if ($page == 0)  $page = 1;
+
+        if ($pageLimit > self::MAX_PAGE_SIZE)
+            throw new HttpException(HTTP::BAD_REQUEST, "Cannot request more than " . self::MAX_PAGE_SIZE . " items");
+
+        if ($id === false) {
+            $query = Gallery::find()->where([ 'title', 'like', "%{$term}%"])
+                                        ->orWhere(['channel_snowflake', $term])
+                                        ->orWhere(['message_snowflake', $term])
+                                        ->orWhere([ 'description', 'like', "%{$term}%"]);
+        } else {
+            $query = Gallery::find()->where(['id', $id]);
+        }
+    
+        $results = $query->limit($pageLimit, ($page-1) * $pageLimit)->all();
+        if (!$asSelect2) return $results;
+        $results = Arrays::map($results, function($t) { 
+            return [
+                'id'        => $t->id,
+                'text'      => $t->name,
+                'name'      => $t->name,
+                'guild_id'  => $t->guild_id,
+                'animated'  => $t->animated,
+                'url'       => $t->url,
+            ]; 
+        });
+            
+        return new Response(HTTP::OK, [], [
+            'results'   => $results,
+            'pagination' => [
+                'count' => count($results),
+                'more'  => count($results) == $pageLimit
+            ]
+        ], HTTP::CONTENT_APPLICATION_JSON);
     }
 
     /** @inheritdoc
@@ -92,7 +145,7 @@ class BaseGalleryRoute extends BaseApiRoute {
 
             //Prepare the scraped data and load it up
             $scrapedData = new ScrapeData();
-            if (!$scrapedData->load($json))
+            if (!$scrapedData->load($data))
                 throw new HttpException(HTTP::BAD_REQUEST, $scrapedData->errors());
 
             //Attempt to publish it

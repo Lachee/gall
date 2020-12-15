@@ -21,7 +21,7 @@ class ProfileController extends BaseController {
     public const SCOPES = [
         'emote.update', 'emote.publish', 'emote.remove',
         'guild', 'guild.publish', 'guild.remove', 'guild.update', 
-        'gallery', 'gallery.favourite', 'gallery.pin', 'gallery.publish', 
+        'gallery', 'gallery.favourite', 'gallery.pin', 'gallery.publish', 'gallery.search', 'gallery.update',
         'bot.impersonate'
     ];
 

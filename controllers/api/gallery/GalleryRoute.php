@@ -2,6 +2,7 @@
 
 use app\controllers\api\BaseApiRoute;
 use app\models\Gallery;
+use app\models\Guild;
 use kiss\exception\HttpException;
 use kiss\helpers\HTTP;
 use kiss\router\Route;
@@ -15,22 +16,42 @@ class GalleryRoute extends BaseApiRoute {
     protected static function route() { return "/gallery/:gallery_id"; }
 
     protected function scopes() {
-        return array_merge(parent::scopes(), [ 
-            'ctrl:allow_users'
-        ]);
+        switch(HTTP::method()) {
+            default:            return [ 'ctrl:allow_users', 'gallery' ];
+            case HTTP::PUT:     return [ 'gallery.update' ];
+        }
     }
 
-    //HTTP GET on the route. Return an object and it will be sent back as JSON to the client.
-    // Throw an exception to send exceptions back.
-    // Supports get, delete
     public function get() {
         return $this->getGallery();
+    }
+
+    public function put($data) { 
+        $guild      = $data['guild_id'];
+        $channel    = $data['channel_id'];
+        $message    = $data['message_id'];
+
+        //TODO: Allow title editing
+
+        if (empty($guild)) throw new HttpException(HTTP::BAD_REQUEST, 'guild_id cannot be empty');
+        if (empty($channel)) throw new HttpException(HTTP::BAD_REQUEST, 'channel_id cannot be empty');
+        if (empty($message)) throw new HttpException(HTTP::BAD_REQUEST, 'message_id cannot be empty');
+
+        $guild = Guild::findByKey($guild)->orWhere(['snowflake', $guild])->one();
+        if ($guild == null) throw new HttpException(HTTP::BAD_REQUEST, 'invalid guild given');
+
+        $this->gallery->message_snowflake = $message;
+        $this->gallery->channel_snowflake = $channel;
+        $this->gallery->guild_id = $guild->getKey();
+        if (!$this->gallery->save()) 
+            throw new HttpException(HTTP::BAD_REQUEST, $this->gallery->errors());
+
+        return $this->gallery;
     }
 
     //public function get() { throw new HttpException(HTTP::METHOD_NOT_ALLOWED); }
     public function options() { throw new HttpException(HTTP::METHOD_NOT_ALLOWED); }
     public function delete() { throw new HttpException(HTTP::METHOD_NOT_ALLOWED); }
-    public function put($data) { throw new HttpException(HTTP::METHOD_NOT_ALLOWED); }    
     public function post($data) { throw new HttpException(HTTP::METHOD_NOT_ALLOWED); }
 
     /**
