@@ -44,6 +44,24 @@ class ProfileController extends BaseController {
         ]);
     }
 
+    function actionFavourites() {
+        $galleries = $this->profile->getFavouriteGalleries()->all();
+        return $this->render('browse', [
+            'title'     => 'Favourites',
+            'profile'   => $this->profile,
+            'galleries' => $galleries
+        ]);
+    }
+
+    function actionSubmissions() {
+        $galleries = $this->profile->getGalleries()->all();
+        return $this->render('browse', [
+            'title'     => 'Submissions',
+            'profile'   => $this->profile,
+            'galleries' => $galleries
+        ]);
+    }
+
     function actionSettings() {
         /** @var User $profile */
         if ($this->profile->id != Kiss::$app->user->id) throw new HttpException(HTTP::FORBIDDEN, 'Can only edit your own settings');

@@ -20,9 +20,11 @@ use kiss\helpers\HTTP;
     </div>
     <div class="column is-four-fifths">
         <div class="title">Best Submissions</div>
+        <div class="subtitle">Collection of their best submissions</div>
         <?= GalleryList::widget(['galleries' => $submissions, 'grid' => false]); ?>
         
-        <div class="title">Favourites</div>   
+        <div class="title">Favourites</div>
+        <div class="subtitle">Collection of their favourited galleries</div>
         <?= GalleryList::widget(['galleries' => $favourites, 'grid' => count($favourites) <= 3 || count($favourites) > 10]); ?>
     </div>
 </div>

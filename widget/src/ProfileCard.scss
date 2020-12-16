@@ -3,6 +3,7 @@
     $card-background: #121212;
     $avatar-size: 75px;
     $color-height: 62%;
+    $card-height: 600px;
 
     &.is-small .card {
         height: 350px;
@@ -14,7 +15,7 @@
     }
 
     .card {
-        height: 500px;
+        height: $card-height;
         width: 250px;
         min-width: 250px;
         border-radius: 16px;
@@ -72,8 +73,9 @@
             }
             
             .metric {
-                font-size: 18pt;
+                font-size: 14pt;
                 color: white;
+                a { color: #d0d0d0; }
             }
             .tag-group a {
                 font-size: 8pt;

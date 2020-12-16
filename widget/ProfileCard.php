@@ -66,11 +66,15 @@ HTML;
 
         } else {
             $favs = Strings::shortNumber($profile->favouriteCount);
-
+            $subs = Strings::shortNumber($profile->galleryCount);
             $tags = $profile->getFavouriteTags()->limit(5)->all();
             if (count($tags) == 0) $tags = $profile->getFavouriteTagsSubmitted()->limit(5)->all();
             $tagsLinks = join(' ', Arrays::map($tags, function($tag) { return '<a href="'.HTTP::url(['/gallery/search', 'tag' => $tag->name ]).'">'.$tag->name.' ( '.$tag->count.' )</a>'; }));
             
+            $profileLink = HTTP::url(['/profile/:profile/', 'profile' => $profile->profileName ]);
+            $favouriteLink = HTTP::url(['/profile/:profile/favourites', 'profile' => $profile->profileName ]);
+            $submissionLink = HTTP::url(['/profile/:profile/submissions', 'profile' => $profile->profileName ]);
+
 $html = <<<HTML
     <div class="profile-card">
         <div class="card">
@@ -80,11 +84,11 @@ $html = <<<HTML
                     <img src="{$profile->avatarUrl}" alt="Avatar Picture">
                 </div>
                 <div class="title">{$profile->username}</div>
-                <div class="subtitle">@{$profile->displayName}</div>
+                <div class="subtitle"><a href="$profileLink">@{$profile->displayName}</a></div>
 
                 <div class="content">
-                    <div class="metric" title="sparkles"><span class="icon"><i class="fal fa-sparkles"></i></span> {$score}</div>
-                    <div class="metric" title="favourites"><span class="icon"><i class="fal fa-fire"></i></span> {$favs}</div>
+                    <div class="metric" title="sparkles" style="text-align: center;"><span class="icon"><i class="fal fa-sparkles"></i></span> {$score}</div>
+                    <div class="metric" title="favourites"><a href="$favouriteLink"><span class="icon"><i class="fal fa-fire"></i></span> {$favs}</a> <a href="$submissionLink" style="float:right;"><span class="icon"><i class="fal fa-books-medical"></i></span> {$subs}</a></div>
                 </div>
 
                 <div class="content">

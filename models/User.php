@@ -114,6 +114,11 @@ class User extends Identity {
         return Gallery::findByFounder($this);
     }
 
+    /** @return int the number of galleries the user has */
+    public function getGalleryCount() {
+        return $this->getGalleries()->select(null, [ 'COUNT(*)' ])->one(true)['COUNT(*)'];
+    }
+
     public function searchRecommdendedGalleries($page, $limit) {
         $tags = $this->getFavouriteTags()->limit(5)->all();
         if (count($tags) == 0) $tags = $this->getFavouriteTagsSubmitted()->limit(5)->all();
@@ -177,6 +182,7 @@ class User extends Identity {
         return Favourite::findByProfile($this)->select(null, [ 'COUNT(*)' ])->one(true)['COUNT(*)'];
     }
 
+    
     /** @return ActiveQuery|Gallery[] get the favourite galleries */
     public function getFavouriteGalleries() {
         return Gallery::find()->leftJoin(Favourite::class, [ '$gallery.id' => 'gallery_id' ])->where(['user_id', $this ]);
