@@ -1,11 +1,14 @@
 <?php namespace app\models;
 
+use Exception;
 use kiss\models\Identity;
 use GALL;
 use kiss\db\ActiveQuery;
 use kiss\db\Query;
 use kiss\exception\ArgumentException;
 use kiss\exception\NotYetImplementedException;
+use kiss\exception\SQLDuplicateException;
+use kiss\exception\SQLException;
 use kiss\helpers\Arrays;
 use kiss\helpers\HTTP;
 use kiss\Kiss;
@@ -242,6 +245,64 @@ class User extends Identity {
     }
 #endregion
 
+#region Reactions
+    /** Reacts to a gallery
+     * @param Gallery $gallery
+     * @param Emote $emote
+     * @return $this
+     */
+    public function addReaction($gallery, $emote) {
+        try {
+            //Add the reactions
+            $success = Kiss::$app->db()->createQuery()
+                            ->insert([ 
+                                'user_id'       => $this->getKey(),
+                                'gallery_id'    => $gallery->getKey(),
+                                'emote_id'      => $emote->getKey()
+                            ], '$reaction')->execute();
+        } catch(SQLDuplicateException $dupeException) { return $this; }
+
+        //TODO: Award for reaction and reacting
+
+        //Apply Autotag
+        $tagged = [];
+        $autoTags = $this->getAutoTags()->andWhere(['emote_id', $emote->getKey()])->execute();
+        Kiss::$app->db()->beginTransaction();
+        try {
+            foreach($autoTags as $at) {
+                try {
+                    $success = $gallery->addTag($at['tag_id'], $this);
+                    if ($success) $tagged[] = $at;
+                }catch(SQLDuplicateException $dupeException) { /** no-op for duplicates */}
+            }
+            Kiss::$app->db()->commit();
+        }catch(Exception $e) {
+            Kiss::$app->db()->rollBack();
+            throw $e;
+        }
+
+        //TODO: Award for auto-tagging
+
+        return $this;
+    }
+
+    /** Unreacts to a gallery
+     * @param Gallery $gallery
+     * @param Emote $emote
+     */
+    public function removeReaction($gallery, $emote) {
+        $rowCount = Kiss::$app->db()->createQuery()
+                                    ->delete('$reaction')
+                                    ->andWhere(['user_id', $this->getKey()])
+                                    ->andWhere(['gallery_id', $gallery->getKey()])
+                                    ->andWhere(['emote_id', $emote->getKey()])
+                                    ->execute();
+
+        //TODO: Undo award for reaction and reacting
+        return $this;
+    }
+#endregion
+
     /** @return bool is the profile the signed in user */
     public function isMe() {
         if (Kiss::$app->user == null) return false;
@@ -262,7 +323,7 @@ class User extends Identity {
                         ->execute();
         
         $sparkles = $query[0]['SCORE'];
-        $this->score = $sparkles;
+        $this->score = $sparkles ?? 0;
         $this->save(false, ['score']);
         return $sparkles;
     }

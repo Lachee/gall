@@ -2,7 +2,9 @@
 
 use Exception;
 use kiss\exception\ArgumentException;
+use kiss\exception\DuplicateEntryException;
 use kiss\exception\QueryException;
+use kiss\exception\SQLDuplicateException;
 use kiss\exception\SQLException;
 use kiss\Kiss;
 use kiss\models\BaseObject;
@@ -377,6 +379,12 @@ class Query extends BaseObject{
      * @return array Array containing the query and an array of binding values.
     */
     public function build() {
+        if (empty($this->from))
+            throw new QueryException('Cannot build query as the TABLE is empty');
+
+        if (empty($this->query)) 
+            throw new QueryException('Cannot build query as we dont know what kind of query it is!');
+
         $query = "";
 
         $bindings = [];
@@ -564,7 +572,15 @@ class Query extends BaseObject{
         $result = $stm->execute();
         if (!$result) {
             $err = $stm->errorInfo();
-            throw new SQLException($this, $query, $err[2]);
+            switch($err[1]) {
+                default:
+                    throw new SQLException($this, $query, $err[2], $err[1]);
+                case SQLException::ER_DUP_ENTRY:
+                case SQLException::ER_DUP_KEYNAME:
+                case SQLException::ER_DUP_FIELDNAME:
+                    throw new SQLDuplicateException($this, $query, $err[2], $err[1]);
+
+            }
         }
 
         //Select is the only one where we want to return the object
@@ -586,8 +602,12 @@ class Query extends BaseObject{
             return $result;
         }
 
-        //Everything else returns the last inserted ID
-        return $this->conn->lastInsertId();
+        //Return the last inserted id if its an insert query
+        if ($this->query === self::QUERY_INSERT || $this->query === self::QUERY_INSERT_OR_UPDATE)
+            return $this->conn->lastInsertId();
+
+        //Otherwise retunr number of rows affected
+        return $stm->rowCount();
     }
 
     /** Gets teh statement for debugging purposes. DO NOT EXECUTE THIS.

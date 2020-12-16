@@ -6,6 +6,7 @@ use kiss\db\ActiveQuery;
 use kiss\db\ActiveRecord;
 use kiss\exception\ArgumentException;
 use kiss\exception\InvalidOperationException;
+use kiss\exception\SQLDuplicateException;
 use kiss\helpers\Arrays;
 use kiss\Kiss;
 use kiss\schema\EnumProperty;
@@ -187,14 +188,15 @@ class Gallery extends ActiveRecord {
      * @param User $founder the person to add the tag
      */
     public function addTag($tag, $founder = null) {
-        if (!($tag instanceof Tag)) throw new ArgumentException('$tag must be of type Tag');
-        
-        $query = Kiss::$app->db()->createQuery();
-        return $query->insert([
-            'tag_id'        => $tag->getId(),
-            'gallery_id'    => $this->getKey(),
-            'founder_id'    => $founder == null ? null : $founder->getKey(),
-        ], '$tags' )->execute();
+        //if (!($tag instanceof Tag)) throw new ArgumentException('$tag must be of type Tag');
+        try {
+            Kiss::$app->db()->createQuery()->insert([
+                'tag_id'        => $tag instanceof Tag ? $tag->getId() : $tag,
+                'gallery_id'    => $this->getKey(),
+                'founder_id'    => $founder == null ? null : $founder->getKey(),
+            ], '$tags' )->execute();
+            return true;
+        } catch(SQLDuplicateException $dupeException) { return true; }
     }
 
     /** Removes a specific tag */

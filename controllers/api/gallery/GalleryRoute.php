@@ -7,6 +7,10 @@ use kiss\exception\HttpException;
 use kiss\helpers\HTTP;
 use kiss\router\Route;
 
+/**
+ * @property Gallery $gallery
+ * @package app\controllers\api\gallery
+ */
 class GalleryRoute extends BaseApiRoute {
 
     protected $gallery_id;

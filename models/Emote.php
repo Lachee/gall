@@ -6,6 +6,7 @@ use kiss\db\ActiveRecord;
 use kiss\helpers\Strings;
 use kiss\schema\BooleanProperty;
 use kiss\schema\IntegerProperty;
+use kiss\schema\RefProperty;
 use kiss\schema\StringProperty;
 
 class Emote extends ActiveRecord {
@@ -17,6 +18,7 @@ class Emote extends ActiveRecord {
     protected $snowflake;
     protected $name;
     protected $animated;
+    protected $founder_id;
 
     /** @inheritdoc */
     public static function getSchemaProperties($options = []) {
@@ -27,7 +29,14 @@ class Emote extends ActiveRecord {
             'name'          => new StringProperty('Name of the emote'),
             'animated'      => new BooleanProperty('If the emote is animated'),
             'url'           => new StringProperty('URL of the emote'),
+            'founder'       => new RefProperty(User::class, 'The person that added this via a reaction'),
         ];
+    }
+
+    /** @return ActiveQuery|User the founder */
+    public function getFounder() { 
+        if (empty($this->founder_id)) return null;
+        return User::findByKey($this->founder_id);
     }
 
     /** @return string the URL of the emoji */
