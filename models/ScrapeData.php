@@ -29,6 +29,8 @@ class ScrapeData extends BaseObject {
     protected $cover;
     protected $pages;
 
+    private $_publishedNew = false;
+
     public static function getSchemaProperties($options = [])
     {
         return [
@@ -65,9 +67,17 @@ class ScrapeData extends BaseObject {
         if ($gallery != null) return $gallery;
 
         $gallery = Gallery::findByUrl($this->url)->ttl(0)->one();
-        if ($gallery != null) return $gallery;
+        if ($gallery != null) 
+            return $gallery;
 
         return null;
+    }
+
+    /** Returns the flag that indicates the last publish function ended up creating a new gallery.
+     * This is required since the publish function can end up returning an existing or a new record, but since it saves it during the publish process the New Record flag gets cleared.
+     * @return bool true if it has published */
+    public function hasPublishedNewGallery() {
+        return $this->_publishedNew;
     }
 
     /** Publish the data to the server. It will return the appropriate gallery.
@@ -83,7 +93,10 @@ class ScrapeData extends BaseObject {
         //Check it doesnt already exist. This is relied on by the search function
         if (!$asNewGallery) {
             $existingGallery = $this->findExistingGallery();
-            if ($existingGallery != null) return $existingGallery;
+            if ($existingGallery != null) {
+                $this->_publishedNew = false;
+                return $existingGallery;
+            }
         }
 
         //Prepare a list of tags
@@ -163,6 +176,9 @@ class ScrapeData extends BaseObject {
         //Fallthrough, just in case
         if ($gallery == null)
             throw new Exception('Failed to create a gallery!');
+
+        //we published, set the flag
+        $this->_publishedNew = true;
 
         //Start the transaction
         Kiss::$app->db()->beginTransaction();

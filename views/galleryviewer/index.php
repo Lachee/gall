@@ -13,9 +13,7 @@ use kiss\Kiss;
 /** @var Gallery $gallery */
 /** @var Image[] $images */
 
-$tno = $gallery->favourites;
-$msg = $gallery->messageLink;
-$k = $tno;
+
 ?>
 <div class="container">
     <section class="nav">
@@ -24,8 +22,15 @@ $k = $tno;
                 <p class="subtitle"><?= $gallery->title ?></p>
             </div>
             <div class="column has-text-right">
+                <p class="heading">Reactions</p>
+                <section class="reactions">
+                    <?php foreach($reactions as $reaction): ?>
+                        <img class="emote is-small" src="<?= $reaction['emote']->url ?>" title="<?= $reaction['user']->name ?>" />
+                    <?php endforeach; ?>
+                </section>
+            </div>
+            <div class="column is-one-fifth has-text-right">
                 <p class="heading">Actions</p>
-                
                 <p class="heading">
                     <a class="button is-small button-bookmark" title="favourite">
                         <span class="icon"><i class="<?= GALL::$app->user->hasFavouritedGallery($gallery) ? 'fas' : 'fal' ?> fa-fire"></i></span>
@@ -79,7 +84,6 @@ $k = $tno;
 
             </div>
             <div class="column">
-
                 <?php if (count($images) == 0) $images = [ $gallery->cover ];  // this hot fix just in case. Should aways have an image :\ ?>
                 <?php if ($gallery->type != Gallery::TYPE_COMIC): //count($images) == 1) : ?>
                     <?php foreach ($images as $image) : ?>
@@ -87,7 +91,7 @@ $k = $tno;
                             <figure class="image is-16by9 expanding-artwork" data-expanding-class="is-16by9">
                                 <img style='object-fit: contain' src="<?= $image->url ?>">
                             </figure>
-                        </section>  
+                        </section>
                     <?php endforeach; ?>
                 <?php else : ?>
                     <section class="artwork has-lightbox">
@@ -100,6 +104,7 @@ $k = $tno;
                 <?php endif; ?>
                 <br>
 
+                <!--
                 <section class="level">
                     <div class="level-item has-text-centered">
                         <div>
@@ -126,7 +131,9 @@ $k = $tno;
                         </div>
                     </div>
                 </section>
+                -->
 
+                <h1>Favourite List</h1>
                 <section class="favourited">
                     <?php foreach((array) $gallery->favourites as $f): ?>
                         <a class="fav-profile" href="<?= HTTP::url(['/profile/:profile/', 'profile' => $f->profile->profileName ]); ?>" title="see <?= $f->profile->displayName ?>">

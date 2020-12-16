@@ -110,30 +110,43 @@ class BaseGalleryRoute extends BaseApiRoute {
             $results = [];
             foreach($urls as $url) {
                 try {
-                    $scrapedData = GALL::$app->scraper->scrape($url);
-                    if ($scrapedData !== false) {
-                        $gallery = $scrapedData->publish($user);
-
-                        if ($gallery !== false) {
+                    //Make sure we dont have a matching gallery first
+                    $gallery = Gallery::findByUrl($url)->one();
+                    if ($gallery != null) {
+                        $results[$url] = $gallery;
+                    }  else {
+                        //Otherwise, we have to scrape the URL
+                        $scrapedData = GALL::$app->scraper->scrape($url);
+                        if ($scrapedData !== false) {
                             
-                            if (!empty($guild_id))
-                                $gallery->guild_id = $guild_id;
+                            $gallery = $scrapedData->publish($user);
+                            if ($gallery !== false) {
 
-                            if (!empty($channel_snowflake))
-                                $gallery->channel_snowflake = $channel_snowflake;
+                                //set the origin message, but only if thsi is a new record
+                                if ($scrapedData->hasPublishedNewGallery()) {
+                                    if (!empty($guild_id))
+                                        $gallery->guild_id = $guild_id;
+                                    if (!empty($channel_snowflake))
+                                        $gallery->channel_snowflake = $channel_snowflake;
+                                    if (!empty($message_snowflake))
+                                        $gallery->message_snowflake = $message_snowflake;
 
-                            if (!empty($message_snowflake))
-                                $gallery->message_snowflake = $message_snowflake;
-
-                            $gallery->save(false, [ 'guild_id', 'channel_snowflake', 'message_snowflake' ]);
-                            $results[$url] = $gallery;
+                                    $gallery->save(false, [ 'guild_id', 'channel_snowflake', 'message_snowflake' ]);
+                                }
+                                
+                                //Store results
+                                $results[$url] = $gallery;
+                            } else {
+                                //Store error
+                                $results[$url] = $scrapedData->errorSummary();
+                            }
                         } else {
-                            $results[$url] = $scrapedData->errorSummary();
+                            //Store generic error
+                            $results[$url] = 'Failed to scrape';
                         }
-                    } else {
-                        $results[$url] = 'Failed to scrape';
                     }
                 }catch(Throwable $e) {
+                    //Store exception
                     $results[$url] = $e->getMessage();
                 }
             }

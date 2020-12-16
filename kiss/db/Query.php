@@ -21,7 +21,7 @@ class Query extends BaseObject{
 
     /** @var int $cacheDuration how long in second cached results last for. */
     public $cacheDuration = 1;
-    protected $cacheVersion = 5;
+    protected $cacheVersion = 6;
     protected $flushCache = false;
 
     public $remember = true;
@@ -604,11 +604,13 @@ class Query extends BaseObject{
 
         //Return the last inserted id if its an insert query
         if ($this->query === self::QUERY_INSERT || $this->query === self::QUERY_INSERT_OR_UPDATE)
-            return $this->conn->lastInsertId();
+            return $this->lastId();
 
         //Otherwise retunr number of rows affected
         return $stm->rowCount();
     }
+
+    public function lastId() { return $this->conn->lastInsertId(); }
 
     /** Gets teh statement for debugging purposes. DO NOT EXECUTE THIS.
      * @return string the SQL statement

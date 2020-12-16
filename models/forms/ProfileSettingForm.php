@@ -154,7 +154,10 @@ HTML;
 
         //Update the profile information
         $this->profile->profile_name = $this->profile_name;
-        if (!$this->profile->save()) return false;
+        if (!$this->profile->save()) {
+            $this->addError($this->profile->errors());
+            return false;
+        }
 
         // === BLACKLIST
         //Prepare a list of blacklist items we did have

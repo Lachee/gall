@@ -208,6 +208,13 @@ class ActiveRecord extends BaseObject{
             return false;
         }
 
+        //Set the last active id
+        $result = $query->lastId();
+        if ($result === false) {
+            $this->addError('Failed to save the record.');
+            return false;
+        }
+
         //Update our ID
         $this->_newRecord = false;        
         $this->clearDirty();

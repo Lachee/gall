@@ -16,14 +16,16 @@ class ReactionRoute extends GalleryRoute {
     
     //We are going to return our routing. Any segment that starts with : is a property.
     // Note that more explicit routes get higher priority. So /example/apple will take priority over /example/:fish
-    protected static function route() { return parent::route() . "/reaction"; }
+    protected static function route() { return parent::route() . "/reactions"; }
 
     /** @inheritdoc */
     public function scopes() { return [ 'gallery.reaction' ]; }
 
     
     /** Gets all reactions for the post */
-    public function get() { throw new NotYetImplementedException();}
+    public function get() { 
+        return $this->gallery->getReactions()->execute();
+    }
     
     /** Adds a reaction as the current user */
     public function post($data) {

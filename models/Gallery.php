@@ -163,6 +163,13 @@ class Gallery extends ActiveRecord {
         return $this->getAllTags()->orderByDesc('cnt')->limit(5)->ttl(10);
     }
 
+
+    /** @return ActiveQuery|Favourite list of all people that favourited this gallery */
+    public function getFavourites() {
+        return Favourite::find()->where(['gallery_id',  $this->getKey() ]);
+    }
+
+#region views
     /** Increments the views */
     public function incrementView() {
         $this->views++;
@@ -173,15 +180,10 @@ class Gallery extends ActiveRecord {
             // but make sure its atomic
         }
     }
-
-    /** @return ActiveQuery|Favourite list of all people that favourited this gallery */
-    public function getFavourites() {
-        return Favourite::find()->where(['gallery_id',  $this->getKey() ]);
-    }
-
     /** Gets the number of views */
     public function getViews() { return self::find()->fields(['id', 'views'])->where(['id', $this])->cache(false)->one(true)['views']; }
     public function setViews() { throw new InvalidOperationException('Views cannot be set'); }
+#endregion
 
     /** Creates a link between the tag and this gallery
      * @param Tag $tag the tag to add
@@ -264,6 +266,12 @@ class Gallery extends ActiveRecord {
             //TODO: Remove Score Rewards
         }
     }
+
+    /** @return Query|array returns all the reactions for the gallery */
+    public function getReactions() {
+        return Kiss::$app->db()->createQuery()->select('$reaction')->where(['gallery_id', $this->getKey()]);
+    }
+
 
     /** Finds a gallery by the given tag
      * @param Tag $tag the tag
