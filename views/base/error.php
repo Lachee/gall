@@ -38,7 +38,7 @@ use kiss\helpers\Strings;
                     <div class="card-content">
                         <p class="title">HTTP <?= $exception->getStatus() ?></p>
                         <p class="subtitle"><?= HTTP::status($exception->getStatus()); ?> </p>                        
-                        <?= KISS_DEBUG ? $exception->getMessage() : '🤷‍♂️' ?>
+                        <?= $exception->getMessage() ?>
                     </div>
                     <footer class="card-footer">
                         <p class="card-footer-item">
