@@ -18,11 +18,17 @@ use Ramsey\Uuid\Uuid;
  * @property User $profile
  */
 class ProfileController extends BaseController {
-    public const SCOPES = [
+    /** SCopes while debugging */
+    public const DEBUG_SCOPES = [
         'emote.update', 'emote.publish', 'emote.remove',
         'guild', 'guild.publish', 'guild.remove', 'guild.update', 
         'gallery', 'gallery.favourite', 'gallery.pin', 'gallery.publish', 'gallery.search', 'gallery.update', 'gallery.reaction',
         'bot.impersonate'
+    ];
+
+    /** Scopes to give to normal users */
+    public const SCOPES = [
+        'gallery', 'gallery.favourite', 'gallery.pin', 'gallery.publish', 'gallery.search', 'gallery.update', 'gallery.reaction',
     ];
 
     public $profile_name;
@@ -66,10 +72,15 @@ class ProfileController extends BaseController {
             }
         }
 
+        //Setup the scopes
+        $scopes = self::SCOPES;
+        if (KISS_DEBUG) $scopes = self::DEBUG_SCOPES;
+
+        //Render the page
         return $this->render('settings', [
             'profile'       => $this->profile,
             'model'         => $form,
-            'key'           => $this->api_key = $this->profile->apiToken([ 'scopes' => self::SCOPES ])
+            'key'           => $this->api_key = $this->profile->apiToken([ 'scopes' => $scopes ])
         ]);
     }
 
