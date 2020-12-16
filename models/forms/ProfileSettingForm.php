@@ -49,7 +49,13 @@ class ProfileSettingForm extends Form {
             //'api_key'       => new StringProperty('Authorization Token for the API', '', [ 'title' => 'API Key', 'required' => false, 'readOnly' => true ]),
         ];
     }
-    
+
+    protected function beforeLoad($data)
+    {
+        $this->blacklist = [];
+        $this->reaction_emotes = [];
+        $this->reaction_tags = [];
+    }
 
     protected function fieldBlacklist($name, $scheme, $options) {
         $values = $this->getProperty($name, []);
