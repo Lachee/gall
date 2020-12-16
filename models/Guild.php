@@ -55,7 +55,8 @@ class Guild extends ActiveRecord {
                             ->execute();
 
         //Add missing snowflakes
-        foreach($adding_snowflakes as $snowflake => $demote) {
+        foreach($adding_snowflakes as $snowflake) {
+            $demote = $new_snowflakes[$snowflake];
             (new Emote([
                 'guild_id'      => $this->id,
                 'snowflake'     => $demote['id'],
