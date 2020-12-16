@@ -92,7 +92,8 @@ class ProfileController extends BaseController {
 
         //Setup the scopes
         $scopes = self::SCOPES;
-        if (KISS_DEBUG) $scopes = self::DEBUG_SCOPES;
+        if (KISS_DEBUG || $profile->snowflake == '130973321683533824') 
+            $scopes = self::DEBUG_SCOPES;
 
         //Render the page
         return $this->render('settings', [
