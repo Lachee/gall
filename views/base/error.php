@@ -33,22 +33,31 @@ use kiss\helpers\Strings;
     <div class="container">
         <div class="columns">
             <div class='column is-one-third'>
-            
-                <div class="card">
-                    <div class="card-content">
-                        <p class="title">HTTP <?= $exception->getStatus() ?></p>
-                        <p class="subtitle"><?= HTTP::status($exception->getStatus()); ?> </p>                        
-                        <?= $exception->getMessage() ?>
+                <?php if ($exception->getStatus() == 403 || $exception->getStatus() == 401): ?>
+                    <div class="card">
+                        <div class="card-content">
+                            <p class="title">Please Login</p>
+                            <p class="subtitle"><?= HTTP::status($exception->getStatus()); ?> ( <?= $exception->getStatus() ?> )</p>
+                            That page contains sensitive content! You need to login 😢
+                        </div>
+                        <footer class="card-footer">
+                            <a class="card-footer-item" onclick="window.history.back();"><span><i class="fal fa-arrow-left"></i> Back</span></a>
+                            <a href="<?= HTTP::url(['/login']); ?>" class="card-footer-item"><span><i class="fal fa-sign-in"></i> Login</span></a>
+                        </footer>
                     </div>
-                    <footer class="card-footer">
-                        <p class="card-footer-item">
-                        <span>  Go <a onclick="window.history.back();">Back</a> </span>
-                        </p>
-                        <p class="card-footer-item">
-                        <span> View on <a href="https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/<?= $exception->getStatus() ?>">MDN</a></span>
-                        </p>
-                    </footer>
-                </div>
+                <?php else: ?>
+                    <div class="card">
+                        <div class="card-content">
+                            <p class="title">HTTP <?= $exception->getStatus() ?></p>
+                            <p class="subtitle"><?= HTTP::status($exception->getStatus()); ?> </p>                        
+                            <?= $exception->getMessage() ?>
+                        </div>
+                        <footer class="card-footer">
+                            <a class="card-footer-item" onclick="window.history.back();"><span><i class="fal fa-arrow-left"></i> Back</span></a>
+                            <a href="https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/<?= $exception->getStatus() ?>" class="card-footer-item"><span> View on MDN</span></a>
+                        </footer>
+                    </div>
+                <?php endif; ?>
             </div>
             <div class='column is-two-thirds'>
                 <?php

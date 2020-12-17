@@ -31,7 +31,7 @@ try {
             <a class="navbar-item has-icon is-tab <?= !Strings::startsWith(HTTP::route(), '/gallery/') ?: 'is-active' ?>" title="Gallery" href="<?= HTTP::url('/gallery/')?>"><i class="fal fa-images"></i></a>
             <a class="navbar-item has-icon is-tab <?= !Strings::startsWith(HTTP::route(), '/profile/@me/favourites') ?: 'is-active' ?>" title="Favourites" href="<?= HTTP::url('/profile/@me/favourites')?>"><i class="fal fa-fire"></i></a>
             <a class="navbar-item has-icon is-tab <?= !Strings::startsWith(HTTP::route(), '/profile/@me/submissions') ?: 'is-active' ?>" title="Submissions" href="<?= HTTP::url('/profile/@me/submissions')?>"><i class="fal fa-books-medical"></i></a>
-            <a class="navbar-item has-icon is-tab <?= !Strings::startsWith(HTTP::route(), '/profile/@me/') ?: 'is-active' ?>" title="Submissions" href="<?= HTTP::url('/profile/@me/')?>"><i class="fal fa-user"></i></a>
+            <a class="navbar-item has-icon is-tab <?= !Strings::endsWith(HTTP::route(), '/profile/@me/') ?: 'is-active' ?>" title="Submissions" href="<?= HTTP::url('/profile/@me/')?>"><i class="fal fa-user"></i></a>
         </div>
 
         <?php if ($user): ?>
@@ -88,7 +88,7 @@ try {
                         </div>
                     <?php else: ?>
                         <p class="control">
-                            <a class="button" id="login-button" href="<?= HTTP::url(['/login', 'referal' => HTTP::route()]); ?>" >
+                            <a class="button" id="login-button" href="<?= HTTP::url(['/login' ]); ?>" >
                                 <span class="icon"><i class="fab fa-discord"></i></span>
                                 <span>Login</span>
                             </a>

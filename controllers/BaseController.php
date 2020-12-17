@@ -13,6 +13,9 @@ use XVE;
 
 class BaseController extends Controller {
 
+    //private const LOGIN_ERROR_CODE = HTTP::FORBIDDEN;
+    private const LOGIN_ERROR_CODE = HTTP::UNAUTHORIZED;
+    
     private $_previousRoute;
 
     public function authorize($action) {        
@@ -33,13 +36,14 @@ class BaseController extends Controller {
                     //We failed to get the user for what ever reason, lets abort
                     Kiss::$app->getUser()->logout(); 
                     Kiss::$app->session->addNotification('Failed to validate the Discord authentication.', 'danger');
-                    return Kiss::$app->respond(Response::redirect('/'));
+                    $referal = Kiss::$app->session->get('LOGIN_REFERAL', HTTP::referal());
+                    return Kiss::$app->respond(Response::redirect($referal));
                 }
             }
         }
     
         if (!$this->authorize($endpoint))
-            throw new HttpException(HTTP::FORBIDDEN, 'You need to be logged in to do that.');
+            throw new HttpException(self::LOGIN_ERROR_CODE, 'You need to be logged in to do that.');
         
         // Unless we are the main controller, we have to be whitelisted
         //if (!($this instanceof MainController)) {            

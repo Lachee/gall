@@ -81,7 +81,10 @@ button.card-footer-item {
     border: none;
     background: none;
 }
-.card-footer-item:hover { background: $scheme-main-ter; }
+.card-footer-item:hover { 
+    background: $scheme-main-ter; 
+    color: $link;
+}
 
 //Fixes the navbar margin
 nav.navbar { 
