@@ -19,12 +19,23 @@ class GalleryViewerController extends BaseController {
     public $gallery_id;
     public static function route() { return "/gallery/:gallery_id"; }
 
+    /** @inheritdoc
+     * Discord's scraper is allowed to look at the galleries as it will get redirected to a image anyways
+     */
+    public function authorize($action) {        
+        if (HTTP::isDiscordBot() && $action == 'index') return true;
+        return parent::authorize($action);
+    }
+
     function actionIndex() {
 
         /** @var Gallery $gallery */
         $gallery = $this->gallery;
+
+        //Redirect to the image if we are a bot
         if (HTTP::isDiscordBot())
             return Response::redirect($this->gallery->cover->proxyUrl);
+        
         
         //Force our tags to update
         $gallery->updateTags();
