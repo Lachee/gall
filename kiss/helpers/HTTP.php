@@ -142,6 +142,7 @@ class HTTP {
     /** Private internal cookie cache */
     private static $SET_COOKIES = [];
     private static $_ROUTE = null;
+    private static $_REFERAL;
 
     /** @return string the status message associated with the code */
     public static function status($code) {
@@ -250,6 +251,21 @@ class HTTP {
         return self::$_ROUTE;
     }
 
+    /** Sets teh referal information */
+    public static function setReferal($referal = null) {
+        
+        if (Kiss::$app->session != null) {
+            self::$_REFERAL = $referal ?? Kiss::$app->session->get('REFERAL', HTTP::header('Referer', null));
+            Kiss::$app->session->set('REFERAL', HTTP::route());
+        } else {
+            self::$_REFERAL = $referal ?? HTTP::header('Referer', null);
+        }
+    }
+
+    /** @return string gets the page that refered us. */
+    public static function referal() {
+        return self::$_REFERAL;
+    }
 
     /** Gets the current host */
     public static function host() {

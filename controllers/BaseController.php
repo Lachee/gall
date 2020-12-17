@@ -13,6 +13,8 @@ use XVE;
 
 class BaseController extends Controller {
 
+    private $_previousRoute;
+
     public function authorize($action) {        
         if (!Kiss::$app->loggedIn()) return false;
         return true;
@@ -20,6 +22,7 @@ class BaseController extends Controller {
 
     public function action($endpoint, ...$args) {
         
+
         //Force a check on the mixer user, validating the oauth. We dont want to apply this rule to the /auth endpoint tho.
         if (Kiss::$app->loggedIn() && $endpoint != '/auth' && $endpoint != '/login' && $endpoint != 'exception') {
             if (!GALL::$app->getUser()->validateDiscordToken()) {

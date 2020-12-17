@@ -2,6 +2,7 @@
 
 use kiss\controllers\Controller;
 use kiss\db\Query;
+use kiss\helpers\HTTP;
 use kiss\Kiss;
 
 ?>
@@ -17,6 +18,7 @@ use kiss\Kiss;
     </body>
     <?= $this->renderJsVariables(Controller::POS_END); ?>
     <?php if (KISS_DEBUG): ?>
+        <?= '<pre class="referal">Referal: ' . HTTP::referal() . '</pre>' ?>
         <?php var_dump(Query::getLog()) ?>
     <?php endif; ?>
 </html>

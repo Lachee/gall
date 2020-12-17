@@ -12,6 +12,7 @@ use kiss\router\RouteFactory;
 
 //Update the base URL on the HTML
 HTML::$route = HTTP::route();
+HTTP::setReferal();
 
 //Prepare the segments
 $segments = explode('/', HTML::$route);                       //Get all the segments in the route

@@ -88,7 +88,7 @@ try {
                         </div>
                     <?php else: ?>
                         <p class="control">
-                            <a class="button" id="login-button" href="<?= HTTP::url(['/login']); ?>" >
+                            <a class="button" id="login-button" href="<?= HTTP::url(['/login', 'referal' => HTTP::route()]); ?>" >
                                 <span class="icon"><i class="fab fa-discord"></i></span>
                                 <span>Login</span>
                             </a>

@@ -6,6 +6,7 @@ use kiss\helpers\HTML;
 use app\widget\Breadcrumb;
 use app\widget\Menu;
 use app\widget\Notification;
+use kiss\helpers\HTTP;
 
 ?>
 
