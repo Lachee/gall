@@ -61,7 +61,7 @@ use kiss\helpers\Strings;
             </div>
             <div class='column is-two-thirds'>
                 <?php
-                if(KISS_DEBUG && $exception->getStatus() == 500):
+                if((HTTP::get('_SHOWSTACK', false) !== false || KISS_DEBUG) && $exception->getStatus() == 500):
                     $innerException = $exception->getInnerException();                    
                     if ($innerException != null):
                 ?>
