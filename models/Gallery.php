@@ -101,6 +101,7 @@ class Gallery extends ActiveRecord {
 
     /** @return ActiveQuery|User gets the guild this gallery is in */
     public function getGuild() {
+        if (empty($this->guild_id)) return null;
         return Guild::findByKey($this->guild_id)->limit(1)->ttl(60);
     }
 

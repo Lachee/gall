@@ -106,8 +106,9 @@ class BaseGalleryRoute extends BaseApiRoute {
         if (isset($data['url']) || isset($data['urls'])) {
 
             //Scrape the URLS and save them
-            $urls = $data['urls'] ?? [ $data['url'] ];            
-            $results = [];
+            $urls       = $data['urls'] ?? [ $data['url'] ];   
+            $results    = [];
+            $guzzle     = new \GuzzleHttp\Client([ ]);
             foreach($urls as $url) {
                 try {
                     //Make sure we dont have a matching gallery first
@@ -124,16 +125,29 @@ class BaseGalleryRoute extends BaseApiRoute {
 
                                 //set the origin message, but only if thsi is a new record
                                 if ($scrapedData->hasPublishedNewGallery()) {
-                                    if (!empty($guild_id))
+                                    $needSaving = false;
+                                    if (!empty($guild_id)) {
                                         $gallery->guild_id = $guild_id;
-                                    if (!empty($channel_snowflake))
+                                        $needSaving = true;
+                                    }
+                                    if (!empty($channel_snowflake)) {
                                         $gallery->channel_snowflake = $channel_snowflake;
-                                    if (!empty($message_snowflake))
+                                        $needSaving = true;
+                                    }
+                                    if (!empty($message_snowflake)) {
                                         $gallery->message_snowflake = $message_snowflake;
+                                        $needSaving = true;
+                                    }
 
-                                    $gallery->save(false, [ 'guild_id', 'channel_snowflake', 'message_snowflake' ]);
+                                    if ($needSaving)
+                                        $gallery->save(false, [ 'guild_id', 'channel_snowflake', 'message_snowflake' ]);
                                 }
                                 
+                                //Pre-Proxy the url
+                                $url = Kiss::$app->baseURL() . substr($gallery->cover->proxyUrl, 1);
+                                file_get_contents($url);
+                                //$response = $guzzle->request('GET', $gallery->cover->proxyUrl);
+
                                 //Store results
                                 $results[$url] = $gallery;
                             } else {
