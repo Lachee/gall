@@ -108,7 +108,6 @@ class BaseGalleryRoute extends BaseApiRoute {
             //Scrape the URLS and save them
             $urls       = $data['urls'] ?? [ $data['url'] ];   
             $results    = [];
-            $guzzle     = new \GuzzleHttp\Client([ ]);
             foreach($urls as $url) {
                 try {
                     //Make sure we dont have a matching gallery first
@@ -144,9 +143,8 @@ class BaseGalleryRoute extends BaseApiRoute {
                                 }
                                 
                                 //Pre-Proxy the url
-                                $url = Kiss::$app->baseURL() . substr($gallery->cover->proxyUrl, 1);
-                                file_get_contents($url);
-                                //$response = $guzzle->request('GET', $gallery->cover->proxyUrl);
+                                //$url = Kiss::$app->baseURL() . substr($gallery->cover->proxyUrl, 1);
+                                //file_get_contents($url);
 
                                 //Store results
                                 $results[$url] = $gallery;
