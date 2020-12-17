@@ -133,7 +133,7 @@ HTML;
         if (!parent::validate()) 
             return false;
 
-        if ($this->profile_name != $this->profile->profileName) {
+        if (!empty($this->profile_name) && $this->profile_name != $this->profile->profileName) {
             $pn = User::findByProfileName($this->profile_name)->one();
             if ($pn != null) {
                 $this->addError('Profile name is already in use');
@@ -153,10 +153,12 @@ HTML;
         }
 
         //Update the profile information
-        $this->profile->profile_name = $this->profile_name;
-        if (!$this->profile->save()) {
-            $this->addError($this->profile->errors());
-            return false;
+        if (!empty($this->profile_name)) {
+            $this->profile->profile_name = $this->profile_name;
+            if (!$this->profile->save()) {
+                $this->addError($this->profile->errors());
+                return false;
+            }
         }
 
         // === BLACKLIST
