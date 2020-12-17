@@ -14,6 +14,9 @@ class GALL extends Kiss {
 
     public $serverInvite = '';
 
+    /** @var bool allows logged out users */
+    public $allowVisitors = true;
+
     protected function init() {
         parent::init();
 

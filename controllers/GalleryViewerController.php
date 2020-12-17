@@ -39,13 +39,15 @@ class GalleryViewerController extends BaseController {
         if (HTTP::get('v', false) !== false) 
             return Response::redirect(['/gallery/:gallery/', 'gallery' => $this->gallery_id ]);
 
-        //Force our tags to update
-        $gallery->updateTags();
+        if (Kiss::$app->loggedIn()) {
+            //Force our tags to update
+            $gallery->updateTags();
 
-        //Dont trigger the views if its your own
-        if ($gallery->founder_id != Kiss::$app->user->id)
-            $gallery->incrementView();
-        
+            //Dont trigger the views if its your own
+            if ($gallery->founder_id != Kiss::$app->user->id)
+                $gallery->incrementView();
+        }
+
         /** @var Image[] $images */
         $images = $gallery->getDisplayImages()->all();
         $reactions = Arrays::map($gallery->getReactions()->execute(), function($r) { 

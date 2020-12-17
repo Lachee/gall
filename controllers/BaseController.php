@@ -19,7 +19,7 @@ class BaseController extends Controller {
     private $_previousRoute;
 
     public function authorize($action) {        
-        if (!Kiss::$app->loggedIn()) return false;
+        if (!GALL::$app->allowVisitors && !Kiss::$app->loggedIn()) return false;
         return true;
     }
 

@@ -26,17 +26,31 @@ class GalleryController extends BaseController {
         $galleries = [
             'latest'            => Gallery::findByLatest()->limit($limit),
             'top_rated'         => Gallery::findByRating()->limit($limit),
-            'submitted'         => $user->getGalleries()->limit($limit),
-            'favourites'        =>  $user->getFavouriteGalleries(),
+            'submitted'         => [], 
+            'favourites'        => [], 
+            'recommendation'    => [],
         ];
-
-        foreach($galleries as $k => $gallery)
-            $galleries[$k] = $user->applyGalleryBlacklist($gallery)->limit($limit)->all();
         
+        if ($user != null) {
+            $galleries['submitted'] = $user->getGalleries()->limit($limit);
+            $galleries['favourites'] = $user->getFavouriteGalleries();
+            $galleries['recommendation'] = $user->searchRecommdendedGalleries(0, $limit);
 
-        return $this->render('index', array_merge($galleries, [ 
-            'recommendation'    => $user->searchRecommdendedGalleries(0, $limit),
-        ]));
+            //Query and blacklist the galleries
+            foreach($galleries as $k => $gallery) {
+                if (!is_array($gallery))
+                    $galleries[$k] = $user->applyGalleryBlacklist($gallery)->limit($limit)->all();
+            }
+        } else {
+            
+            //Query all the galleries
+            foreach($galleries as $k => $gallery) {
+                if (!is_array($gallery))
+                    $galleries[$k] = $gallery->limit($limit)->all();
+            }
+        }
+
+        return $this->render('index', $galleries);
     }
 
     function actionTest() {
@@ -55,11 +69,9 @@ class GalleryController extends BaseController {
         if ($query === false || empty($query))
             return Response::redirect(['/gallery/']);
 
-        if (Kiss::$app->user == null) 
-            throw new HttpException(HTTP::FORBIDDEN, 'You need to be logged in to query');
-
         //Return to ourselves
         if (Strings::startsWith($query, '@me')) {
+            if (!Kiss::$app->loggedIn()) Response::redirect(['/login']);
             $requests = explode(' ', $query);
             return Response::redirect(['/profile/' . join('/', $requests)]);
         }
@@ -90,6 +102,9 @@ class GalleryController extends BaseController {
                     throw new Exception('Gallery does not exist');
                 }
 
+                // Verify we are logged in before we try to publish
+                if (!Kiss::$app->loggedIn()) 
+                    throw new HttpException(HTTP::UNAUTHORIZED, 'You need to be logged in to query');
                 
                 //It doesn't exist, so lets make a new post
                 $scraped_data = GALL::$app->scraper->scrape($link);

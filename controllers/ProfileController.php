@@ -34,6 +34,12 @@ class ProfileController extends BaseController {
     public $profile_name;
     public static function route() { return "/profile/:profile_name"; }
 
+    function action($endpoint, ...$args) {
+        if ($this->profile_name == '@me' && !GALL::$app->loggedIn())
+            throw new HttpException(HTTP::UNAUTHORIZED, 'Need to be logged in to see your own profile.');
+        parent::action($endpoint, ...$args);
+    }
+
     function actionIndex() {
         /** @var User $profile */
         $profile = $this->profile;
@@ -63,8 +69,14 @@ class ProfileController extends BaseController {
     }
 
     function actionSettings() {
+        //Verified they are logged in
+        if (!GALL::$app->loggedIn())
+            throw new HttpException(HTTP::UNAUTHORIZED, 'Need to be logged in to edit your settings.');
+
+        //Verify its their own profile
         /** @var User $profile */
-        if ($this->profile->id != Kiss::$app->user->id) throw new HttpException(HTTP::FORBIDDEN, 'Can only edit your own settings');
+        if ($this->profile->id != Kiss::$app->user->id) 
+            throw new HttpException(HTTP::FORBIDDEN, 'Can only edit your own settings');
         
         //Regenerate the API key if we are told to
         if (HTTP::get('regen', false, FILTER_VALIDATE_BOOLEAN)) {
@@ -105,6 +117,10 @@ class ProfileController extends BaseController {
 
     private $_profile;
     public function getProfile() {
+
+        if ($this->profile_name == '@me' && !GALL::$app->loggedIn()) 
+            throw new HttpException(HTTP::UNAUTHORIZED, 'Need to be logged in');
+        
         if ($this->_profile != null) return $this->_profile;        
         $this->_profile = User::findByProfileName($this->profile_name)->ttl(false)->one();
         if ($this->_profile == null) throw new HttpException(HTTP::NOT_FOUND, 'Profile doesn\'t exist');

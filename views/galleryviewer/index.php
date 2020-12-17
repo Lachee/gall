@@ -32,9 +32,11 @@ use kiss\Kiss;
             <div class="column is-one-fifth has-text-right">
                 <p class="heading">Actions</p>
                 <p class="heading">
-                    <a class="button is-small button-bookmark" title="favourite">
-                        <span class="icon"><i class="<?= GALL::$app->user->hasFavouritedGallery($gallery) ? 'fas' : 'fal' ?> fa-fire"></i></span>
-                    </a>
+                    <?php if (GALL::$app->loggedIn()): ?>
+                        <a class="button is-small button-bookmark" title="favourite">
+                            <span class="icon"><i class="<?= GALL::$app->user->hasFavouritedGallery($gallery) ? 'fas' : 'fal' ?> fa-fire"></i></span>
+                        </a>
+                    <?php endif; ?>
                     <a class="button is-small expanding-artwork-control" title="expand/shrink image">
                         <span class="icon"><i class="fal fa-expand"></i></span>
                     </a>
@@ -94,10 +96,18 @@ use kiss\Kiss;
                         </section>
                     <?php endforeach; ?>
                 <?php else : ?>
+                    <?php if (!GALL::$app->loggedIn()): ?>
+                    <div class="notification is-warning">
+                        You are currently not <strong>logged in</strong>!<br>
+                        We have kept the higher quality versions of the gallery hidden for now to save our bandwidth. Please <a href="<?=HTTP::url(['/login'])?>">login</a> to view the comic in highest quality.
+                    </div>
+                    <?php endif; ?>
+
+
                     <section class="artwork has-lightbox">
                         <div id="lightgallery">
                             <?php foreach ($images as $image) : ?>
-                                <a href="<?= $image->url ?>"><img loading=lazy class="expanding-artwork lg-thumbnail" data-expanding-class="lg-thumbnail" src="<?= $image->getThumbnail(250, 'NEAREST_NEIGHBOUR') ?>"></a>
+                                <a href="<?= Kiss::$app->loggedIn() ? $image->url : $image->getThumbnail(250, 'NEAREST_NEIGHBOUR') ?>"><img loading=lazy class="expanding-artwork lg-thumbnail" data-expanding-class="lg-thumbnail" src="<?= $image->getThumbnail(250, 'NEAREST_NEIGHBOUR') ?>"></a>
                             <?php endforeach; ?>
                         </div>
                     </section>
@@ -133,16 +143,18 @@ use kiss\Kiss;
                 </section>
                 -->
 
-                <h1>Favourite List</h1>
-                <section class="favourited">
-                    <?php foreach((array) $gallery->favourites as $f): ?>
-                        <a class="fav-profile" href="<?= HTTP::url(['/profile/:profile/', 'profile' => $f->profile->profileName ]); ?>" title="see <?= $f->profile->displayName ?>">
-                            <div class="avatar">
-                                <img src="<?= $f->profile->avatarUrl ?>" alt="Avatar Picture">
-                            </div>
-                        </a>
-                    <?php endforeach; ?>
-                </section>
+                <?php if (GALL::$app->loggedIn()): ?>
+                    <h1>Favourite List</h1>
+                    <section class="favourited">
+                        <?php foreach((array) $gallery->favourites as $f): ?>
+                            <a class="fav-profile" href="<?= HTTP::url(['/profile/:profile/', 'profile' => $f->profile->profileName ]); ?>" title="see <?= $f->profile->displayName ?>">
+                                <div class="avatar">
+                                    <img src="<?= $f->profile->avatarUrl ?>" alt="Avatar Picture">
+                                </div>
+                            </a>
+                        <?php endforeach; ?>
+                    </section>
+                <?php endif; ?>
             </div>
         </div>
     </section>

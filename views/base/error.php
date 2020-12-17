@@ -38,7 +38,7 @@ use kiss\helpers\Strings;
                         <div class="card-content">
                             <p class="title">Please Login</p>
                             <p class="subtitle"><?= HTTP::status($exception->getStatus()); ?> ( <?= $exception->getStatus() ?> )</p>
-                            That page contains sensitive content! You need to login 😢
+                            <?= $exception->getMessage() ?>
                         </div>
                         <footer class="card-footer">
                             <a class="card-footer-item" onclick="window.history.back();"><span><i class="fal fa-arrow-left"></i> Back</span></a>
