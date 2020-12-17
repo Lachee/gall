@@ -138,7 +138,7 @@ class Identity extends ActiveRecord {
         $payload['sub'] = $this->uuid;
         $payload['key'] = $this->apiKey;
         $payload['src'] = 'api';
-        return Kiss::$app->jwtProvider->encode($payload, $expiry);
+        return Kiss::$app->jwtProvider->encode($payload, $expiry == null ? 3.154e+7 : $expiry);
     }
 
     /** Forces the API key to regenerate and saves the record */

@@ -30,12 +30,30 @@ body {
     #navbar-submit i { min-width: 16px; }
 }
 
-.has-placeholder-transition{
-    &::placeholder {
-        transition: color 1s;
+.has-placeholder-transition {
+    $transition-time: 1s;
+    $transition-color: transparent;
+    &::placeholder { 
+        transition: color $transition-time; 
     }
-    &.is-transitioning::placeholder {
-        color: transparent;
+    &::-moz-placeholder { 
+        transition: color $transition-time; 
+    }
+    &::-webkit-input-placeholder { 
+        transition: color $transition-time; 
+    }
+    
+    &.is-transitioning::placeholder { 
+        transition: color $transition-time; 
+        color: $transition-color; 
+    }
+    &.is-transitioning::-moz-placeholder { 
+        transition: color $transition-time; 
+        color: $transition-color; 
+     }
+    &.is-transitioning::-webkit-input-placeholder { 
+        transition: color $transition-time; 
+        color: $transition-color; 
     }
 }
 
