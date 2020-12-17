@@ -122,7 +122,7 @@ class User extends Identity {
     public function searchRecommdendedGalleries($page, $limit) {
         $tags = $this->getFavouriteTags()->limit(5)->all();
         if (count($tags) == 0) $tags = $this->getFavouriteTagsSubmitted()->limit(5)->all();
-        if (count($tags) == 0) return $this->getBestGalleries();
+        if (count($tags) == 0) return $this->getBestGalleries()->limit(5)->all();
 
         $search = join(',', Arrays::map($tags, function($t) { return '|' . $t->name; }));
         return Gallery::search([ 'tag' => $search ], $page, $limit);

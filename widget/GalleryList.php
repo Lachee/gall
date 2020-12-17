@@ -32,6 +32,8 @@ class GalleryList extends Widget {
 
     /** Renders a specific gallery as ac ard */
     public static function card($gallery) {
+        if ($gallery->cover == null) return '';
+
         $profileLink    = HTTP::url(['/profile/:profile/', 'profile' => $gallery->founder->profileName ]);
         $galleryLink    = HTTP::url(['/gallery/:id/', 'id' => $gallery->id ]);
         $avatarLink     = $gallery->founder->avatarUrl;
