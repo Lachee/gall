@@ -21,7 +21,7 @@ class Query extends BaseObject{
 
     /** @var int $cacheDuration how long in second cached results last for. */
     public $cacheDuration = 1;
-    protected $cacheVersion = 6;
+    protected $cacheVersion = 7;
     protected $flushCache = false;
 
     public $remember = true;

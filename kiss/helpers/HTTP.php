@@ -161,6 +161,7 @@ class HTTP {
      */
     public static function isDiscordBot() {
         //$_SERVER['HTTP_USER_AGENT'] == 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10.10; rv:38.0) Gecko/20100101 Firefox/38.0'
+        if (HTTP::get('_DISCORDBOT', false, FILTER_VALIDATE_BOOLEAN) == true) return true;
         if (strpos($_SERVER['HTTP_USER_AGENT'], 'discordapp.com') !== false) return true;
         if (empty($_SERVER['HTTP_ACCEPT'])) return true;
         return false;

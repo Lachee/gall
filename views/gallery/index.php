@@ -8,21 +8,20 @@ use kiss\Kiss;
 
 ?>
 
-<h1>Latest</h1>
+<div class="subtitle ml-4">Latest</div>
 <?= GalleryList::widget([ 'galleries' => $latest ]); ?>
 
-<h1>Top Rated</h1>
+<!--
+<div class="subtitle ml-4">Best</div>
 <?= GalleryList::widget([ 'galleries' => $top_rated ]); ?>
+-->
 
 <?php if (Kiss::$app->loggedIn()) : ?>
     <?php if ($recommendation != null): ?>
-    <h1>Recommended</h1>
+<div class="subtitle ml-4">Recommended</div>
     <?= GalleryList::widget([ 'galleries' => $recommendation ]); ?>
     <?php endif; ?>
 
-    <h1>Favourites</h1>
+    <div class="subtitle ml-4">Favourites</div>
     <?= GalleryList::widget([ 'galleries' => $favourites ]); ?>
-      
-    <h1>Submitted</h1>
-    <?= GalleryList::widget([ 'galleries' => $submitted ]); ?>
 <?php endif; ?>
