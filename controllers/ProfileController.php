@@ -111,7 +111,8 @@ class ProfileController extends BaseController {
         return $this->render('settings', [
             'profile'       => $this->profile,
             'model'         => $form,
-            'key'           => $this->api_key = $this->profile->apiToken([ 'scopes' => $scopes ])
+            'key'           => $this->api_key = $this->profile->apiToken([ 'scopes' => $scopes ]),
+            'fullwidth'     => false,
         ]);
     }
 

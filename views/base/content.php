@@ -8,6 +8,7 @@ use app\widget\Menu;
 use app\widget\Notification;
 use kiss\helpers\HTTP;
 
+$fullwidth = isset($fullwidth) ? $fullwidth : true;
 ?>
 
 <div class="<?= !isset($wrapContents) || $wrapContents === true ? 'page-contents' : ''; ?>">
@@ -15,7 +16,7 @@ use kiss\helpers\HTTP;
         <?= Notification::widget(); ?>
         <?= $_VIEW; ?>
     <?php else: ?>
-        <div class="container">        
+        <div class="container <?= $fullwidth ? 'is-fluid' : '' ?>">
             <div class="columns"> 
                 <?php if (Breadcrumb::count() > 0): ?>
                         <div class="column is-3 ">
