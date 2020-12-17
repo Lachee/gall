@@ -1,5 +1,11 @@
-# KISS
-Keep It Simple Stupid framework
-very much a work in progress
+# GALL
+Discord Image Board
 
-READ THE FUCKING `SETUP.md`
+
+# Setup
+Please see `SETUP.md`
+
+# Related Projects
+
+* http://github.com/lachee/gall-bot 
+* https://github.com/lachee/not-safe-to-scrape
