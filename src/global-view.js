@@ -25,10 +25,20 @@ function transitionPlaceholders(transitionTime = PLACEHOLDER_TRANSITION_TIME) {
  * this script handles the search box changing the "search" button to "post" when a URL is present
  */
 document.getElementById('navbar-search').addEventListener('keyup', (event) => {
-    const submitButton = document.getElementById('navbar-submit');
+    const submitButton = document.querySelector('#navbar-submit span');
+    const submitIcon = document.querySelector('#navbar-submit i');
     const value = event.target.value;
-    if (validURL(value)) submitButton.innerText = 'Post';
-    else submitButton.innerText = 'Search';
+    if (validURL(value)) { 
+        submitButton.innerText = 'Post';
+        submitIcon.classList.remove('fa-search');
+        submitIcon.classList.add('fa-plus');
+    }
+    else
+    {
+      submitButton.innerText = 'Search';
+      submitIcon.classList.add('fa-search');
+      submitIcon.classList.remove('fa-plus');
+    }
 
     function validURL(str) {
         var pattern = new RegExp('^(https?:\\/\\/)?'+ // protocol

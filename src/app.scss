@@ -24,9 +24,10 @@ body {
 .navbar-item {
     form { 
         margin: auto;
-        width: 40vw;
+        width: 100%;
     }
-    #navbar-submit { width: 80px; }
+    #navbar-submit span { min-width: 45px; }
+    #navbar-submit i { min-width: 16px; }
 }
 
 .has-placeholder-transition{

@@ -87,6 +87,6 @@ class MainController extends BaseController {
             GALL::$app->session->addNotification('Woops, something went wrong while trying to perform that action! ' . (KISS_DEBUG ? $e->getMessage() : ''), 'danger');
         }         
         
-        return Response::redirect('/');
+        return Response::redirect([ '/gallery/']);
     }
 }

@@ -25,34 +25,16 @@ try {
 <nav class="navbar">
     <div class="container">
         <!-- BRAND -->
-        <div class="navbar-brand">
+        <div class="navbar-brand is-justify-content-space-evenly">
             <a class="navbar-item brand-text" href="<?= HTTP::url('/')?>"><img src="<?= Kiss::$app->logo ?>" /></a>
-            <div class="navbar-burger burger" data-target="navMenu">
-                <span></span>
-                <span></span>
-                <span></span>
-            </div>
+            
+            <a class="navbar-item has-icon is-tab <?= !Strings::startsWith(HTTP::route(), '/gallery/') ?: 'is-active' ?>" title="Gallery" href="<?= HTTP::url('/gallery/')?>"><i class="fal fa-images"></i></a>
+            <a class="navbar-item has-icon is-tab <?= !Strings::startsWith(HTTP::route(), '/profile/@me/favourites') ?: 'is-active' ?>" title="Favourites" href="<?= HTTP::url('/profile/@me/favourites')?>"><i class="fal fa-fire"></i></a>
+            <a class="navbar-item has-icon is-tab <?= !Strings::startsWith(HTTP::route(), '/profile/@me/submissions') ?: 'is-active' ?>" title="Submissions" href="<?= HTTP::url('/profile/@me/submissions')?>"><i class="fal fa-books-medical"></i></a>
+            <a class="navbar-item has-icon is-tab <?= !Strings::startsWith(HTTP::route(), '/profile/@me/') ?: 'is-active' ?>" title="Submissions" href="<?= HTTP::url('/profile/@me/')?>"><i class="fal fa-user"></i></a>
         </div>
 
-        <!-- ITEMS -->
-        <div id="navMenu" class="navbar-menu">
-            <div class="navbar-start">
-<!--
-            <a class="navbar-item" href="<?= HTTP::url('/')?>" title="home">Home</a>
-            <a class="navbar-item" href="<?= HTTP::url('/gallery/')?>">Gallery</a>
-            <a class="navbar-item" href="<?= HTTP::url('/profile/@me/favouries')?>">Favourites</a>
-            <a class="navbar-item" href="<?= HTTP::url('/profile/@me/submissions')?>">Submissions</a>
--->
-
-                <!--<a class="navbar-item has-icon"  title="Home" href="<?= HTTP::url('/')?>"><i class="fal fa-home"></i></a>-->
-                <?php if ($user): ?>
-                    <a class="navbar-item has-icon is-tab <?= !Strings::startsWith(HTTP::route(), '/gallery/') ?: 'is-active' ?>" title="Gallery" href="<?= HTTP::url('/gallery/')?>"><i class="fal fa-images"></i></a>
-                    <a class="navbar-item has-icon is-tab <?= !Strings::startsWith(HTTP::route(), '/profile/@me/favourites') ?: 'is-active' ?>" title="Favourites" href="<?= HTTP::url('/profile/@me/favourites')?>"><i class="fal fa-fire"></i></a>
-                    <a class="navbar-item has-icon is-tab <?= !Strings::startsWith(HTTP::route(), '/profile/@me/submissions') ?: 'is-active' ?>" title="Submissions" href="<?= HTTP::url('/profile/@me/submissions')?>"><i class="fal fa-books-medical"></i></a>
-                <?php endif;  ?>
-            </div>
-            
-            <?php if ($user): ?>
+        <?php if ($user): ?>
                 <div class="navbar-center">
                     <div class="navbar-item is-fullwidth">
                         <form method='GET' action='<?= HTTP::url('/gallery/query') ?>'>
@@ -61,18 +43,33 @@ try {
                                     <span class="icon is-small is-left">
                                         <i class="fas fa-search"></i>
                                     </span>
-                                    <input id="navbar-search" name="q" autocomplete="off" class="input has-placeholder-transition" type="text" placeholder="" data-placeholders="<?= join('|', $searchPlaceholderTerms) ?>">
+                                    <input id="navbar-search" name="q" autocomplete="off" class="input has-placeholder-transition" type="text" placeholder="" value="<?= HTTP::get('q', '') ?>" data-placeholders="<?= join('|', $searchPlaceholderTerms) ?>">
                                 </div>
-                                <div class="control"><button id="navbar-submit" class="button" type="submit">Search</button></div>
+                                <div class="control">
+                                    <button id="navbar-submit" class="button " type="submit">
+                                        <i class="fal fa-search is-hidden-desktop"></i>
+                                        <span class="is-hidden-touch">Search</span>
+                                    </button>
+                                </div>
                             </div>
                         </form>
                     </div>
                 </div>
             <?php endif;  ?>
+
+        <!-- ITEMS -->
+        <div id="navMenu" class="navbar-menu is-hidden-touch is-hidden">
+            <div class="navbar-start">
+                <?php if ($user): ?>
+                    <a class="navbar-item has-icon is-tab <?= !Strings::startsWith(HTTP::route(), '/gallery/') ?: 'is-active' ?>" title="Gallery" href="<?= HTTP::url('/gallery/')?>"><i class="fal fa-images"></i></a>
+                    <a class="navbar-item has-icon is-tab <?= !Strings::startsWith(HTTP::route(), '/profile/@me/favourites') ?: 'is-active' ?>" title="Favourites" href="<?= HTTP::url('/profile/@me/favourites')?>"><i class="fal fa-fire"></i></a>
+                    <a class="navbar-item has-icon is-tab <?= !Strings::startsWith(HTTP::route(), '/profile/@me/submissions') ?: 'is-active' ?>" title="Submissions" href="<?= HTTP::url('/profile/@me/submissions')?>"><i class="fal fa-books-medical"></i></a>
+                <?php endif;  ?>
+            </div>
         </div>
 
         <!-- RHS ITEMS -->
-        <div id="navMenu" class="navbar-end">
+        <div id="navMenu" class="navbar-end  is-hidden-touch">
             <div class="navbar-start">
                 <div class="navbar-item">
                     <?php if ($user): ?>
@@ -100,6 +97,7 @@ try {
                 </div>
             </div>
         </div>
+
     </div>
 </nav>
 <!-- END NAV -->

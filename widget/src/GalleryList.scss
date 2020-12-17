@@ -1,4 +1,6 @@
 
+@import "bulma/sass/utilities/_all.sass";
+
 .flexcard {
         
     $card-width: 250px;
@@ -165,5 +167,11 @@
         -webkit-box-decoration-break: clone;
         background-clip: text;
         border-color: white;
+    }
+
+    @include until($desktop) {
+        .card {
+            width: 100%;
+        }
     }
 }
