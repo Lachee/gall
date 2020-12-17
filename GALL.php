@@ -11,6 +11,9 @@ use kiss\Kiss;
  * 
  */
 class GALL extends Kiss {
+
+    public $serverInvite = '';
+
     protected function init() {
         parent::init();
 

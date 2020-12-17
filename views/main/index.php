@@ -22,6 +22,10 @@ use kiss\Kiss;
                         <span class="icon"><i class="fal fa-share"></i></span>
                         <span>Start Sharing</span>
                     </a>
+                    <a class="button is-primary is-inverted is-outlined is-large" id="invite-button" href="<?= GALL::$app->serverInvite ?>">
+                        <span class="icon"><i class="fab fa-discord"></i></span>
+                        <span>Join Server</span>
+                    </a>
                 </div>
                 <div class="column is-one-third">
                     <?php if (Kiss::$app->loggedIn()): ?>                        
