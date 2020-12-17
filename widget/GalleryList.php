@@ -48,9 +48,6 @@ $card = <<<HTML
             <a class="author-avatar" href="{$profileLink}">
                 <img src="{$avatarLink}" />
             </a>
-            <svg class="half-circle" viewBox="0 0 106 57">
-                <path d="M102 4c0 27.1-21.9 49-49 49S4 31.1 4 4"></path>
-            </svg>
             <div class="author-name">
                 <a href="{$galleryLink}">
                     <div class="author-name-prefix">{$gallery->shortTitle}</div>
