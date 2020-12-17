@@ -154,6 +154,17 @@ class HTTP {
         return strtoupper($_SERVER['REQUEST_METHOD']);
     }
 
+    
+    /** Checks if the request is likely to be a scraper from discord
+     * @return boolean
+     */
+    public static function isDiscordBot() {
+        //$_SERVER['HTTP_USER_AGENT'] == 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10.10; rv:38.0) Gecko/20100101 Firefox/38.0'
+        if (strpos($_SERVER['HTTP_USER_AGENT'], 'discordapp.com') !== false) return true;
+        if (empty($_SERVER['HTTP_ACCEPT'])) return true;
+        return false;
+    }
+
     /** Gets the routed URL
      * 
      * @param string|array|null $action

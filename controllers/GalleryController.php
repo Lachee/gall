@@ -164,4 +164,5 @@ class GalleryController extends BaseController {
             'results'   => $results
         ]);
     }
+
 }

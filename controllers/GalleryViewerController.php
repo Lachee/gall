@@ -23,7 +23,9 @@ class GalleryViewerController extends BaseController {
 
         /** @var Gallery $gallery */
         $gallery = $this->gallery;
-
+        if (HTTP::isDiscordBot())
+            return Response::redirect($this->gallery->cover->proxyUrl);
+        
         //Force our tags to update
         $gallery->updateTags();
 
