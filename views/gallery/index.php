@@ -13,13 +13,13 @@ use kiss\Kiss;
 
 <!--
 <div class="subtitle ml-4">Best</div>
-<?= GalleryList::widget([ 'galleries' => $top_rated ]); ?>
+ GalleryList::widget([ 'galleries' => $top_rated ]); 
 -->
 
 <?php if (Kiss::$app->loggedIn()) : ?>
-    <?php if ($recommendation != null): ?>
-<div class="subtitle ml-4">Recommended</div>
-    <?= GalleryList::widget([ 'galleries' => $recommendation ]); ?>
+    <?php if ($recommendation != null && count($recommendation) > 0): ?>
+        <div class="subtitle ml-4">Recommended</div>
+        <?= GalleryList::widget([ 'galleries' => $recommendation ]); ?>
     <?php endif; ?>
 
     <div class="subtitle ml-4">Favourites</div>
