@@ -457,7 +457,7 @@ class HTTP {
 
     /** The body supplied with the request */
     public static function body() {
-        if (self::$_body !== false) return $_body;
+        if (self::$_body !== false) return self::$_body;
         return self::$_body = file_get_contents('php://input');
     }
 
