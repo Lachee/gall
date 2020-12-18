@@ -17,6 +17,9 @@ class Response {
     private $contentType;
     private $content;
     
+    /** @var bool saves the request to the disk */
+    public static $saveRequest = false;
+
     /** @var int $jsonFlags Flags for serializing the json */
     public static $jsonFlags = JSON_BIGINT_AS_STRING;
     /** @var int $jsonDepth Depth of JSON serialization */
@@ -201,6 +204,19 @@ class Response {
             header($pair == null ? $key : $key . ": " . $pair);
         }
 
+        if (self::$saveRequest) {
+            file_put_contents('./last_request.json', json_encode([
+                '_HEAD'     => HTTP::headers(),
+                '_REQUEST'  => HTTP::request(), 
+                '_GET'      => HTTP::get(),
+                '_POST'     => HTTP::post(), 
+                '_BODY'     => HTTP::body(), 
+                '_RESPONSE' => [ 
+                    'headers' => $this->headers,
+                    'body' => $body
+                ]
+                ], JSON_PRETTY_PRINT));
+        }
         //Finally, respond with the body
         die($body);
     }

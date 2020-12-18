@@ -6,3 +6,5 @@ public/cache/*
 .npmrc
 *.key
 *.env
+
+last_request.json

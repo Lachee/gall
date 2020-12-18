@@ -36,6 +36,8 @@ set_error_handler(function($errno, $errstr, $errfile, $errline) {
     exit;
 });
 
+Response::$saveRequest = true;
+
 try {
     //Prepare the route we wish to use 
     //Just exit with no response because they are accessing the API page directly
