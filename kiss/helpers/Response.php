@@ -206,6 +206,7 @@ class Response {
 
         if (self::$saveRequest) {
             file_put_contents('./last_request.json', json_encode([
+                '_ROUTE'    => HTTP::route(),
                 '_HEAD'     => HTTP::headers(),
                 '_REQUEST'  => HTTP::request(), 
                 '_GET'      => HTTP::get(),
