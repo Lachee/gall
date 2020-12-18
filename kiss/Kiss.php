@@ -106,7 +106,6 @@ class Kiss extends BaseObject {
 
         //Login
         $this->authorizeIdentity();
-
     }
     
     /** Gets the identity and stores it under the user */
@@ -134,7 +133,6 @@ class Kiss extends BaseObject {
                     exit;
                 }
 
-
                 $claims = Kiss::$app->jwtProvider->decode($token);
                 if (empty($claims->sub)) {
                     $this->respond(new HttpException(HTTP::UNAUTHORIZED, 'Invalid Authorization'));
@@ -150,12 +148,17 @@ class Kiss extends BaseObject {
         }
 
         //MAke sure the JWT isnt null
-        if ($jwt == null) 
+        if ($jwt == null || !isset($jwt->src)) 
             return $this->user = null;
 
         //Get the user and authorize the JWT
         $this->user = $identityClass::findByJWT($jwt)->one();
-        if ($this->user != null) $this->user->authorize($jwt);
+        if ($this->user != null) { 
+            $this->user->authorize($jwt);
+        } else {
+            $this->respond(new HttpException(HTTP::UNAUTHORIZED, 'Didn\'t find matching JWT'));
+            exit;
+        }
         return $this->user;
     }
 
