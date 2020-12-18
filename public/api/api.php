@@ -36,7 +36,8 @@ set_error_handler(function($errno, $errstr, $errfile, $errline) {
     exit;
 });
 
-Response::$saveRequest = true;
+if (KISS_DEBUG)
+    Response::$saveRequest = true;
 
 try {
     //Prepare the route we wish to use 
