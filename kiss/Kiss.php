@@ -124,7 +124,7 @@ class Kiss extends BaseObject {
         }
 
         //Find the identity by the header
-        if (($auth = HTTP::header('authorization', false)) !== false) {
+        if (($auth = HTTP::header('Authorization', false)) !== false) {
             $parts = explode(' ', $auth, 2);
             if (Strings::toLowerCase($parts[0]) == 'bearer') {
                 $token = $parts[1];
@@ -148,7 +148,7 @@ class Kiss extends BaseObject {
         }
 
         //MAke sure the JWT isnt null
-        if ($jwt == null || !isset($jwt->src)) 
+        if ($jwt == null || !isset($jwt->sub)) 
             return $this->user = null;
 
         //Get the user and authorize the JWT

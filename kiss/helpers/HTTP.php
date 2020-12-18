@@ -376,7 +376,6 @@ class HTTP {
     /** Gets a header value. */
     public static function header($variable, $default = null, $filter = null) {
         $_HEADERS = self::headers();
-        $variable = Strings::toLowerCase($variable);
         if ($filter == null) return $_HEADERS[$variable] ?? $default;
         $result = filter_var($_HEADERS[$variable] ?? $default, $filter);
         return $result !== false ? $result : $default;
