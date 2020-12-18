@@ -1,9 +1,11 @@
 <?php namespace app\components\discord;
 
+use app\components\discord\interaction\Interaction;
 use kiss\components\oauth\Provider;
 use kiss\exception\ArgumentException;
 use kiss\exception\ExpiredOauthException;
 use kiss\helpers\HTML;
+use kiss\helpers\HTTP;
 use kiss\helpers\Response;
 use kiss\models\BaseObject;
 
@@ -40,6 +42,32 @@ class Discord extends Provider  {
         return $json;
     }
 
+    /** Verifies the interaction signature passed in the current request.
+     * @return bool true if its valid
+     */
+    public function verifyInteractionSignature() {
+        $signature  	= HTTP::header('x-signature-ed25519');
+        $timestamp  	= HTTP::header('x-signature-timestamp');
+        if (empty($signature) || empty($timestamp)) 
+            return false;
+
+        $binary_signature = sodium_hex2bin($signature);
+        $binary_key = sodium_hex2bin($this->interactivityPublicKey);
+
+        $body = HTTP::body();
+        $message = $timestamp . $body;
+        if (!sodium_crypto_sign_verify_detached($binary_signature, $message, $binary_key))
+            return false;
+
+        return true;
+    }
+
+    /** Creates a new interaction object based of the body payload 
+     * @return Interaction|null interaction object */
+    public function createInteraction($data = null) {
+        $payload = array_merge($data ?? HTTP::json(), [ 'discord' => $this ]);
+        return BaseObject::new(Interaction::class, $payload);
+    }
 
     /** Createsa  new bot request and returns the response */
     private function request($method, $endpoint) {

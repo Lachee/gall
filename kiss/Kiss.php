@@ -125,21 +125,32 @@ class Kiss extends BaseObject {
         }
 
         //Find the identity by the header
-        if (($auth = HTTP::header('Authorization', false)) !== false) {
+        if (($auth = HTTP::header('authorization', false)) !== false) {
             $parts = explode(' ', $auth, 2);
             if (Strings::toLowerCase($parts[0]) == 'bearer') {
                 $token = $parts[1];
+                if (empty($token)) {
+                    $this->respond(new HttpException(HTTP::UNAUTHORIZED, 'Token is empty'));
+                    exit;
+                }
+
+
                 $claims = Kiss::$app->jwtProvider->decode($token);
                 if (empty($claims->sub)) {
                     $this->respond(new HttpException(HTTP::UNAUTHORIZED, 'Invalid Authorization'));
                     exit;
                 }
+
                 $jwt = $claims;
+                if ($jwt == null) {
+                    $this->respond(new HttpException(HTTP::FORBIDDEN, 'Invalid Claims'));
+                    exit;
+                }
             }
         }
 
         //MAke sure the JWT isnt null
-        if ($jwt == null)
+        if ($jwt == null) 
             return $this->user = null;
 
         //Get the user and authorize the JWT

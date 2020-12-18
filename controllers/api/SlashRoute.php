@@ -1,5 +1,6 @@
 <?php namespace app\controllers\api;
 
+use app\components\discord\interaction\Interaction;
 use app\models\Tag;
 use GALL;
 use kiss\controllers\api\ApiRoute;
@@ -24,20 +25,7 @@ class SlashRoute extends BaseApiRoute {
     protected function scopes() { return null; } // Proxy doesn't need any scopes since it handles its own.
 
     public function authenticate($identity) {
-        $signature  	= HTTP::header('x-signature-ed25519');
-        $timestamp  	= HTTP::header('x-signature-timestamp');
-        if (empty($signature) || empty($timestamp)) 
-            throw new HttpException(HTTP::UNAUTHORIZED, 'Bad signature');
-
-        $binary_signature = sodium_hex2bin($signature);
-        $binary_key = sodium_hex2bin(GALL::$app->discord->interactivityPublicKey);
-
-        $body = HTTP::body();
-        $message = $timestamp . $body;
-        if (!sodium_crypto_sign_verify_detached($binary_signature, $message, $binary_key))
-            throw new HttpException(HTTP::UNAUTHORIZED, 'Bad signature');
-
-        return true;
+        return GALL::$app->discord->verifyInteractionSignature();
     }
 
 
@@ -57,24 +45,23 @@ class SlashRoute extends BaseApiRoute {
         $data = HTTP::json();
         
         /** Handle the Pings */
-        if ($data['type'] == 1)
-        return Response::jsonRaw(HTTP::OK, [ 'type' => 1 ]);
+        if ($data['type'] == Interaction::REQUEST_TYPE_PING)
+        return Response::jsonRaw(HTTP::OK, [ 'type' => Interaction::RESPONSE_TYPE_PONG ]);
                 
         /** Handle ApplicationCommand */
-        if ($data['type'] == 2) 
-            return Response::jsonRaw(HTTP::OK, [ 'type' => 2 ]);
-
-        /** Handle everything else */
-        $response = $this->command($data);
+        if ($data['type'] == Interaction::REQUEST_TYPE_APPLICATION_COMMAND) {
+            $interaction = GALL::$app->discord->createInteraction($data);
+            return Response::jsonRaw(HTTP::OK, $interaction->respond());
+        }
 
         //Verify the resposne then return it.
-        if ($response == null || $response == false) 
-            return Response::jsonRaw(HTTP::BAD_REQUEST, [ ]);
-        return Response::jsonRaw(HTTP::OK, $response);
+        return Response::jsonRaw(HTTP::BAD_REQUEST, [ ]);
     }
 
     /** Handles the command  */
-    public function command($data) {
-        return null;
+    public function command($interaction) {
+        return [
+            'type' => Interaction::RESPONSE_TYPE_ACKNOWLEDGE
+        ];
     }
 }
