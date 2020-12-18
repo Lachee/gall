@@ -17,6 +17,7 @@
         "ramsey/uuid": "^4.0",
         "firebase/php-jwt": "^5.2",
         "vimeo/psalm": "@dev",
-        "formr/formr": "^1.2"
+        "formr/formr": "^1.2",
+        "discord/interactions": "^1.0"
     }
 }

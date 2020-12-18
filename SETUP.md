@@ -15,6 +15,7 @@ Before we begin, please ensure you have all the dependencies installed:
 * Redis
 * MySQL (or mariadb)
 * GIT
+* PHP extension `gmp`. Likely already installed but just enable it. Its **only** used for discord isg.
 
 now that the dependencies are sorted, lets get down to business to defeat the hans.
 
