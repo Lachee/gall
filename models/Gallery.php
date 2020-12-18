@@ -266,6 +266,16 @@ class Gallery extends ActiveRecord {
 
             //TODO: Remove Score Rewards
         }
+
+        //Check if its a comic tag, then upgrade it
+        $newTags = $this->getTags()->all();
+        foreach($newTags as $tag) {
+            if ($tag->name == 'comic') {
+                $this->type = self::TYPE_COMIC;
+                $this->save(true, ['type']);
+                break;
+            }
+        }
     }
 
     /** @return Query|array returns all the reactions for the gallery */
