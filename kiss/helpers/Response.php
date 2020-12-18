@@ -79,7 +79,14 @@ class Response {
      * @return Response the response
      */
     public static function json($status, $data, $message = '') {
-        return new Response($status, [], ['status' => $status, 'message' => $message, 'data' => $data ], HTTP::CONTENT_APPLICATION_JSON);
+        return self::jsonRaw($status,  ['status' => $status, 'message' => $message, 'data' => $data ]);
+    }
+       
+    /** Creates a new json response without any of the wrappings. A raw response.
+     * @return Response the response
+     */
+    public static function jsonRaw($status, $data) {
+        return new Response($status, [], $data, HTTP::CONTENT_APPLICATION_JSON);
     }
 
     /** Creates a new html response 

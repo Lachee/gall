@@ -451,9 +451,14 @@ class HTTP {
         header("$key: $value", $replace);
     }
 
+    
+    /** Static cache of the body, so its only read once. */
+    private static $_body = false;
+
     /** The body supplied with the request */
     public static function body() {
-        return file_get_contents('php://input');
+        if (self::$_body !== false) return $_body;
+        return self::$_body = file_get_contents('php://input');
     }
 
     /** The json supplied in the request body, as an associative array. */

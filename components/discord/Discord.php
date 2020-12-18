@@ -18,6 +18,9 @@ class Discord extends Provider  {
     public $urlIdentify     = 'https://discordapp.com/api/v6/users/@me';
     public $urlAPI          = 'https://discord.com/api/v8';
 
+    /** @var string public key for the interactivity module */
+    public $interactivityPublicKey = null;
+
     public $identityClass   = User::class;
 
     public $botToken        = null;

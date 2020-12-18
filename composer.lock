@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "17efdbe2004f931ebb9a8fd5542c47d5",
+    "content-hash": "3e139cb266a2d70f6cb130762edd2a24",
     "packages": [
         {
             "name": "amphp/amp",
@@ -400,45 +400,6 @@
             ],
             "description": "Provides a way to patch Composer packages.",
             "time": "2019-08-29T20:11:49+00:00"
-        },
-        {
-            "name": "discord/interactions",
-            "version": "1.0.6",
-            "source": {
-                "type": "git",
-                "url": "https://github.com/discord/discord-interactions-php.git",
-                "reference": "113a9c66b73fc05612a4c759d11db3ef6f12b6f8"
-            },
-            "dist": {
-                "type": "zip",
-                "url": "https://api.github.com/repos/discord/discord-interactions-php/zipball/113a9c66b73fc05612a4c759d11db3ef6f12b6f8",
-                "reference": "113a9c66b73fc05612a4c759d11db3ef6f12b6f8",
-                "shasum": ""
-            },
-            "require": {
-                "simplito/elliptic-php": "^1.0"
-            },
-            "type": "library",
-            "autoload": {
-                "psr-4": {
-                    "Discord\\": "discord"
-                }
-            },
-            "notification-url": "https://packagist.org/downloads/",
-            "license": [
-                "MIT"
-            ],
-            "authors": [
-                {
-                    "name": "Ian Webster",
-                    "email": "ianw_php@ianww.com"
-                }
-            ],
-            "description": "Utils for implementing the Discord Interactions API",
-            "keywords": [
-                "discord"
-            ],
-            "time": "2020-12-14T21:21:43+00:00"
         },
         {
             "name": "dnoegel/php-xdg-base-dir",
