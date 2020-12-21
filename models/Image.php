@@ -56,6 +56,18 @@ class Image extends ActiveRecord {
         return HTTP::url($route);
     }
 
+    /** Gets the original extension with leading period
+     * @return string|false the extension, otherwise false if it cannot find it. Starts with .
+     */
+    public function getOriginExtension() {
+        $url = $this->origin;
+        $url = explode('?', $url)[0];
+        $index = strrpos($url, '.');
+        if ($index === false) return false;
+        $ext = substr($url, $index);
+        return $ext;
+    }
+
     /** Gets the current suitable url */
     public function getUrl() {
         return HTTP::url( ['/api/proxy', 'url' => empty($this->url) ? $this->origin : $this->url] );

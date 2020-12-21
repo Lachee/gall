@@ -39,7 +39,13 @@ class ProfileCard extends Widget {
 
         $image = '';
         if ($profile->profileImage) {
-            $profileImageLink = $profile->profileImage->getThumbnail(350);  
+            $ext = $profile->profileImage->getOriginExtension();
+            if ($ext === '.gif') {
+                $profileImageLink = $profile->profileImage->getUrl();  
+            } else {
+                $profileImageLink = $profile->profileImage->getThumbnail(350);  
+            }
+
             $image = "<div class='card-image'><img src='{$profileImageLink}' alt='{$profileImageLink}'></div>";
         }
 
