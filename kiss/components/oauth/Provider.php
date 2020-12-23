@@ -236,6 +236,10 @@ class Provider extends BaseObject {
 
             //We threw an expired oAuth exception, its not valid.
             return false;
+        }catch(\Exception $e) {
+            
+            //We threw a generic error oh no :c
+            return false;
         }
     }
 
