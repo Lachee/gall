@@ -4,10 +4,9 @@ use kiss\controllers\cli\Command;
 
 class TestCommand extends Command {
     public function cmdDefault() {
-        echo 'default';
+        self::print('Welcome to the default command');
     }
     public function cmdApple() {
-        echo 'test';
-        return 'd';
+        self::print('Welcome to the apple command');
     }
 }

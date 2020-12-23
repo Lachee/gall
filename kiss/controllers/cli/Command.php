@@ -90,6 +90,20 @@ class Command extends Route {
         return $response;  
     }
 
+    /** Prints a new line
+     * @param string|mixed the line to print, otherwise the data to echo out.
+     */
+    public static function print($line) {
+        $str = $line;
+        if (!is_string($line)) {
+            ob_start();
+            var_dump($line);
+            $str = ob_get_clean();
+        }
+        
+        echo $str . PHP_EOL;
+    }
+
     /** Gets the action name */
     protected function getAction($endpoint) {
         $endpoint = ucfirst(strtolower($endpoint));

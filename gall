@@ -37,6 +37,12 @@ if (count($argv) < 2)
 //Prepare the route
 HTTP::setRoute("/{$argv[1]}");
 
+//Load up the GET with the rest of the args
+$_GET['arg0'] = $argv['0'];
+$_GET['argc'] = count($argv) - 1;
+for($i = 2; $i < count($argv); $i++)
+    $_GET['arg' . $i - 1] = $argv[$i];
+
 try {
     //Prepare the route we wish to use 
     //Just exit with no response because they are accessing the API page directly
