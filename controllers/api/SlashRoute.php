@@ -25,7 +25,8 @@ class SlashRoute extends BaseApiRoute {
     protected function scopes() { return null; } // Proxy doesn't need any scopes since it handles its own.
 
     public function authenticate($identity) {
-        return GALL::$app->discord->verifyInteractionSignature();
+        if (!GALL::$app->discord->verifyInteractionSignature())
+            throw new HttpException(HTTP::UNAUTHORIZED, 'Bad signature');
     }
 
 
@@ -46,10 +47,11 @@ class SlashRoute extends BaseApiRoute {
         
         /** Handle the Pings */
         if ($data['type'] == Interaction::REQUEST_TYPE_PING)
-        return Response::jsonRaw(HTTP::OK, [ 'type' => Interaction::RESPONSE_TYPE_PONG ]);
+            return Response::jsonRaw(HTTP::OK, [ 'type' => Interaction::RESPONSE_TYPE_PONG ]);
                 
         /** Handle ApplicationCommand */
         if ($data['type'] == Interaction::REQUEST_TYPE_APPLICATION_COMMAND) {
+            return Response::jsonRaw(HTTP::OK, [ 'type' => Interaction::RESPONSE_TYPE_ACKNOWLEDGE ]);
             $interaction = GALL::$app->discord->createInteraction($data);
             return Response::jsonRaw(HTTP::OK, $interaction->respond());
         }

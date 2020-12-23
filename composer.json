@@ -18,6 +18,7 @@
         "firebase/php-jwt": "^5.2",
         "vimeo/psalm": "@dev",
         "formr/formr": "^1.2",
-        "simplito/elliptic-php": "^1.0"
+        "simplito/elliptic-php": "^1.0",
+        "paragonie/sodium_compat": "^1.14"
     }
 }

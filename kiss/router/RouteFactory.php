@@ -91,8 +91,6 @@ class RouteFactory {
 
     /** Registers the directory of routes. */
     public static function registerDirectory($directory, $filters = "*.php") {
-       
-
         if (!is_array($filters)) 
             $filters = [$filters];
 

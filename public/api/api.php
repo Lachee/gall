@@ -36,7 +36,7 @@ set_error_handler(function($errno, $errstr, $errfile, $errline) {
     exit;
 });
 
-if (KISS_DEBUG)
+//if (KISS_DEBUG)
     Response::$saveRequest = true;
 
 try {

@@ -51,20 +51,27 @@ class Discord extends Provider  {
         if (empty($signature) || empty($timestamp)) 
             return false;
 
-        $binary_signature = sodium_hex2bin($signature);
-        $binary_key = sodium_hex2bin($this->interactivityPublicKey);
+        $binary_signature = \sodium_hex2bin($signature);
+        $binary_key = \sodium_hex2bin($this->interactivityPublicKey);
 
         $body = HTTP::body();
         $message = $timestamp . $body;
-        if (!sodium_crypto_sign_verify_detached($binary_signature, $message, $binary_key))
+        if (!\sodium_crypto_sign_verify_detached($binary_signature, $message, $binary_key))
             return false;
 
         return true;
     }
 
+    /** registers all the commands */
+    public static function registerCommands() {
+        $directory = __DIR__ . '/components/discord/interaction/commands/';
+        return Interaction::registerDirectory($directory);
+    }
+
     /** Creates a new interaction object based of the body payload 
      * @return Interaction|null interaction object */
     public function createInteraction($data = null) {
+        if (empty(Interaction::commands())) self::registerCommands();
         $payload = array_merge($data ?? HTTP::json(), [ 'discord' => $this ]);
         return BaseObject::new(Interaction::class, $payload);
     }
