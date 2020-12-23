@@ -245,11 +245,16 @@ class HTTP {
     /** @return string The current route*/
     public static function route() {
         if (self::$_ROUTE == null) {
-            $route = $_REQUEST['route'] ?? '';
-            if (empty($route) && !empty($_SERVER['REDIRECT_URL'])) $route = $_SERVER['REDIRECT_URL'];
-            self::$_ROUTE = empty($route) ? "/" : $route;
+            self::$_ROUTE = self::setRoute($_REQUEST['route'] ?? '');
         }
         return self::$_ROUTE;
+    }
+
+    /** Sets the route. This shouldn't be used. */
+    public static function setRoute($route) {
+        $route = $route ?? '';
+        if (empty($route) && !empty($_SERVER['REDIRECT_URL'])) $route = $_SERVER['REDIRECT_URL'];
+        return self::$_ROUTE = empty($route) ? "/" : $route;
     }
 
     /** Sets teh referal information */

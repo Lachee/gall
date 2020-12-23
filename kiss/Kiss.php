@@ -231,6 +231,11 @@ class Kiss extends BaseObject {
                     //Prepare a json default response
                     $response = Response::json($status, $response);
 
+                } else if ($this->defaultResponseType == HTTP::CONTENT_TEXT_PLAIN) {
+                    
+                    //Prepare text response
+                    $response = Response::text($status, $response);
+
                 } else {
 
                     //Prepare a regular default response

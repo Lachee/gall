@@ -190,18 +190,22 @@ class Response {
             }
         }
         
-        //Set the status code
-        http_response_code($this->status);
+        if (KISS_ENV !== 'CLI') {
+            //Set the status code
+            http_response_code($this->status);
 
-        //Cookies
-        HTTP::applyCookies();
-        
-        //Update the content type
-        $this->headers['content-type'] = $this->headers['content-type'] ?? $this->contentType;
+            //Cookies
+            HTTP::applyCookies();
+            
+            //Update the content type
+            $this->headers['content-type'] = $this->headers['content-type'] ?? $this->contentType;
 
-        //Add all the headers
-        foreach($this->headers as $key => $pair) {
-            header($pair == null ? $key : $key . ": " . $pair);
+            //Add all the headers
+            foreach($this->headers as $key => $pair) {
+                header($pair == null ? $key : $key . ": " . $pair);
+            }
+        } else {
+            $body .= PHP_EOL;
         }
 
         if (self::$saveRequest) {
@@ -218,6 +222,7 @@ class Response {
                 ]
                 ], JSON_PRETTY_PRINT));
         }
+
         //Finally, respond with the body
         die($body);
     }
