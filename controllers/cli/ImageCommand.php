@@ -25,6 +25,7 @@ class ImageCommand extends Command {
             $key = GALL::$app->awooRocksUploadKey;
             $ext = $image->getOriginExtension();
             $data = $image->downloadOriginData();
+            self::print("+ Downloaded");
 
             $response = $guzzle->request('POST', 'https://awoo.rocks/gall/upload.php', [
                 'multipart' => [
@@ -42,6 +43,8 @@ class ImageCommand extends Command {
 
             $respContent = $response->getBody()->getContents();
             $json = json_decode($respContent, true);
+            self::print("+ Uploaded");
+            
             if (isset($json['file'])) {
                 $image->url         = $json['file']['URL'];
                 $image->delete_url  = $json['file']['DELURL'];
