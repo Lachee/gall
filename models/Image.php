@@ -12,6 +12,7 @@ use kiss\schema\StringProperty;
 class Image extends ActiveRecord {
     protected $id;
     protected $url;
+    protected $delete_url;
     protected $origin;
     protected $scraper;
     protected $founder_id;
@@ -45,8 +46,8 @@ class Image extends ActiveRecord {
         return self::find()->where(['origin', $origin]);
     }
 
-    /** Proxies the original URL
-     * @param string $filename if given, then the image will be given a filename in the proxy and downloaded
+    /** Proxies the url, allowing for downloads if required.
+     * @param string $filename If not empty, then the url generated will cause the browser to download the image when opened. This will ignore the url and always use the proxy.
      * @return string the URL
      */
     public function getProxyUrl($filename = false) {
@@ -68,13 +69,33 @@ class Image extends ActiveRecord {
         return $ext;
     }
 
-    /** Gets the current suitable url */
+    /** Gets the current suitable url for display. Similar to getProxyUrl but will never proxy if a url is available */
     public function getUrl() {
-        return HTTP::url( ['/api/proxy', 'url' => empty($this->url) ? $this->origin : $this->url] );
+        if (empty($this->url)) 
+            return HTTP::url( ['/api/proxy', 'url' => $this->origin ] );
+        return $this->url;
     }
 
-    /** Gets the thumbnail url for the given size */
+    /** Gets the thumbnail url for the given size. This will go through our proxy */
     public function getThumbnail($size = 250, $algo = IMG_BICUBIC) {        
-        return HTTP::url( ['/api/proxy', 'url' => empty($this->url) ? $this->origin : $this->url, 'size' => $size, 'algo' => $algo ] );
+        return HTTP::url( ['/api/proxy', 'url' => !empty($this->url) ? $this->url : $this->origin, 'size' => $size, 'algo' => $algo ] );
+    }
+
+    /** Downloads the origin data
+     * @param \GuzzleHttp\Client|null $guzzle the client to use to download the image.
+     * @return \Psr\Http\Message\StreamInterface the image data
+     */
+    public function downloadOriginData($guzzle = null) {
+        //Open a temporary 
+        if ($guzzle == null)
+            $guzzle = new \GuzzleHttp\Client([
+                'headers' => [
+                    'Referer' => $this->origin
+                ]
+            ]);
+
+        //Download the data
+        $response = $guzzle->request('GET', $this->origin, []);
+        return $response->getBody()->getContents();
     }
 }

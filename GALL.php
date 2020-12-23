@@ -17,6 +17,9 @@ class GALL extends Kiss {
     /** @var bool allows logged out users */
     public $allowVisitors = true;
 
+    /** @var string the upload key to awooRocks */
+    public $awooRocksUploadKey = '';
+
     protected function init() {
         parent::init();
 

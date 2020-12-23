@@ -15,8 +15,8 @@ use Ramsey\Uuid\Uuid;
 
 class ProxyRoute extends BaseApiRoute {
 
-    public const CACHE_DURATION = 60 * 60 * 24 * 7;
-    public const CACHE_VERSION = 9;
+    public const CACHE_DURATION = 60 * 60; //* 24 * 7;
+    public const CACHE_VERSION = 10;
     public const INTERPOLATIONS = [
         'NEAREST_NEIGHBOUR' => IMG_NEAREST_NEIGHBOUR, 
         'BILINEAR_FIXED'    => IMG_BILINEAR_FIXED, 
