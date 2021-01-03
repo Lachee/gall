@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: localhost
--- Generation Time: Jan 03, 2021 at 01:37 AM
+-- Generation Time: Jan 03, 2021 at 09:31 AM
 -- Server version: 10.4.12-MariaDB
 -- PHP Version: 7.2.5
 
@@ -19,7 +19,7 @@ SET time_zone = "+00:00";
 /*!40101 SET NAMES utf8mb4 */;
 
 --
--- Database: `xve`
+-- Database: `gall`
 --
 
 -- --------------------------------------------------------
@@ -120,8 +120,8 @@ CREATE TABLE `gall_image` (
   `origin` text NOT NULL,
   `scraper` text NOT NULL,
   `is_cover` tinyint(1) NOT NULL DEFAULT 0 COMMENT 'This image is only for the cover.',
-  `founder_id` bigint(20) NOT NULL COMMENT 'FK: user',
-  `gallery_id` bigint(20) NOT NULL COMMENT 'FK: gallery',
+  `founder_id` bigint(20) DEFAULT NULL COMMENT 'FK: user',
+  `gallery_id` bigint(20) DEFAULT NULL COMMENT 'FK: gallery',
   `date_created` datetime NOT NULL DEFAULT current_timestamp()
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
@@ -222,7 +222,7 @@ CREATE TABLE `gall_users` (
   `snowflake` bigint(20) NOT NULL,
   `profile_name` varchar(32) DEFAULT NULL,
   `profile_image` bigint(20) DEFAULT NULL,
-  `score` bigint(20) NOT NULL COMMENT 'Sparkles'
+  `score` bigint(20) NOT NULL DEFAULT 0 COMMENT 'Sparkles'
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 --
@@ -415,8 +415,7 @@ ALTER TABLE `gall_gallery`
 -- Constraints for table `gall_image`
 --
 ALTER TABLE `gall_image`
-  ADD CONSTRAINT `fk_image_gallery` FOREIGN KEY (`gallery_id`) REFERENCES `gall_gallery` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
-  ADD CONSTRAINT `fk_image_user` FOREIGN KEY (`founder_id`) REFERENCES `gall_users` (`id`) ON DELETE NO ACTION ON UPDATE CASCADE;
+  ADD CONSTRAINT `fk_image_gallery_id` FOREIGN KEY (`gallery_id`) REFERENCES `gall_gallery` (`id`) ON DELETE SET NULL ON UPDATE CASCADE;
 
 --
 -- Constraints for table `gall_reaction`
