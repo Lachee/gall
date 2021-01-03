@@ -57,6 +57,12 @@ abstract class Session extends BaseObject {
         return property_exists($this->claims, $claim);
     }
 
+    /** clears the JWT */
+    public function clearJWT() {
+        HTTP::setCookie(self::JWT_COOKIE_NAME, null);
+        $this->jwt = null;
+    }
+
     /** Sets the current JWT. If the session details reset then the current session will be aborted. */
     public function setJWT($jwt, $destroySession = true) {
         if ($jwt == null) throw new ArgumentException('No valid JWT');

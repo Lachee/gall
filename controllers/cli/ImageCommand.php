@@ -5,6 +5,44 @@ use GALL;
 use kiss\controllers\cli\Command;
 
 class ImageCommand extends Command {
+    public function cmdDelete() {
+        /** @var Image[] $images */
+        $images = Image::find()
+                            ->where(['gallery_id', ''])
+                            ->orWhere(['gallery_id', 'IS', NULL])
+                            ->ttl(0)
+                            ->all();
+
+        //Create a instance to the upload client
+        $guzzle = new \GuzzleHttp\Client([]);
+
+        //Upload all the iamges
+        self::print("Processing ".count($images)." images...");
+        foreach($images as $image) {
+            self::print("Deleting {$image->origin}");
+
+            //Skip items without a delete url.
+            if (empty($image->delete_url)) {
+                self::print("- Skipped POST Request");
+            } else {
+                self::print("+ Sending POST Request");
+
+                //Send the delete request
+                $key = GALL::$app->awooRocksUploadKey;
+                $response = $guzzle->request('GET', $image->delete_url . '&key=' . $key);
+            }
+            
+            //Finally, delete the record
+            if ($image->delete()) {
+                self::print("+ Deleted");
+            } else {
+                self::print("- Failed to delete");
+            }
+        }
+        
+        self::print("DONE");
+    }
+
     public function cmdUpload() {
         /** @var Image[] $images */
         $images = Image::find()

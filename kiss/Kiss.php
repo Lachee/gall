@@ -156,6 +156,7 @@ class Kiss extends BaseObject {
         if ($this->user != null) { 
             $this->user->authorize($jwt);
         } else {
+            if ($this->session != null) $this->session->clearJWT();
             $this->respond(new HttpException(HTTP::UNAUTHORIZED, 'Didn\'t find matching JWT'));
             exit;
         }

@@ -5,6 +5,7 @@ use GALL;
 use kiss\controllers\Controller;
 use kiss\exception\ExpiredOauthException;
 use kiss\exception\HttpException;
+use kiss\helpers\HTML;
 use kiss\helpers\HTTP;
 use kiss\helpers\Response;
 use kiss\Kiss;
@@ -25,6 +26,7 @@ class BaseController extends Controller {
 
     public function action($endpoint, ...$args) {
         
+        HTML::$title = Kiss::$app->title;
 
         //Force a check on the mixer user, validating the oauth. We dont want to apply this rule to the /auth endpoint tho.
         if (Kiss::$app->loggedIn() && $endpoint != '/auth' && $endpoint != '/login' && $endpoint != 'exception') {
