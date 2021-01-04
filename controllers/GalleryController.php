@@ -53,15 +53,8 @@ class GalleryController extends BaseController {
         return $this->render('index', $galleries);
     }
 
-    function actionTest() {
-        $tag = Tag::findByName('pokemon')->one();
-        $query = Gallery::findByTag($tag);
-        GALL::$app->user->applyGalleryBlacklist($query);
-        $preview = $query->previewStatement();
-        $results = $query->all();
-        return $this->render('list', [
-            'results'   => $results
-        ]);
+    function actionBrowse() {
+        return $this->render('browse', []);
     }
 
     function actionQuery() {

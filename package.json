@@ -9,6 +9,7 @@
     "@json-editor/json-editor": "^2.2.0",
     "@sweetalert2/theme-bulma": "^4.0.0",
     "astring": "^1.4.3",
+    "bricks.js": "^1.8.0",
     "bulma": "^0.9.1",
     "bulma-carousel": "^4.0.4",
     "bulma-prefers-dark": "0.1.0-beta.0",

@@ -28,11 +28,6 @@ use kiss\Kiss;
                     </a>
                 </div>
                 <div class="column is-one-third">
-                    <?php if (Kiss::$app->loggedIn()): ?>                        
-                        <?= ProfileCard::widget(['profile' => Kiss::$app->user ]); ?>
-                    <?php else: ?>
-                        <?= GalleryList::widget([ 'galleries' => Gallery::findByRating()->limit(1)->all(), 'grid' => true]) ?>
-                    <?php endif; ?>
                 </div>
             </div>
         </div>

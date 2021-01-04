@@ -195,7 +195,7 @@ class BaseObject implements SchemaInterface, JsonSerializable {
 
         //Get the class and check it
         $class = $properties['$class'] ?? BaseObject::class;
-        if ($class != BaseObject::class && !is_subclass_of($class, BaseObject::class)) 
+        if ($class != BaseObject::class && !is_subclass_of($class, BaseObject::class))  
             throw new InvalidOperationException("Cannot create {$class} because its not a BaseObject");
 
         //Create a new object with the class

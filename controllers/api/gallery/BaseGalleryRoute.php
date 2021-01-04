@@ -36,7 +36,7 @@ class BaseGalleryRoute extends BaseApiRoute {
     public function get() {
         $term           = HTTP::get('term', HTTP::get('q', ''));
         $id             = HTTP::get('id', false);
-        $page           = HTTP::get('page', 1);
+        $page           = intval(HTTP::get('page', 1));
         $pageLimit      = HTTP::get('limit', self::DEFAULT_PAGE_SIZE);
         $asSelect2      = HTTP::get('select2', false, FILTER_VALIDATE_BOOLEAN);
 
@@ -46,13 +46,16 @@ class BaseGalleryRoute extends BaseApiRoute {
         if ($pageLimit > self::MAX_PAGE_SIZE)
             throw new HttpException(HTTP::BAD_REQUEST, "Cannot request more than " . self::MAX_PAGE_SIZE . " items");
 
+        $query = Gallery::find();
         if ($id === false) {
-            $query = Gallery::find()->where([ 'title', 'like', "%{$term}%"])
-                                        ->orWhere(['channel_snowflake', $term])
-                                        ->orWhere(['message_snowflake', $term])
-                                        ->orWhere([ 'description', 'like', "%{$term}%"]);
+            if (!empty($term)) {
+                $query = $query->where([ 'title', 'like', "%{$term}%"])
+                                            ->orWhere(['channel_snowflake', $term])
+                                            ->orWhere(['message_snowflake', $term])
+                                            ->orWhere([ 'description', 'like', "%{$term}%"]);
+            }
         } else {
-            $query = Gallery::find()->where(['id', $id]);
+            $query = $query->where(['id', $id]);
         }
     
         $results = $query->limit($pageLimit, ($page-1) * $pageLimit)->all();

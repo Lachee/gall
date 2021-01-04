@@ -34,7 +34,8 @@ abstract class Session extends BaseObject {
     protected function init() {
         try { 
             $jwt = HTTP::cookie(self::JWT_COOKIE_NAME, null);
-            $this->setJWT($jwt, false);
+            if ($jwt == null) $this->clearJWT();
+            else $this->setJWT($jwt, false);
         }
         catch(ArgumentException $e) { }
         catch(ExpiredException $e) { }

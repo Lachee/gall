@@ -21,6 +21,7 @@ class MainController extends BaseController {
     public function authorize($action) { return true; }
 
     function actionIndex() {
+        if (Kiss::$app->loggedIn()) return Response::redirect(['/gallery/']);
         return $this->render('index', [
             'fullWidth' => true,
             'wrapContents' => false,
