@@ -144,15 +144,20 @@ class Kiss extends BaseObject {
                     $this->respond(new HttpException(HTTP::FORBIDDEN, 'Invalid Claims'));
                     exit;
                 }
+            } else {
+                $this->respond(new HttpException(HTTP::UNAUTHORIZED, 'Bearer is missing'));
+                exit;
+            }
+                
+            if ($jwt == null || !isset($jwt->sub)) {
+                $this->respond(new HttpException(HTTP::FORBIDDEN, 'Invalid claims or invalid JWT'));
+                exit;
             }
         }
 
         //MAke sure the JWT isnt null
-        if ($jwt == null || !isset($jwt->sub)) { 
-            $this->respond(new HttpException(HTTP::UNAUTHORIZED, 'JWT is invalid or missing'));
-            exit;
-        }
-            //return $this->user = null;
+        if ($jwt == null || !isset($jwt->sub)) 
+            return $this->user = null;
 
         //Get the user and authorize the JWT
         $this->user = $identityClass::findByJWT($jwt)->one();
