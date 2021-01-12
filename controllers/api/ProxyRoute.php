@@ -54,6 +54,7 @@ class ProxyRoute extends BaseApiRoute {
 
         //Open a temporary 
         $guzzle = new \GuzzleHttp\Client([
+            'timeout' => 2,
             'headers' => [
                 'Referer' => self::getReferer($url)
             ]

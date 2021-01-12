@@ -14,7 +14,9 @@ class ImageCommand extends Command {
                             ->all();
 
         //Create a instance to the upload client
-        $guzzle = new \GuzzleHttp\Client([]);
+        $guzzle = new \GuzzleHttp\Client([
+            'timeout' => 5
+        ]);
 
         //Upload all the iamges
         self::print("Processing ".count($images)." images...");
