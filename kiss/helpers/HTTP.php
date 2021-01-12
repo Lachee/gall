@@ -380,6 +380,7 @@ class HTTP {
 
     /** Gets a header value. */
     public static function header($variable, $default = null, $filter = null) {
+        $variable = Strings::toLowerCase($variable);
         $_HEADERS = self::headers();
         if ($filter == null) return $_HEADERS[$variable] ?? $default;
         $result = filter_var($_HEADERS[$variable] ?? $default, $filter);
@@ -387,7 +388,15 @@ class HTTP {
     }
 
     /** Gets all the headers */
-    public static function headers() { return getallheaders(); }
+    private static $_headers = null;
+    public static function headers() { 
+        if (self::$_headers != null) return self::$_headers;
+        self::$_headers = [];
+        $headers = getallheaders();
+        foreach($headers as $key => $value) 
+            self::$_headers[Strings::toLowerCase($key)] = $value;
+        return self::$_headers;
+    }
 
     /** Gets a cookie value, either from the cookie header or the stored internal cookie cache */
     public static function cookie($variable, $default = null, $includeResponseCookies = true) {
