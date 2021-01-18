@@ -12,12 +12,13 @@ use kiss\schema\StringProperty;
 class Image extends ActiveRecord {
     protected $id;
     protected $url;
-    protected $delete_url;
     protected $origin;
     protected $scraper;
     protected $founder_id;
     protected $gallery_id;
     protected $is_cover;
+    
+    public $delete_url;
 
     public static function getSchemaProperties($options = [])
     {

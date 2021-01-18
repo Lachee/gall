@@ -21,11 +21,12 @@ class ImageCommand extends Command {
         //Upload all the iamges
         self::print("Processing ".count($images)." images...");
         foreach($images as $image) {
-            self::print("Deleting {$image->origin}");
+            self::print("Deleting {$image->origin} ( {$image->delete_url} )");
 
             //Skip items without a delete url.
             if (empty($image->delete_url)) {
                 self::print("- Skipped POST Request");
+                return;
             } else {
                 self::print("+ Sending POST Request");
 
