@@ -41,7 +41,7 @@ HTTP::setRoute("/{$argv[1]}");
 $_GET['arg0'] = $argv['0'];
 $_GET['argc'] = count($argv) - 1;
 for($i = 2; $i < count($argv); $i++)
-    $_GET['arg' . $i - 1] = $argv[$i];
+    $_GET['arg' . ($i - 1)] = $argv[$i];
 
 try {
     //Prepare the route we wish to use 
