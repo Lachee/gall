@@ -92,6 +92,7 @@ export class Image extends APIObject{
     */
     getUrl() {
         if (this.url != null && this.url != '')  return this.url;
+        if (this.proxy != null && this.proxy != '')  return this.proxy;
         const url = encodeURIComponent(this.origin);
         return `${this.api.baseUrl}/proxy?url=${url}`;
     }

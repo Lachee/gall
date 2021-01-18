@@ -49,6 +49,7 @@ $(document).ready(async () => {
                 new Promise((resolve, reject) => {
                     $img.one('load', () => {
                         console.log('image loaded', image_url);
+                        instance.pack();
                         resolve();
                     });
                 })
@@ -64,7 +65,7 @@ $(document).ready(async () => {
 
         //We need to wait for all the images to finish loading so we can more accurately pack them.
         await Promise.all(imageLoadPromises);
-        instance.pack();
+        //instance.pack();
         //instance.update(); // While update is faster, it doesn't produce accurate results.
 
         //If we did not get a full list, then we are done.

@@ -31,11 +31,22 @@ class ProxyRoute extends BaseApiRoute {
     protected function scopes() { return null; } // Proxy doesn't need any scopes.
 
     public function get() {
-
-        $size   = HTTP::get('size', 0);
+        $size   = HTTP::get('size', 512);
         $url    = HTTP::get('url');
-        $algo   = HTTP::get('algo', IMG_BICUBIC);
 
+        //If we use the imgproxy, return immediately
+        if (GALL::$app->proxySettings != null) {
+            $endpoint = self::GenerateImgproxyURL(  $url,
+                                                    $size, 
+                                                    GALL::$app->proxySettings['key'], 
+                                                    GALL::$app->proxySettings['salt']
+                                                );
+
+            $proxy_url = trim(GALL::$app->proxySettings['baseUrl'], '/') . $endpoint;
+            return Response::redirect($proxy_url);
+        }
+
+        $algo   = HTTP::get('algo', IMG_BICUBIC);
         $interpolation = self::INTERPOLATIONS[$algo] ?? (in_array($algo, array_values(self::INTERPOLATIONS)) ? $algo : IMG_BILINEAR_FIXED);
 
         //Set the default cache
@@ -54,7 +65,7 @@ class ProxyRoute extends BaseApiRoute {
 
         //Open a temporary 
         $guzzle = new \GuzzleHttp\Client([
-            'timeout' => 2,
+            'timeout' => KISS_DEBUG ? 10 : 2,
             'headers' => [
                 'Referer' => self::getReferer($url)
             ]
@@ -97,6 +108,33 @@ class ProxyRoute extends BaseApiRoute {
         return Response::image($imdata, 'jpeg', HTTP::get('filename', false));
     }
 
+    public static function GenerateImgproxyURL($url, $size,  $key, $salt, $ext = "jpg") {
+        $keyBin = pack("H*" , $key);
+        if(empty($keyBin)) {
+            die('Key expected to be hex-encoded string');
+        }
+        
+        $saltBin = pack("H*" , $salt);
+        if(empty($saltBin)) {
+            die('Salt expected to be hex-encoded string');
+        }
+
+        $resize = 'fit';
+        $width = $size;
+        $height = $size;
+        $gravity = 'no';
+        $enlarge = 1;
+        $extension = $ext;
+
+        $encodedUrl = rtrim(strtr(base64_encode($url), '+/', '-_'), '=');
+        $path = "/{$resize}/{$width}/{$height}/{$gravity}/{$enlarge}/{$encodedUrl}.{$extension}";
+        $signature = rtrim(strtr(base64_encode(hash_hmac('sha256', $saltBin.$path, $keyBin, true)), '+/', '-_'), '=');
+        return sprintf("/%s%s", $signature, $path);
+    }
+
+    private static function base64url_encode($data) {
+        return rtrim(strtr(base64_encode($data), '+/', '-_'), '=');
+      }
 
     private static function getReferer($url) {
         return $url;

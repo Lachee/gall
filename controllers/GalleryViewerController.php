@@ -70,9 +70,9 @@ class GalleryViewerController extends BaseController {
         $count = count($images);
         switch($count) {
             case 0:
-                return Response::redirect($this->gallery->cover->getProxyUrl($title));
+                return Response::redirect($this->gallery->cover->getDownloadUrl($title));
             case 1:
-                return Response::redirect($images[0]->getProxyUrl($title));
+                return Response::redirect($images[0]->getDownloadUrl($title));
             default:
                 throw new NotYetImplementedException('Multiple file downloads are not yet supported');
         }

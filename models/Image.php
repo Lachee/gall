@@ -25,6 +25,7 @@ class Image extends ActiveRecord {
             'id'            => new IntegerProperty('ID of the image'),
             'url'           => new StringProperty('URL of the image'),
             'origin'        => new StringProperty('Original URL of the image'),
+            'proxy'         => new StringProperty('Proxy URL of the image'),
             'is_cover'      => new BooleanProperty('Is the image only used as a cover'),
         ];
     }
@@ -46,16 +47,6 @@ class Image extends ActiveRecord {
         return self::find()->where(['origin', $origin]);
     }
 
-    /** Proxies the url, allowing for downloads if required.
-     * @param string $filename If not empty, then the url generated will cause the browser to download the image when opened. This will ignore the url and always use the proxy.
-     * @return string the URL
-     */
-    public function getProxyUrl($filename = false) {
-        $route = [ '/api/proxy' ];
-        $route['url'] = empty($this->url) ? $this->origin : $this->url;
-        if ($filename !== false) $route['filename'] = $filename;
-        return HTTP::url($route);
-    }
 
     /** Gets the original extension with leading period
      * @return string|false the extension, otherwise false if it cannot find it. Starts with .
@@ -69,15 +60,58 @@ class Image extends ActiveRecord {
         return $ext;
     }
 
-    /** Gets the current suitable url for display. Similar to getProxyUrl but will never proxy if a url is available */
+    /** @deprecated use getProxy instead*/
     public function getUrl() {
-        if (empty($this->url)) 
+        return $this->getProxy();
+    }
+
+    /** Gets the url that is suitable for display */
+    public function getProxy() {
+        if (empty($this->url)) {
+            if (GALL::$app->proxySettings != null) {
+                $endpoint = \app\controllers\api\ProxyRoute::GenerateImgproxyURL( 
+                                                        !empty($this->url) ? $this->url : $this->origin,
+                                                        0, 
+                                                        GALL::$app->proxySettings['key'], 
+                                                        GALL::$app->proxySettings['salt']
+                                                    );
+    
+                $proxy_url = trim(GALL::$app->proxySettings['baseUrl'], '/') . $endpoint;
+                return $proxy_url;
+            }
+
             return HTTP::url( ['/api/proxy', 'url' => $this->origin ] );
+        }
+        
         return $this->url;
     }
 
+    /** Proxies the url, allowing for downloads if required.
+     * @param string $filename If not empty, then the url generated will cause the browser to download the image when opened. This will ignore the url and always use the proxy.
+     * @return string the URL
+     */
+    public function getDownloadUrl($filename = false) {
+        $route = [ '/api/proxy' ];
+        $route['url'] = empty($this->url) ? $this->origin : $this->url;
+        if ($filename !== false) $route['filename'] = $filename;
+        return HTTP::url($route);
+    }
+
     /** Gets the thumbnail url for the given size. This will go through our proxy */
-    public function getThumbnail($size = 250, $algo = IMG_BICUBIC) {        
+    public function getThumbnail($size = 250, $algo = IMG_BICUBIC) {
+        
+        if (GALL::$app->proxySettings != null) {
+            $endpoint = \app\controllers\api\ProxyRoute::GenerateImgproxyURL( 
+                                                    !empty($this->url) ? $this->url : $this->origin,
+                                                    $size, 
+                                                    GALL::$app->proxySettings['key'], 
+                                                    GALL::$app->proxySettings['salt']
+                                                );
+
+            $proxy_url = trim(GALL::$app->proxySettings['baseUrl'], '/') . $endpoint;
+            return $proxy_url;
+        }
+
         return HTTP::url( ['/api/proxy', 'url' => !empty($this->url) ? $this->url : $this->origin, 'size' => $size, 'algo' => $algo ] );
     }
 

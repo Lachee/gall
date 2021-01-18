@@ -20,6 +20,9 @@ class GALL extends Kiss {
     /** @var string the upload key to awooRocks */
     public $awooRocksUploadKey = '';
 
+    /** @var string configuration for the lachee/imgproxy proxy */
+    public $proxySettings = null;
+
     protected function init() {
         parent::init();
 

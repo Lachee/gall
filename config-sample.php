@@ -8,6 +8,11 @@ $config = function() {
         'logo'              => '/images/gall_full.png',
         'mainController'    => \app\controllers\base\MainController::class,
         'baseUrl'           => BASE_URL,
+        'proxySettings'         => [
+            'baseUrl'   => 'https://proxy.com/',
+            'key'       => 'sss',
+            'salt'      => 'sss'
+        ],
         'db' => [
             '$assoc'    => true,
             'dsn'       => 'mysql:dbname=xve;host=localhost',
