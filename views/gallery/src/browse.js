@@ -55,9 +55,14 @@ $(document).ready(async () => {
                 })
             );
 
+            //Prepare the link
+            const $href = $('<a>').attr('href', `/gallery/${gallery.id}/`);
+            $href.addClass('grid-link');
+            $href.append($img);
+
             const $div = $('<div>');
             $div.addClass('grid-image-container');
-            $div.append($img);
+            $div.append($href);
 
             //Append to container
             $container.append($div);
