@@ -27,6 +27,7 @@ class Image extends ActiveRecord {
             'url'           => new StringProperty('URL of the image'),
             'origin'        => new StringProperty('Original URL of the image'),
             'proxy'         => new StringProperty('Proxy URL of the image'),
+            'thumbnail'     => new StringProperty('Thumbnail URL of the image'),
             'is_cover'      => new BooleanProperty('Is the image only used as a cover'),
         ];
     }
@@ -99,7 +100,7 @@ class Image extends ActiveRecord {
     }
 
     /** Gets the thumbnail url for the given size. This will go through our proxy */
-    public function getThumbnail($size = 250, $algo = IMG_BICUBIC) {
+    public function getThumbnail($size = 512, $algo = IMG_BICUBIC) {
         
         if (GALL::$app->proxySettings != null) {
             $endpoint = \app\controllers\api\ProxyRoute::GenerateImgproxyURL( 

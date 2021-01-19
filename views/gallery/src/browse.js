@@ -1,11 +1,15 @@
 import Bricks from 'bricks.js';
 
+import 'viewerjs/dist/viewer.css';
+import Viewer from 'viewerjs';
+
 /** @var {./src/api/BaseAPI} api */
 const api = app.api;
 
 $(document).ready(async () => {
 
     //Prepare the grid container
+    const incapsulateLink = false;
     const container = document.getElementById('grid');
     const $container = $(container);
 
@@ -21,6 +25,16 @@ $(document).ready(async () => {
         sizes: sizes,
         position: true
     });
+
+    const viewer = new Viewer(container, {
+        container: document.getElementById('grid-viewer'),
+        url: function(image) {
+            const url = image.getAttribute('data-src');
+            console.log(image, url);
+            return url || 'https://placekitten.com/1028/1028'; //image.getAttribute('data-src');
+        },
+    });
+
 
     /** Loads a Gallery Page and creates DOM elements.
      * @return {Boolean} true if there is more content to be loaded still.
@@ -40,29 +54,38 @@ $(document).ready(async () => {
         let imageLoadPromises = [];
         for(let i in galleries) {
             const gallery = galleries[i];
+            //const image_url = gallery.cover.getUrl();
             const image_url = gallery.cover.getUrl();
-            
+            const thumbnail_url = gallery.cover.getThumbnail();
+
             //Load image
-            const $img = $('<img>').attr('src', image_url);
+            const $img = $('<img>').attr('src', thumbnail_url);
             $img.addClass('grid-image');
+            $img.attr('data-src', image_url);
+
             imageLoadPromises.push(
                 new Promise((resolve, reject) => {
                     $img.one('load', () => {
-                        console.log('image loaded', image_url);
-                        instance.pack();
+                        console.log('image loaded', image_url); 
+                        pack();
                         resolve();
                     });
                 })
             );
 
-            //Prepare the link
-            const $href = $('<a>').attr('href', `/gallery/${gallery.id}/`);
-            $href.addClass('grid-link');
-            $href.append($img);
-
+            //Prepaare the container
             const $div = $('<div>');
             $div.addClass('grid-image-container');
-            $div.append($href);
+
+            //Prepare the link
+            if (incapsulateLink) {
+                let $href = $('<a>').attr('href', `/gallery/${gallery.id}/`);
+                $href.addClass('grid-link');
+                $href.append($img);
+                $div.append($href);
+            } else {
+                $div.append($img);
+            }
 
             //Append to container
             $container.append($div);
@@ -70,7 +93,7 @@ $(document).ready(async () => {
 
         //We need to wait for all the images to finish loading so we can more accurately pack them.
         await Promise.all(imageLoadPromises);
-        //instance.pack();
+        //pack();
         //instance.update(); // While update is faster, it doesn't produce accurate results.
 
         //If we did not get a full list, then we are done.
@@ -83,6 +106,15 @@ $(document).ready(async () => {
     let page = 1;
     let moreImagesAvailable = true;
     moreImagesAvailable = await loadPage(page);
+
+    container.addEventListener('viewed', async (e) => { 
+        console.log('viewed', e, viewer);
+        if (e.detail.index == viewer.length-1) {
+            console.log('Load Next Page');
+            await loadPage(++page);
+            viewer.view(e.detail.index);
+        }
+    });
 
     //When the button becomes visible, load the next page
     const button = document.getElementById('next-page');
@@ -98,11 +130,15 @@ $(document).ready(async () => {
     $(window).on('DOMContentLoaded load resize scroll', visibilityHandler);
     visibilityHandler();
 
-    $(button).on('click', () => {
-        instance.pack();
-    });
-});
+    $(button).on('click', () => { pack(); });
 
+    function pack() {
+        console.log('pack');
+        instance.pack();
+        viewer.update();
+    }
+    
+});
 
 
 // jQuery

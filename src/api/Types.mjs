@@ -68,15 +68,19 @@ export class Image extends APIObject{
 
     id;
     url;
+    proxy;
     origin;
+    thumbnail;
     isCover;
 
     constructor(api, data) {
         super(api);
         this.id = data.id;
         this.url = data.url;
+        this.proxy = data.proxy;
         this.origin = data.origin;
         this.isCover = data.is_cover;
+        this.thumbnail = data.thumbnail;
     }
 
     /** Gets the Proxy URL
@@ -97,4 +101,12 @@ export class Image extends APIObject{
         return `${this.api.baseUrl}/proxy?url=${url}`;
     }
 
+    /** Gets the URL used to display the image 
+     * @return {String} the URL
+    */
+    getThumbnail() {
+        if (this.thumbnail != null && this.thumbnail != '')  return this.thumbnail;
+        if (this.proxy != null && this.proxy != '')  return this.proxy;
+        return this.getProxyUrl();
+    }
 }

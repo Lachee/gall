@@ -20,6 +20,9 @@ use kiss\Kiss;
 
 <button id="next-page" class="next-page">Next Page</button>
 
+<div id="grid-viewer">
+</div>
+
 <!--
 <div class="grid">
     <div><img src="https://source.unsplash.com/t3DHojIo-08" alt=""></div>

@@ -26,7 +26,6 @@ class ImageCommand extends Command {
             //Skip items without a delete url.
             if (empty($image->delete_url)) {
                 self::print("- Skipped POST Request");
-                return;
             } else {
                 self::print("+ Sending POST Request");
 
