@@ -33,8 +33,10 @@ class GalleryViewerController extends BaseController {
         $gallery = $this->gallery;
 
         //Redirect to the image if we are a bot
-        if (HTTP::isDiscordBot())
-            return Response::redirect($this->gallery->cover->proxyUrl);
+        if (HTTP::isDiscordBot()) {
+            $url = $this->gallery->cover->proxy;
+            return Response::redirect($url);
+        }
         
         if (HTTP::get('v', false) !== false) 
             return Response::redirect(['/gallery/:gallery/', 'gallery' => $this->gallery_id ]);
