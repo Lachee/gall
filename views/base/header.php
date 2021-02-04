@@ -57,13 +57,6 @@ $theme = HTTP::get('theme', 'lumen');
     <script src="/dist/app.js"></script>
     <link rel="stylesheet" href="/dist/app.css">
 
-    <meta property="og:title" content="The Rock" />
-    <meta property="og:type" content="video.movie" />
-    <meta property="og:url" content="http://placekitten.com/" />
-    <meta property="og:image" content="http://placekitten.com/200/300" />
-    <meta property="og:image" content="http://placekitten.com/300/300" />
-    <meta property="og:image" content="http://placekitten.com/50/50" />
-
     <!-- JS Variables -->
     <?= $this->renderJsVariables(Controller::POS_START); ?>
 </head>
