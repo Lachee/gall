@@ -74,7 +74,7 @@ class Query extends BaseObject{
      */
     public function select($from = null, $fields = null)
     {
-        $this->query = $fields === null ? self::QUERY_SELECT : self::QUERY_SELECT_MINIMISE;
+        $this->query = self::QUERY_SELECT; //$fields === null ? self::QUERY_SELECT : self::QUERY_SELECT_MINIMISE;
         $this->from = $from ?? $this->from;
         $this->fields = $fields ?? [ "*" ];
         return $this;
@@ -147,13 +147,13 @@ class Query extends BaseObject{
 
     /** Insert into a table
      * @param string[] $values the values to update
-     * @param string $from name of the table.
+     * @param string $table name of the table.
      * @return $this
     */
-    public function insert($values, $from = null) {
+    public function insert($values, $table = null) {
         $this->query = self::QUERY_INSERT;
         $this->values = $values;
-        $this->from = $from ?? $this->from;
+        $this->from = $table ?? $this->from;
 
         $this->remember = false;
         $this->cacheDuration = -1;
@@ -273,19 +273,24 @@ class Query extends BaseObject{
             return $this;
         }
 
-        $field = ''; $operator = '='; $value = '';
-        if (count($params) == 2) {       
-            $field = $params[0];
-            $value = $params[1];
-            if ($value instanceof Query || is_array($value)) { $operator = ''; }
-            if ($value === null) $operator = 'IS';
+        if (count($params) == 1) {            
+            $this->wheres[] = [ $method, $params[0] ];
         } else {
-            $field = $params[0];
-            $operator = $params[1];
-            $value = $params[2];
+            $field = ''; $operator = '='; $value = '';
+            if (count($params) == 2) {       
+                $field = $params[0];
+                $value = $params[1];
+                if ($value instanceof Query || is_array($value)) { $operator = ''; }
+                if ($value === null) $operator = 'IS';
+            } else {
+                $field = $params[0];
+                $operator = $params[1];
+                $value = $params[2];
+            }
+
+            $this->wheres[] = [ $method, $field, $operator, $value ];
         }
 
-        $this->wheres[] = [$method, $field, $operator, $value ];
         return $this;
     }
 
@@ -353,7 +358,8 @@ class Query extends BaseObject{
         //Add all the wheres
         if ($this->wheres !== null) {
             foreach($this->wheres as $w) {
-                $fields[] = $w[1];
+                if (count($w) == 4)
+                    $fields[] = $w[1];
             }
         }
 
@@ -458,7 +464,9 @@ class Query extends BaseObject{
                 
                 $prefix = empty($wheres) ? " WHERE" : " {$w[0]}";
                 
-                if ($w[3] === null) {
+                if (count($w) == 2) {
+                    $wheres .= "{$prefix} {$w[1]}";
+                } else  if ($w[3] === null) {
                     $wheres .= "{$prefix} {$w[1]} {$w[2]} NULL";
                 } else if ($w[3] instanceof Query) {
                     /** @var Query $q */

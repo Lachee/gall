@@ -14,6 +14,7 @@ use kiss\exception\SQLException;
 use kiss\helpers\Arrays;
 use kiss\helpers\HTTP;
 use kiss\helpers\Strings;
+use kiss\K;
 use kiss\Kiss;
 use kiss\schema\IntegerProperty;
 use kiss\schema\RefProperty;
@@ -167,6 +168,10 @@ class User extends Identity {
         if ($gallery->founder_id != $this->id) {
             $gallery->founder->giveSparkles('SCORE_FAVOURITED', $gallery, $this->getKey());
             $this->giveSparkles('SCORE_FAVOURITE', $gallery);
+
+            if ($gallery->founder->hasBeenViewedRecently()) {
+                $gallery->founder->giveSparkles('SCORE_FAVOURITE_REFERAL', $gallery, $this->getKey());
+            }
         }
 
         return $favourite;
@@ -184,6 +189,7 @@ class User extends Identity {
         if ($gallery->founder_id != $this->id) {
             $gallery->founder->takeSparkles('SCORE_FAVOURITED', $gallery, $this->getKey());
             $this->takeSparkles('SCORE_FAVOURITE', $gallery);
+            $gallery->founder->takeSparkles('SCORE_FAVOURITE_REFERAL', $gallery, $this->getKey());
         }
 
         return $favourite->delete();
@@ -205,6 +211,33 @@ class User extends Identity {
         return Gallery::find()->leftJoin(Favourite::class, [ '$gallery.id' => 'gallery_id' ])->where(['user_id', $this ]);
     }
 
+#endregion
+
+#region History
+    /** Records the current user was browsing this user's profile 
+     * @return $this
+    */
+    public function recordViewage() {
+        Kiss::$app->db()->createQuery()
+                                ->insert(['user_id' => Kiss::$app->user->getKey(), 'profile_id' => $this->getKey() ], '$profile_history')
+                                ->execute();
+        return $this;
+    }
+
+    /** Checks if the current user has recently viewed this profile
+     * @return bool true if they have
+     */
+    public function hasBeenViewedRecently() {
+        $results = Kiss::$app->db()->createQuery()
+                                ->select('$profile_history', [ 'date_viewed' ])
+                                ->where([ 'user_id', Kiss::$app->user->getKey() ])
+                                ->andWhere([ 'profile_id', $this->getKey() ])
+                                ->andWhere([ 'date_viewed >= now() - INTERVAL 1 MINUTE' ])
+                                ->limit(1)
+                                ->execute();
+
+        return $results !== false && count($results) > 0;
+    }
 #endregion
 
 #region Blacklist
