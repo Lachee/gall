@@ -49,55 +49,27 @@ class BaseGalleryRoute extends BaseApiRoute {
         if ($pageLimit > self::MAX_PAGE_SIZE)
             throw new HttpException(HTTP::BAD_REQUEST, "Cannot request more than " . self::MAX_PAGE_SIZE . " items");
 
-        $query = Gallery::find()->orderByDesc('id');
+        /** @var ActiveQuery $query */
+        $query = null;
+        
         if ($id !== false) {   
-            $query = $query->where(['id', $id]);
+            //Specifically looking for a specific item
+            $query = Gallery::findByKey($id);
         } else {
+
+            //General searching
+            if (!empty($tags) && count($tags) > 0 && !empty($tags[0])) {
+                $query = Gallery::search($tags, $this->actingUser);
+            } else {
+                $query = Gallery::search('*', $this->actingUser);
+            }
+
+            //Filter the results by the terms
             if (!empty($term)) {
                 $query = $query->where([ 'title', 'like', "%{$term}%"])
                                             ->orWhere(['channel_snowflake', $term])
                                             ->orWhere(['message_snowflake', $term])
                                             ->orWhere([ 'description', 'like', "%{$term}%"]);
-            }
-
-            if (!empty($tags) && count($tags) > 0 && !empty($tags[0])) {
-
-                //Build a list of valid IDS
-                $whitelist = [];
-                $blacklist = [];
-                foreach($tags as $name) {
-
-                    //Check if its blacklist
-                    $isBlacklist = false;
-                    if (Strings::startsWith($name, '-')) {
-                        $name = substr($name, 1);
-                        $isBlacklist = true;
-                    }
-
-                    //Get tag
-                    $tag = Tag::findByName($name)->one();
-                    if ($tag != null) {
-                        if ($isBlacklist) $blacklist[] = $tag->getId();
-                        else              $whitelist[] = $tag->getId();
-                    }
-                }
-
-                //Add the queries
-                if (count($whitelist) > 0) {
-                    $whitelistQuery = Kiss::$app->db()->createQuery()
-                                                ->select('$tags', [ 'gallery_id' ])
-                                                ->where([ 'tag_id', $whitelist ]);
-
-                    $query = $query->andWhere(['id', $whitelistQuery]);
-                }
-
-                if (count($blacklist) > 0) {
-                    $blacklistQuery = Kiss::$app->db()->createQuery()
-                                                ->select('$tags', [ 'gallery_id' ])
-                                                ->where([ 'tag_id', $blacklist ]);
-                                                
-                    $query = $query->andWhere(['id', 'NOT', $blacklistQuery]);
-                }
             }
         }
 

@@ -2,6 +2,33 @@
 
 
 class Strings {
+    /** Trims whitespaces or other characters from the string
+     * @param string $str the string to trim
+     * @param string $charlist the list of characters to trim
+     * @return string
+     */
+    public static function trim($str, $charlist = " \n\r\t\v\0\x0B") {
+        return trim($str, $charlist);
+    }
+
+        /** Trims whitespaces or other characters from the start of the string
+     * @param string $str the string to trim
+     * @param string $charlist the list of characters to trim
+     * @return string
+     */
+    public static function trimStart($str, $charlist = " \n\r\t\v\0\x0B") {
+        return ltrim($str, $charlist);
+    }
+
+     /** Trims whitespaces or other characters from the end of the string
+     * @param string $str the string to trim
+     * @param string $charlist the list of characters to trim
+     * @return string
+     */
+    public static function trimEnd($str, $charlist = " \n\r\t\v\0\x0B") {
+        return rtrim($str, $charlist);
+    }
+
     /** Converts a string to lower case, respecting the encoding and not destroying UTF-8 
      * @return string the lowercase string*/
     public static function toLowerCase($str) {

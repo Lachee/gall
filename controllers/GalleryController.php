@@ -117,61 +117,20 @@ class GalleryController extends BaseController {
         if (($profile = User::findByProfileName($query)->one()))
             return Response::redirect(['/profile/:profile/', 'profile' => $profile->profileName]);
 
-        return Response::redirect([ 'search', 'q' => $query ]);
-        throw new HttpException(HTTP::NO_CONTENT, 'There was nothing here at all');
+        return Response::redirect([ 'browse', 'q' => $query ]);
     }
 
     function actionSearch() {
-        //Check to see if we have an alternative version of Q.
-        // This is used to prevent chrome autofill
-        // (not required as chrome now respects autocomplete rules)
-        //if (HTTP::get('q', false) === false) {
-        //    $q =  HTTP::get('gall-q', false);
-        //    if ($q !== false) 
-        //        return Response::redirect(['/gallery/search', 'q' => $q]);
-        //}
 
-        $page       = HTTP::get('page', 0);
-        $limit      = HTTP::get('limit', 10);
-        $query      = HTTP::get('q', HTTP::get('gall-q', false));
-        /*
-        //This is what the new pipe operator would look like. Interesting.
-        $query = false
-            |> HTTP::get('gall-q', $$)
-            |> HTTP::get('q', $$)
-        */
+        $page           = HTTP::get('page', 0);
+        $pageLimit      = HTTP::get('limit', 10);
+        $query          = HTTP::get('q', HTTP::get('gall-q', HTTP::get('tag', false)));
+     
+        if ($page <= 0) $page = 1;
 
-        $search     = HTTP::get();
-        $results    = [];
-        if ($query !== false) {
-
-            $query = trim($query);
-
-            //Search contains HTTP, so lets publish it instead.
-            if (Strings::startsWith($query, 'http') && Kiss::$app->user != null) {
-                //Quick check if we have the URL already
-                $gallery = Gallery::findByUrl($query)->fields(['id'])->one();
-                if ($gallery != null)
-                    return Response::redirect(['/gallery/:gallery/', 'gallery' => $gallery]);
-
-                //Scrape the data and check again if it already exists
-                //Try to publish the gallery, otherwise error out.
-                $scrapedData = GALL::$app->scraper->scrape($query);
-                if (($gallery = $scrapedData->publish(Kiss::$app->user, false)) !== false) {
-                    return Response::redirect(['/gallery/:gallery/', 'gallery' => $gallery]);
-                } else {
-                    Kiss::$app->session->addNotification('Failed to create post. ' . $scrapedData->errorSummary(), 'danger');
-                }
-            }
-
-            //Otherwise lets assume its a tag.
-            $search = [ 'tag' => $query ];
-        }
-
-        $results = Gallery::search($search, $page, $limit);
+        $results        = Gallery::search($query, GALL::$app->getUser())->limit($pageLimit, ($page-1) * $pageLimit)->all();
         return $this->render('list', [
             'results'   => $results
         ]);
     }
-
 }

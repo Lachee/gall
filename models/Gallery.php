@@ -2,12 +2,15 @@
 
 use kiss\models\Identity;
 use GALL;
+use InvalidArgumentException;
 use kiss\db\ActiveQuery;
 use kiss\db\ActiveRecord;
+use kiss\db\Query;
 use kiss\exception\ArgumentException;
 use kiss\exception\InvalidOperationException;
 use kiss\exception\SQLDuplicateException;
 use kiss\helpers\Arrays;
+use kiss\helpers\Strings;
 use kiss\Kiss;
 use kiss\schema\EnumProperty;
 use kiss\schema\IntegerProperty;
@@ -328,128 +331,89 @@ class Gallery extends ActiveRecord {
         return Gallery::find()->where(['scraper', $scraper])->andWhere(['identifier', $identifier])->ttl(0);
     }
 
-    private const SEARCH_EXCLUDE = 0;
-    private const SEARCH_ADDITIONAL = 1;
-    private const SEARCH_REQUIRED = 2;
-
-    /** @return ActiveQuery|Gallery[] finds the galleirs from the given search */
-    public static function search($terms, $page, $limit) {
-        $results = [];
-        $map = [
-            self::SEARCH_EXCLUDE => [],
-            self::SEARCH_ADDITIONAL => [],
-            self::SEARCH_REQUIRED => [],
-        ];
-
-        // Find by Tag
-        if (!empty($terms['tag'])) {
-            [ $names,  $tagExcludes ] = self::_searchParseQuery($terms['tag']);
-            $wheres = Arrays::map($names, function($n) { return [ 'name', $n ]; });
-            $links = Kiss::$app->db()->createQuery()
-                            ->select('$tags')
-                            ->leftJoin(Tag::tableName(), [ 'tag_id' => 'id'])
-                            ->orWhere($wheres)
-                            ->limit($limit, $page * $limit)
-                            ->execute();
-
-            if (count($names) == 1)
-            {
-                //We only have a single tag, there is no additional filtering requried
-                foreach($links as $tag) {
-                    $results[] = Gallery::findByKey($tag['gallery_id'])->one();
-                }
-            } 
-            else 
-            {
-                //We need to map the tags
-                foreach($links as $tag) {
-                    $t = $tagExcludes[$tag['name']];
-                    $i = $tag['tag_id'];
-                    $g = $tag['gallery_id'];
-                    if (!isset($map[$t][$i]))   $map[$t][$i] = [];
-                    $map[$t][$i][] = $g;
-                }
-            }
-        }
+    /** Finds galleries based of their tags
+     * @param string|string[] $tags the name of the tags the gallery requires. If a tag is prefixed with - then it shall be excluded. If a single string, then it should be comma delimitered.
+     * @param Tag[]|string[]|User|Query|null $additionalBlacklist additional tags that should be blacklisted. The Query type is only valid if it's a Gallery subquery that returns only the `gallery_id`. If a user is given, then their blacklist will be used.
+     * @return ActiveQuery|Gallery[] all valid galleries that match the criteria
+    */
+    public static function search($tags, $additionalBlacklist = null) {
         
-        if (!empty($terms['scraper'])) {
-            [ $names,  $excludes ] = self::_searchParseQuery($terms['scraper']);
-            foreach($excludes as $name => $t) {
-                $galleries = Gallery::find()->fields(['id, scraper'])->where(['scraper', $name])->limit($limit, $page * $limit)->all(true);
+        //Cleanup the tags
+        if (!is_array($tags)) {
+            $tags = explode(',', $tags);
+        }
 
-                foreach($galleries as $gallery) {
-                    $i = $name;
-                    $g = $gallery['id'];
+        //Build a list of valid IDS
+        $whitelist = [];
+        $blacklist = [];
+        foreach($tags as $name) {
+            //Check if its blacklist
+            $isBlacklist = false;
+            if (Strings::startsWith($name, '-')) {
+                $name = substr($name, 1);
+                $isBlacklist = true;
+            }
 
-                    if (!isset($map[$t][$i]))   $map[$t][$i] = [];
-                        $map[$t][$i][] = $g;
-                }
+            /** @var Tag $tag */
+            $tag = Tag::findByName($name)->one();
+            if ($tag != null) {
+                if ($isBlacklist) $blacklist[] = $tag->getId();
+                else              $whitelist[] = $tag->getId();
             }
         }
 
-        if (!empty($terms['profile'])) {
-            [ $names,  $excludes ] = self::_searchParseQuery($terms['profile']);
-            $profiles = Arrays::mapArray($names, function($name) { return [ $name, User::findByProfileName($name)->fields(['id'])->one() ]; });
-
-            foreach($excludes as $name => $t) {
-                $founder_id = $profiles[$name]->getKey();
-                $galleries = Gallery::find()->fields(['id, founder_id'])->where(['founder_id', $founder_id])->limit($limit, $page * $limit)->all(true);
-
-                foreach($galleries as $gallery) {
-                    $i = $name;
-                    $g = $gallery['id'];
-
-                    if (!isset($map[$t][$i]))   $map[$t][$i] = [];
-                        $map[$t][$i][] = $g;
-                }
-            }
+        //Create the query
+        $query  = self::find()->orderByDesc('id');
+        if (count($whitelist) > 0) {
+            $query->andWhere(['id', Kiss::$app->db()->createQuery()
+                                                        ->select('$tags', [ 'gallery_id' ])
+                                                        ->where([ 'tag_id', $whitelist ])
+                            ]);
         }
 
-        //Then filter the map tags
-        $galleries = [];
-        
-        //Add the required
-        $requireCount = count($map[self::SEARCH_REQUIRED]);
-        if ($requireCount == 1)     $galleries = $map[self::SEARCH_REQUIRED][array_key_first($map[self::SEARCH_REQUIRED])];
-        else if ($requireCount > 1) $galleries = array_intersect(...$map[self::SEARCH_REQUIRED]);
-        
-        //Remove the excludes
-        if (!empty($map[self::SEARCH_EXCLUDE]))
-            $galleries = array_diff($galleries, ...$map[self::SEARCH_EXCLUDE]);
-        
-        //Add all the ors
-        if (!empty($map[self::SEARCH_ADDITIONAL]))
-            $galleries = array_merge($galleries, ...$map[self::SEARCH_ADDITIONAL]);
-
-        //Remove duplicates
-        $galleries = array_unique($galleries);
-
-        //Find all the galleries
-        foreach($galleries as $id) {
-            $results[] = Gallery::findByKey($id)->one();
+        if (count($blacklist) > 0) {
+            $query->andWhere(['id', 'NOT',  Kiss::$app->db()->createQuery()
+                                                                ->select('$tags', [ 'gallery_id' ])
+                                                                ->where([ 'tag_id', $blacklist ])
+                            ]);
         }
-        
-        return $results;
-    }
 
-    private static function _searchParseQuery($query) {
-        $names = [];
-        $tagExcludes = [];
+        //Setup the additional blacklist
+        if ($additionalBlacklist != null) {
+            $adQuery = null;
 
-        foreach(explode(',', $query) as $name) {
-            $nm = strtolower(trim($name));
-            if (empty($nm)) continue;
-            if ($nm[0] == '~') { 
-                $nm = substr($nm, 1);
-                $tagExcludes[$nm] = self::SEARCH_EXCLUDE;
-            } else if ($nm[0] == '|') { 
-                $nm = substr($nm, 1);
-                $tagExcludes[$nm] = self::SEARCH_ADDITIONAL;
+            // if the blacklist is a query, then we will just use that.
+            // Otherwise we need to break it down some more.
+            if ($additionalBlacklist instanceof Query) {
+                $adQuery = $additionalBlacklist;
+            } else if ($additionalBlacklist instanceof User) {
+                $adQuery = $additionalBlacklist->getBlacklist()->fields(['tag_id']);
             } else {
-                $tagExcludes[$nm] = self::SEARCH_REQUIRED;
+                if (!is_array($additionalBlacklist))
+                    throw new InvalidArgumentException('$additionalBlacklist must be either a Query or an array');
+                
+                $adQuery = [];
+                foreach($additionalBlacklist as $tag) {
+                    if ($tag instanceof Tag) {
+                        //Just get the ID directly
+                        $adQuery[] = $tag->getId();
+                    } else {
+                        //We have to search for the id
+                        /** @var Tag $tag */
+                        $tag = Tag::findByName($tag)->one();
+                        if ($tag != null) $adQuery[] = $tag->getId();
+                    }
+                }
             }
-            $names[] = $nm;
+
+            //Finally add it to the query
+            $query->andWhere(['id', 'NOT',  Kiss::$app->db()->createQuery()
+                                    ->select('$tags', [ 'gallery_id' ])
+                                    ->where([ 'tag_id', $adQuery ])
+                            ]);
         }
-        return [ $names, $tagExcludes ];
+
+        //Return the query
+        return $query->orderByDesc('id');
     }
 }

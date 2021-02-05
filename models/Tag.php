@@ -73,6 +73,6 @@ class Tag extends ActiveRecord {
 
     /** @return \kiss\db\ActiveQuery|Tag[] tags with the matching name*/
     public static function findByName($name) {
-        return self::find()->where(['name', Strings::toLowerCase($name) ]);
+        return self::find()->where(['name', Strings::toLowerCase(Strings::trim($name)) ]);
     }
 }
