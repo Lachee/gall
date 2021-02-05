@@ -367,8 +367,8 @@ class Gallery extends ActiveRecord {
         if (count($whitelist) > 0) {
             foreach($whitelist as $tag_id) {
                 $query->andWhere(['id', Kiss::$app->db()->createQuery()
-                                                        ->select('$tags', [ 'gallery_id' ])
-                                                        ->where([ 'tag_id', $tag_id ])
+                                                            ->select('$tags', [ 'gallery_id' ])
+                                                            ->where([ 'tag_id', $tag_id ])
                                 ]);
             }
         }
