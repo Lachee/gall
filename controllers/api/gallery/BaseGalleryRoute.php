@@ -100,6 +100,9 @@ class BaseGalleryRoute extends BaseApiRoute {
                 }
             }
         }
+
+        if (HTTP::get('preview', false, FILTER_VALIDATE_BOOLEAN) == true)
+            return $query->previewStatement();
     
         $results = $query->limit($pageLimit, ($page-1) * $pageLimit)->all();
         if (!$asSelect2) return $results;
