@@ -20,36 +20,6 @@ function transitionPlaceholders(transitionTime = PLACEHOLDER_TRANSITION_TIME) {
     });
 }
 
-/**== Search Box
- * this script handles the search box changing the "search" button to "post" when a URL is present
- */
-document.getElementById('navbar-search').addEventListener('keyup', (event) => {
-    const submitButton = document.querySelector('#navbar-submit span');
-    const submitIcon = document.querySelector('#navbar-submit i');
-    const value = event.target.value;
-    if (validURL(value)) { 
-        submitButton.innerText = 'Post';
-        submitIcon.classList.remove('fa-search');
-        submitIcon.classList.add('fa-plus');
-    }
-    else
-    {
-      submitButton.innerText = 'Search';
-      submitIcon.classList.add('fa-search');
-      submitIcon.classList.remove('fa-plus');
-    }
-
-    function validURL(str) {
-        var pattern = new RegExp('^(https?:\\/\\/)?'+ // protocol
-        '((([a-z\\d]([a-z\\d-]*[a-z\\d])*)\\.)+[a-z]{2,}|'+ // domain name
-        '((\\d{1,3}\\.){3}\\d{1,3}))'+ // OR ip (v4) address
-        '(\\:\\d+)?(\\/[-a-z\\d%_.~+]*)*'+ // port and path
-        '(\\?[;&a-z\\d%_.~+=-]*)?'+ // query string
-        '(\\#[-a-z\\d_]*)?$','i'); // fragment locator
-        return !!pattern.test(str);
-    }
-        
-});
 
 console.log('creating completer');
 const completer = new autoComplete({
@@ -80,4 +50,44 @@ const completer = new autoComplete({
         document.querySelector("#navbar-search").value = parts.join(' ') + ' ';
         document.querySelector("#navbar-search").focus();
     },
+});
+
+
+/**== Search Box
+ * this script handles the search box changing the "search" button to "post" when a URL is present
+ */
+document.getElementById('navbar-search').addEventListener('keyup', (event) => {
+    // Number 13 is the "Enter" key on the keyboard
+    if (event.keyCode === 13) {
+        // Cancel the default action, if needed
+        document.getElementById('navbar-search').form.submit();
+        event.preventDefault();
+        return;
+    }
+    
+    const submitButton = document.querySelector('#navbar-submit span');
+    const submitIcon = document.querySelector('#navbar-submit i');
+    const value = event.target.value;
+    if (validURL(value)) { 
+        submitButton.innerText = 'Post';
+        submitIcon.classList.remove('fa-search');
+        submitIcon.classList.add('fa-plus');
+    }
+    else
+    {
+      submitButton.innerText = 'Search';
+      submitIcon.classList.add('fa-search');
+      submitIcon.classList.remove('fa-plus');
+    }
+
+    function validURL(str) {
+        var pattern = new RegExp('^(https?:\\/\\/)?'+ // protocol
+        '((([a-z\\d]([a-z\\d-]*[a-z\\d])*)\\.)+[a-z]{2,}|'+ // domain name
+        '((\\d{1,3}\\.){3}\\d{1,3}))'+ // OR ip (v4) address
+        '(\\:\\d+)?(\\/[-a-z\\d%_.~+]*)*'+ // port and path
+        '(\\?[;&a-z\\d%_.~+=-]*)?'+ // query string
+        '(\\#[-a-z\\d_]*)?$','i'); // fragment locator
+        return !!pattern.test(str);
+    }
+        
 });
