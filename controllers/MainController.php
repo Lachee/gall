@@ -39,7 +39,7 @@ class MainController extends BaseController {
 
     /** Logs In */
     function actionLogin() {
-        Kiss::$app->session->set('LOGIN_REFERAL', HTTP::referal());
+        Kiss::$app->session->set('LOGIN_REFERRAL', HTTP::referral());
         return GALL::$app->discord->redirect();
     }
 
@@ -89,7 +89,7 @@ class MainController extends BaseController {
             GALL::$app->session->addNotification('Woops, something went wrong while trying to perform that action! ' . (KISS_DEBUG ? $e->getMessage() : ''), 'danger');
         }         
         
-        $referal = Kiss::$app->session->get('LOGIN_REFERAL', HTTP::referal());
+        $referal = Kiss::$app->session->get('LOGIN_REFERRAL', HTTP::referral());
         return Response::redirect($referal ?? [ '/gallery/']);
     }
 }

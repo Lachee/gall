@@ -38,7 +38,7 @@ class BaseController extends Controller {
                     //We failed to get the user for what ever reason, lets abort
                     Kiss::$app->getUser()->logout(); 
                     Kiss::$app->session->addNotification('Failed to validate the Discord authentication.', 'danger');
-                    $referal = Kiss::$app->session->get('LOGIN_REFERAL', HTTP::referal());
+                    $referal = Kiss::$app->session->get('LOGIN_REFERRAL', HTTP::referral());
                     return Kiss::$app->respond(Response::redirect($referal));
                 }
             }
@@ -46,7 +46,7 @@ class BaseController extends Controller {
     
         if (!$this->authorize($endpoint))
             throw new HttpException(self::LOGIN_ERROR_CODE, 'You need to be logged in to do that.');
-        
+
         // Unless we are the main controller, we have to be whitelisted
         //if (!($this instanceof MainController)) {            
         //if (Kiss::$app->loggedIn()) {

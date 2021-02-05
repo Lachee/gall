@@ -258,18 +258,18 @@ class HTTP {
     }
 
     /** Sets teh referal information */
-    public static function setReferal($referal = null) {
+    public static function setReferral($referal = null) {
         
         if (Kiss::$app->session != null) {
-            self::$_REFERAL = $referal ?? Kiss::$app->session->get('REFERAL', HTTP::header('Referer', null));
-            Kiss::$app->session->set('REFERAL', HTTP::route());
+            self::$_REFERAL = $referal ?? Kiss::$app->session->get('REFERRAL', HTTP::header('Referer', null));
+            Kiss::$app->session->set('REFERRAL', HTTP::route());
         } else {
             self::$_REFERAL = $referal ?? HTTP::header('Referer', null);
         }
     }
 
     /** @return string gets the page that refered us. */
-    public static function referal() {
+    public static function referral() {
         return self::$_REFERAL;
     }
 
