@@ -6,6 +6,7 @@ use kiss\exception\HttpException;
 use kiss\helpers\Arrays;
 use kiss\helpers\HTTP;
 use kiss\helpers\Response;
+use kiss\helpers\Strings;
 use kiss\router\Route;
 use kiss\router\RouteFactory;
 
@@ -36,8 +37,15 @@ class TagRoute extends BaseApiRoute {
 
         if ($pageLimit > self::MAX_PAGE_SIZE)
             throw new HttpException(HTTP::BAD_REQUEST, "Cannot request more than " . self::MAX_PAGE_SIZE . " items");
+            
+        $query = Tag::find()->orderByDesc('cnt');
+        $terms = explode(' ', $term);
+        foreach($terms as $t) {
+            $t = Strings::trimStart($t, '- ');
+            $query->orWhere([ 'name', 'like', "%{$t}%"]);
+        }
 
-        $query = Tag::find()->where([ 'name', 'like', "%{$term}%"])->limit($pageLimit, ($page-1) * $pageLimit);
+        $query->limit($pageLimit, ($page-1) * $pageLimit);
         if (!$includeAlias) $query->andWhere(['alias_id', null]);
         
         $results = $query->all(true);

@@ -1,3 +1,5 @@
+import autoComplete from '@tarekraafat/autocomplete.js/dist/js/autoComplete';
+import '@tarekraafat/autocomplete.js/dist/css/autocomplete.css';
 
 console.log('Initializing Global');
 
@@ -50,4 +52,35 @@ document.getElementById('navbar-search').addEventListener('keyup', (event) => {
         return !!pattern.test(str);
     }
         
+});
+
+console.log('creating completer');
+const completer = new autoComplete({
+    data: { 
+        src: async() => {
+            const query = document.querySelector("#navbar-search").value;
+            const source = await fetch('/api/tags?limit=5&q=' + encodeURIComponent(query));
+            const json = await source.json();
+            const tags = json.data.map(d => d.name);
+            return tags;
+        } 
+    },
+    selector: '#navbar-search',
+    trigger: {
+        event: ["input"],
+    },
+    searchEngine: (query, record) => {
+        const parts = query.split(' ');
+        let value = parts[parts.length - 1].toLowerCase();
+        if (value.startsWith('-')) record = '-' + record;
+        const compr = record.toLowerCase();
+        if (value.includes(compr) || compr.includes(value))
+            return record;
+    },
+    onSelection: (feedback) => {
+        const parts = document.querySelector("#navbar-search").value.split(' ');
+        parts[parts.length - 1] = feedback.selection.match;
+        document.querySelector("#navbar-search").value = parts.join(' ') + ' ';
+        document.querySelector("#navbar-search").focus();
+    },
 });
