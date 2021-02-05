@@ -85,7 +85,10 @@ img.lg-thumbnail {
 
 /** Custom Viewer Buttons */
 .viewer-toolbar {
-    .viewer-visit-page {
+    .viewer-visit-page::before {  content: "\f3bf"; }
+    .viewer-favourite::before {  content: "\f06d"; }
+
+    .viewer-visit-page, .viewer-favourite {
         font-family: 'Font Awesome 5 Pro';
         font-weight: 900;
 
@@ -101,9 +104,5 @@ img.lg-thumbnail {
         text-align: center;
 
         color: white;
-
-        &::before{ 
-            content: "\f3bf";
-        }
     }
 }

@@ -52,8 +52,17 @@ $(document).ready(async () => {
                     const index = viewer.index;
                     const $img = $(`#grid-img-${index}`);
                     const id = $img.attr('data-gallery');
-                    console.log($img);
                     window.location = `/gallery/${id}/`; 
+                },
+            },
+            favourite: {
+                show: true,
+                size: 64,
+                click: async (e) => { 
+                    const index = viewer.index;
+                    const $img = $(`#grid-img-${index}`);
+                    const id = $img.attr('data-gallery');
+                    await api.favourite(id);    //TODO: Improve this to give feedback that it did something
                 },
             }
         },
