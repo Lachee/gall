@@ -13,14 +13,14 @@ use kiss\router\RouteFactory;
 class TagRoute extends BaseApiRoute {
 
     const DEFAULT_PAGE_SIZE = 10;
-    const MAX_PAGE_SIZE = 150;
+    const MAX_PAGE_SIZE = 20;
 
     //We are going to return our routing. Any segment that starts with : is a property.
     // Note that more explicit routes get higher priority. So /example/apple will take priority over /example/:fish
     protected static function route() { return "/tags"; }
 
     /** @inheritdoc */
-    protected function scopes() { return [ 'jwt:src:user' ]; } 
+    protected function scopes() { return null; } 
 
     //HTTP GET on the route. Return an object and it will be sent back as JSON to the client.
     // Throw an exception to send exceptions back.
