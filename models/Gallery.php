@@ -365,10 +365,12 @@ class Gallery extends ActiveRecord {
         //Create the query
         $query  = self::find()->orderByDesc('id');
         if (count($whitelist) > 0) {
-            $query->andWhere(['id', Kiss::$app->db()->createQuery()
+            foreach($whitelist as $tag_id) {
+                $query->andWhere(['id', Kiss::$app->db()->createQuery()
                                                         ->select('$tags', [ 'gallery_id' ])
-                                                        ->where([ 'tag_id', $whitelist ])
-                            ]);
+                                                        ->where([ 'tag_id', $tag_id ])
+                                ]);
+            }
         }
 
         if (count($blacklist) > 0) {
