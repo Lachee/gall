@@ -8,10 +8,14 @@ const api = app.api;
 
 $(document).ready(async () => {
 
+    let currentIndex;
+    let currentCount = 0;
+
     //Prepare the grid container
     const incapsulateLink = false;
     const container = document.getElementById('grid');
     const $container = $(container);
+    
 
     //Prepare the Bricks.js instance. This handles the masonry for us,
     const sizes = [
@@ -28,6 +32,31 @@ $(document).ready(async () => {
 
     const viewer = new Viewer(container, {
         container: document.getElementById('grid-viewer'),
+        toolbar: {
+            zoomIn: 4,
+            zoomOut: 4,
+            oneToOne: 4,
+            reset: 4,
+            prev: 4,
+            play: {
+              show: 4,
+              size: 'large',
+            },
+            next: 4,
+            rotateLeft: 4,
+            rotateRight: 4,
+            visitPage: {
+                show: true,
+                size: 64,
+                click: (e) => { 
+                    const index = viewer.index;
+                    const $img = $(`#grid-img-${index}`);
+                    const id = $img.attr('data-gallery');
+                    console.log($img);
+                    window.location = `/gallery/${id}/`; 
+                },
+            }
+        },
         url: function(image) {
             const url = image.getAttribute('data-src');
             console.log(image, url);
@@ -65,6 +94,8 @@ $(document).ready(async () => {
             const $img = $('<img>').attr('src', thumbnail_url);
             $img.addClass('grid-image');
             $img.attr('data-src', image_url);
+            $img.attr('data-gallery', gallery.id);
+            $img.attr('id', 'grid-img-' + (currentCount++));
 
             imageLoadPromises.push(
                 new Promise((resolve, reject) => {
@@ -112,6 +143,7 @@ $(document).ready(async () => {
 
     container.addEventListener('viewed', async (e) => { 
         console.log('viewed', e, viewer);
+        currentIndex = e.detail.index;
         if (e.detail.index == viewer.length-1) {
             console.log('Load Next Page');
             await loadPage(++page);
