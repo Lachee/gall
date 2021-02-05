@@ -17,6 +17,10 @@ use kiss\schema\IntegerProperty;
 use kiss\schema\RefProperty;
 use kiss\schema\StringProperty;
 
+/**
+ * @property User $founder
+ * @package app\models
+ */
 class Gallery extends ActiveRecord {
     protected $id;
     protected $identifier;
@@ -180,8 +184,8 @@ class Gallery extends ActiveRecord {
         self::find()->increment([ 'views' ])->where([ 'id', $this ])->execute();
 
         if ($this->views % 1000 == 0) {
-            //TODO: Award 1000K View points
-            // but make sure its atomic
+            //TODO: Make sure this is atomic
+            $this->founder->giveSparkles('SCORE_VIEWS_1000', '', $this, Kiss::$app->getUser());
         }
     }
     /** Gets the number of views */
@@ -196,11 +200,16 @@ class Gallery extends ActiveRecord {
     public function addTag($tag, $founder = null) {
         //if (!($tag instanceof Tag)) throw new ArgumentException('$tag must be of type Tag');
         try {
+            $tag_id = $tag instanceof Tag ? $tag->getId() : $tag;
             Kiss::$app->db()->createQuery()->insert([
-                'tag_id'        => $tag instanceof Tag ? $tag->getId() : $tag,
+                'tag_id'        => $tag_id,
                 'gallery_id'    => $this->getKey(),
                 'founder_id'    => $founder == null ? null : $founder->getKey(),
             ], '$tags' )->execute();
+
+            if ($founder != null)
+                $founder->giveSparkles('SCORE_TAG', '', $this, $tag_id);
+            
             return true;
         } catch(SQLDuplicateException $dupeException) { return true; }
     }

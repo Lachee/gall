@@ -4,6 +4,7 @@ use Exception;
 use kiss\models\Identity;
 use GALL;
 use kiss\db\ActiveQuery;
+use kiss\db\ActiveRecord;
 use kiss\db\Query;
 use kiss\exception\ArgumentException;
 use kiss\exception\NotYetImplementedException;
@@ -11,6 +12,7 @@ use kiss\exception\SQLDuplicateException;
 use kiss\exception\SQLException;
 use kiss\helpers\Arrays;
 use kiss\helpers\HTTP;
+use kiss\helpers\Strings;
 use kiss\Kiss;
 use kiss\schema\IntegerProperty;
 use kiss\schema\RefProperty;
@@ -268,7 +270,8 @@ class User extends Identity {
                             ], '$reaction')->execute();
         } catch(SQLDuplicateException $dupeException) { return $this; }
 
-        //TODO: Award for reaction and reacting
+        //Award the original author
+        $gallery->founder->giveSparkles('SCORE_REACTION', '', $gallery, $this->getKey() . ',' , $emote->getKey());
 
         //Apply Autotag
         $tagged = [];
@@ -286,8 +289,6 @@ class User extends Identity {
             Kiss::$app->db()->rollBack();
             throw $e;
         }
-
-        //TODO: Award for auto-tagging
 
         return $this;
     }
@@ -315,11 +316,37 @@ class User extends Identity {
         return $this->id == Kiss::$app->user->id;
     }
 
-    public function giveSparkles() { 
-        throw new NotYetImplementedException();
+    /** Gives the user a specific amount of sparkles */
+    public function giveSparkles($sparkles, $type = 'MISC', $gallery = null, $resource = null) { 
+        if ($sparkles instanceof Sparkle) {
+            $sparkles->user_id = $this->id;
+            $sparkles->save();
+            return $sparkles;
+        }
+
+        if (is_string($sparkles) && Strings::startsWith($sparkles, 'SCORE_')) {
+            $class = new \ReflectionClass(Sparkle::class);
+            $value = $class->getConstant(strtoupper($sparkles));
+            if ($value !== false) {
+                $type       = strtoupper($sparkles);
+                $sparkles   = $value;
+            }
+        }
+
+        $spark = new Sparkle([
+            'user_id' => $this->id,
+            'type'      => $type,
+            'score'     => $sparkles,
+            'gallery_id'    => $gallery instanceof ActiveRecord ? $gallery->getKey() : $gallery,
+            'resource'  => $resource instanceof ActiveRecord ? $resource->getKey() : $resource,
+        ]);
+        $spark->save();
+        return $spark;
     }
+
     /** @return int number of sparkles the user has */
     public function getSparkles() { return $this->score; }
+
     /** Recomputes the number of sparkles the user has. 
      * @return int number of sparkles */
     public function recalculateSparkles() {
