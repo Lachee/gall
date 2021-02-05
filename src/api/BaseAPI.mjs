@@ -50,7 +50,18 @@ export class BaseAPI {
         return new Gallery(this, result[Object.keys(result)[0]]);
     }
     async findGalleries(query, page = 1, limit = 1) {
-        const results = await this.fetch('GET', '/gallery?q=' + encodeURIComponent(query) + '&page=' + page + '&limit=' + limit);
+
+        //Turn the query string into an object
+        if (typeof query === 'string') {
+            query = {  q: query };
+        }
+
+        //Set the page and limit
+        query.page = page;
+        query.limit = limit;
+
+        //Build and request
+        const results = await this.fetch('GET', '/gallery?' + this.buildQuery(query));
         return results.map(data => new Gallery(this, data));
     }
     async getGallery(id) {
@@ -165,4 +176,25 @@ export class BaseAPI {
         console.log(method, endpoint, data, body, json);
         return json.data;
     }
+
+    buildQuery(data) {
+
+        // If the data is already a string, return it as-is
+        if (typeof (data) === 'string') return data;
+    
+        // Create a query array to hold the key/value pairs
+        var query = [];
+    
+        // Loop through the data object
+        for (var key in data) {
+            if (data.hasOwnProperty(key)) {
+    
+                // Encode each key and value, concatenate them into a string, and push them to the array
+                query.push(encodeURIComponent(key) + '=' + encodeURIComponent(data[key]));
+            }
+        }
+    
+        // Join each item in the array with a `&` and return the resulting string
+        return query.join('&');
+    };
 }

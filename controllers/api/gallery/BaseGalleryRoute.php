@@ -3,6 +3,7 @@
 use app\models\Gallery;
 use app\models\Guild;
 use app\models\ScrapeData;
+use app\models\Tag;
 use app\models\User;
 use GALL;
 use kiss\controllers\api\ApiRoute;
@@ -11,6 +12,7 @@ use kiss\exception\NotYetImplementedException;
 use kiss\helpers\Arrays;
 use kiss\helpers\HTTP;
 use kiss\helpers\Response;
+use kiss\helpers\Strings;
 use kiss\Kiss;
 use kiss\models\BaseObject;
 use kiss\router\Route;
@@ -28,7 +30,7 @@ class BaseGalleryRoute extends BaseApiRoute {
     /** @inheritdoc */
     public function scopes() {
         switch(HTTP::method()) {
-            default:            return [ 'ctrl:allow_users', 'gallery.search' ];
+            default:            return null; //[ 'ctrl:allow_users', 'gallery.search' ];
             case HTTP::POST:    return [ 'gallery.publish' ];
         }
     }
@@ -39,6 +41,7 @@ class BaseGalleryRoute extends BaseApiRoute {
         $page           = intval(HTTP::get('page', 1));
         $pageLimit      = HTTP::get('limit', self::DEFAULT_PAGE_SIZE);
         $asSelect2      = HTTP::get('select2', false, FILTER_VALIDATE_BOOLEAN);
+        $tags           = explode(',', HTTP::get('tags', HTTP::get('t', '')));
 
         //They probably actually meant page 1
         if ($page == 0)  $page = 1;
@@ -46,16 +49,56 @@ class BaseGalleryRoute extends BaseApiRoute {
         if ($pageLimit > self::MAX_PAGE_SIZE)
             throw new HttpException(HTTP::BAD_REQUEST, "Cannot request more than " . self::MAX_PAGE_SIZE . " items");
 
-        $query = Gallery::find();
-        if ($id === false) {
+        $query = Gallery::find()->orderByDesc('id');
+        if ($id !== false) {   
+            $query = $query->where(['id', $id]);
+        } else {
             if (!empty($term)) {
                 $query = $query->where([ 'title', 'like', "%{$term}%"])
                                             ->orWhere(['channel_snowflake', $term])
                                             ->orWhere(['message_snowflake', $term])
                                             ->orWhere([ 'description', 'like', "%{$term}%"]);
             }
-        } else {
-            $query = $query->where(['id', $id]);
+
+            if (!empty($tags) && count($tags) > 0 && !empty($tags[0])) {
+
+                //Build a list of valid IDS
+                $whitelist = [];
+                $blacklist = [];
+                foreach($tags as $name) {
+
+                    //Check if its blacklist
+                    $isBlacklist = false;
+                    if (Strings::startsWith($name, '-')) {
+                        $name = substr($name, 1);
+                        $isBlacklist = true;
+                    }
+
+                    //Get tag
+                    $tag = Tag::findByName($name)->one();
+                    if ($tag != null) {
+                        if ($isBlacklist) $blacklist[] = $tag->getId();
+                        else              $whitelist[] = $tag->getId();
+                    }
+                }
+
+                //Add the queries
+                if (count($whitelist) > 0) {
+                    $whitelistQuery = Kiss::$app->db()->createQuery()
+                                                ->select('$tags', [ 'gallery_id' ])
+                                                ->where([ 'tag_id', $whitelist ]);
+
+                    $query = $query->andWhere(['id', $whitelistQuery]);
+                }
+
+                if (count($blacklist) > 0) {
+                    $blacklistQuery = Kiss::$app->db()->createQuery()
+                                                ->select('$tags', [ 'gallery_id' ])
+                                                ->where([ 'tag_id', $blacklist ]);
+                                                
+                    $query = $query->andWhere(['id', 'NOT', $blacklistQuery]);
+                }
+            }
         }
     
         $results = $query->limit($pageLimit, ($page-1) * $pageLimit)->all();

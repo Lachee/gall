@@ -43,8 +43,11 @@ $(document).ready(async () => {
         
         const limit = 5;
 
+        const urlParams = new URLSearchParams(window.location.search);
+        const terms = urlParams.get('q');
+
         //Fetch the next page of galleries. if we got none then we will tell the caller there is none left.
-        let galleries = await api.findGalleries('', page, limit);
+        let galleries = await api.findGalleries({ tags: terms }, page, limit);
         if (galleries.length == 0) { 
             console.warn('no more images, aborting load');
             return false;
