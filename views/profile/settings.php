@@ -43,5 +43,24 @@ $form->fastForm($rules);
             <div class="control"><a href="<?= HTTP::url(['settings', 'regen' => true]) ?>" class="button" type="submit">Regenerate</a></div>
         </div>
         <p class="help">Used to access the API</p>
+    </div>    
+    <hr>
+    <div class="field ">
+        <label class="label">Sparkle History</label>
+        <table class="table">
+            <tr>
+                <th>Event</th>
+                <th>Gallery</th>
+                <th>Score</th>
+            </tr>
+            <?php foreach($sparkles as $sparkle): ?>
+            <tr>
+                <td><?= $sparkle->type ?></td>
+                <td><a href="<?= HTTP::url(['/gallery/:id/', 'id' => $sparkle->gallery_id]) ?>"><?= HTTP::url(['/gallery/:id/', 'id' => $sparkle->gallery_id]) ?></a></td>
+                <td><?= $sparkle->score ?></td>
+            </tr>
+            <?php endforeach; ?>
+        </table>
     </div>
 </form>
+

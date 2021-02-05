@@ -117,6 +117,7 @@ class ProfileController extends BaseController {
             'profile'       => $this->profile,
             'model'         => $form,
             'key'           => $this->api_key = $this->profile->apiToken([ 'scopes' => $scopes ]),
+            'sparkles'      => $this->profile->getSparkleHistory()->limit(50)->all(),
             'fullwidth'     => false,
         ]);
     }

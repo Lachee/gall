@@ -433,6 +433,11 @@ class User extends Identity {
     /** @return int number of sparkles the user has */
     public function getSparkles() { return $this->score; }
 
+    /** @return ActiveQuery|Sparkle[] history of sparkles. */
+    public function getSparkleHistory() {
+        return Sparkle::find()->where(['user_id', $this ])->orderByDesc('id');
+    }
+
     /** Recomputes the number of sparkles the user has. 
      * @return int number of sparkles */
     public function recalculateSparkles() {
