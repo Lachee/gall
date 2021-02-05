@@ -247,9 +247,12 @@ class ScrapeData extends BaseObject {
             $cover = null;
         }
 
-
         //Force the gallery to update its tags
         $gallery->updateTags();
+
+        //Award points
+        $gallery->founder->giveSparkles('SCORE_POSTED', $gallery);
+        if (count($tags) == 0) $gallery->founder->giveSparkles('SCORE_NO_TAGS', $gallery);
 
         //Update the user's new pin
         //$publisher->profileImage = $cover ?: $lastUploadedImage;

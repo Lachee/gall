@@ -7,6 +7,7 @@ use kiss\db\ActiveQuery;
 use kiss\db\ActiveRecord;
 use kiss\db\Query;
 use kiss\exception\ArgumentException;
+use kiss\exception\InvalidOperationException;
 use kiss\exception\NotYetImplementedException;
 use kiss\exception\SQLDuplicateException;
 use kiss\exception\SQLException;
@@ -160,8 +161,15 @@ class User extends Identity {
     public function addFavourite($gallery) {
         $galleryid = $gallery instanceof Gallery ? $gallery->getKey() : intval($gallery);
         $favourite = new Favourite([ 'gallery_id' => $galleryid, 'user_id' => $this->getKey() ]);
-        if ($favourite->save()) return $favourite;
-        return false;
+        if (!$favourite->save()) return false;
+
+        //Award the points if not a self fav
+        if ($gallery->founder_id != $this->id) {
+            $gallery->founder->giveSparkles('SCORE_FAVOURITED', $gallery, $this->getKey());
+            $this->giveSparkles('SCORE_FAVOURITE', $gallery);
+        }
+
+        return $favourite;
     }
 
     /** Removes the gallery from the user's favourites
@@ -171,6 +179,13 @@ class User extends Identity {
     public function removeFavourite($gallery) {
         $favourite = Favourite::findByProfile($this)->andWhere(['gallery_id', $gallery])->one();
         if ($favourite == null) return false;
+        
+        //Unaward the points
+        if ($gallery->founder_id != $this->id) {
+            $gallery->founder->takeSparkles('SCORE_FAVOURITED', $gallery, $this->getKey());
+            $this->takeSparkles('SCORE_FAVOURITE', $gallery);
+        }
+
         return $favourite->delete();
     }
 
@@ -271,7 +286,7 @@ class User extends Identity {
         } catch(SQLDuplicateException $dupeException) { return $this; }
 
         //Award the original author
-        $gallery->founder->giveSparkles('SCORE_REACTION', '', $gallery, $this->getKey() . ',' , $emote->getKey());
+        $gallery->founder->giveSparkles('SCORE_REACTION', $gallery, $this->getKey() . ',' . $emote->getKey());
 
         //Apply Autotag
         $tagged = [];
@@ -305,7 +320,8 @@ class User extends Identity {
                                     ->andWhere(['emote_id', $emote->getKey()])
                                     ->execute();
 
-        //TODO: Undo award for reaction and reacting
+        //Remove the sparkles given for adding a reaction
+        $gallery->founder->takeSparkles('SCORE_REACTION', $gallery, $this->getKey() . ',' . $emote->getKey());
         return $this;
     }
 #endregion
@@ -316,10 +332,18 @@ class User extends Identity {
         return $this->id == Kiss::$app->user->id;
     }
 
-    /** Gives the user a specific amount of sparkles */
-    public function giveSparkles($sparkles, $type = 'MISC', $gallery = null, $resource = null) { 
+    /** Gives the user a specific amount of sparkles 
+     * @param Sparkle|string|int $sparkles the sparkles to give. If a Sparkle object, then just that record will be used. If a string, then it will look up that constant name.
+     * @param Gallery|null $gallery the gallery the sparkles originate from
+     * @param string|null $resource the extra key data to distinguish records.
+     * @param string $type the score type. This will be ignored if the $sparkles is a string
+     * @return Sparkle
+    */
+    public function giveSparkles($sparkles, $gallery = null, $resource = null, $type = 'SCORE_UNKOWN') { 
         if ($sparkles instanceof Sparkle) {
-            $sparkles->user_id = $this->id;
+            $sparkles->markNewRecord();
+            $sparkles->id       = null;
+            $sparkles->user_id  = $this->id;
             $sparkles->save();
             return $sparkles;
         }
@@ -328,7 +352,7 @@ class User extends Identity {
             $class = new \ReflectionClass(Sparkle::class);
             $value = $class->getConstant(strtoupper($sparkles));
             if ($value !== false) {
-                $type       = strtoupper($sparkles);
+                $type       = substr(strtoupper($sparkles), 6);
                 $sparkles   = $value;
             }
         }
@@ -342,6 +366,35 @@ class User extends Identity {
         ]);
         $spark->save();
         return $spark;
+    }
+
+    
+    /** Creates a new record that is the negative of the sparkles previously given
+     * @param string $type the score type. This will be ignored if the $sparkles is a string
+     * @param Gallery|null $gallery the gallery the sparkles originate from
+     * @param string|null $resource the extra key data to distinguish records.
+     * @return Sparkle
+    */
+    public function takeSparkles($type, $gallery = null, $resource = null) { 
+
+        //Remove the SCORE_ prefix
+        if (Strings::startsWith($type, 'SCORE_')) {
+            $type = substr(strtoupper($type), 6);
+        }
+
+        //Get existing sparkle
+        $query = Sparkle::find()->where(['user_id', $this->id ])->andWhere(['type', $type])->orderByDesc('id');
+        if ($gallery != null) $query->andWhere(['gallery_id', $gallery]);
+        if ($resource != null) $query->andWhere(['resource', $resource]);
+        $sparkle = $query->one();;
+
+        if ($sparkle == null)
+            throw new InvalidOperationException('Sparkle was null');
+        
+        //Inverse
+        $sparkle->score *= -1;
+        $sparkle->type = 'UN' . $sparkle->type;
+        return $this->giveSparkles($sparkle);
     }
 
     /** @return int number of sparkles the user has */

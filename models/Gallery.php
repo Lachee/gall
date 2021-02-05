@@ -185,7 +185,7 @@ class Gallery extends ActiveRecord {
 
         if ($this->views % 1000 == 0) {
             //TODO: Make sure this is atomic
-            $this->founder->giveSparkles('SCORE_VIEWS_1000', '', $this, Kiss::$app->getUser());
+            $this->founder->giveSparkles('SCORE_VIEWS_1000', $this, Kiss::$app->getUser());
         }
     }
     /** Gets the number of views */
@@ -208,7 +208,7 @@ class Gallery extends ActiveRecord {
             ], '$tags' )->execute();
 
             if ($founder != null)
-                $founder->giveSparkles('SCORE_TAG', '', $this, $tag_id);
+                $founder->giveSparkles('SCORE_TAG', $this, $tag_id);
             
             return true;
         } catch(SQLDuplicateException $dupeException) { return true; }

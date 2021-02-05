@@ -53,6 +53,11 @@ class ActiveRecord extends BaseObject{
      */
     public function isNewRecord() { return $this->_newRecord; }
 
+    /**
+     * Marks this record as new
+     * @return $this 
+     */
+    public function markNewRecord() { $this->_newRecord = true; return $this; }
     
     /** Checks if hte record is dirty.
      * @return boolean true if it is dirty.
@@ -262,7 +267,7 @@ class ActiveRecord extends BaseObject{
         }
 
         //Set everythign as dirty
-        $this->_newRecord = true;
+        $this->markNewRecord();
 
         //Clear the table keys
         $tableKeys = get_called_class()::tableKey();
