@@ -1,6 +1,3 @@
-import autoComplete from '@tarekraafat/autocomplete.js/dist/js/autoComplete';
-import '@tarekraafat/autocomplete.js/dist/css/autocomplete.css';
-
 console.log('Initializing Global');
 
 /**== Navigation Script
