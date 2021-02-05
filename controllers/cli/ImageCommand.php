@@ -5,6 +5,9 @@ use GALL;
 use kiss\controllers\cli\Command;
 
 class ImageCommand extends Command {
+
+    const UPLOAD_URL = 'https://gall.awoo.rocks/upload.php';
+
     public function cmdDelete() {
         /** @var Image[] $images */
         $images = Image::find()
@@ -68,7 +71,7 @@ class ImageCommand extends Command {
                 $data = $image->downloadOriginData();
                 self::print("+ Downloaded");
 
-                $response = $guzzle->request('POST', 'https://awoo.rocks/gall/upload.php', [
+                $response = $guzzle->request('POST', self::UPLOAD_URL, [
                     'multipart' => [
                         [
                             'name'      => 'key',
