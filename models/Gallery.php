@@ -340,7 +340,7 @@ class Gallery extends ActiveRecord {
         
         //Cleanup the tags
         if (!is_array($tags)) {
-            $tags = explode(',', $tags);
+            $tags = preg_split('/,|\s/', $tags);
         }
 
         //Build a list of valid IDS

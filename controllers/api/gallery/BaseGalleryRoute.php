@@ -41,7 +41,7 @@ class BaseGalleryRoute extends BaseApiRoute {
         $page           = intval(HTTP::get('page', 1));
         $pageLimit      = HTTP::get('limit', self::DEFAULT_PAGE_SIZE);
         $asSelect2      = HTTP::get('select2', false, FILTER_VALIDATE_BOOLEAN);
-        $tags           = explode(',', HTTP::get('tags', HTTP::get('t', '')));
+        $tags           = HTTP::get('tags', HTTP::get('t', ''));
 
         //They probably actually meant page 1
         if ($page == 0)  $page = 1;
@@ -58,7 +58,7 @@ class BaseGalleryRoute extends BaseApiRoute {
         } else {
 
             //General searching
-            if (!empty($tags) && count($tags) > 0 && !empty($tags[0])) {
+            if (!empty($tags)) {
                 $query = Gallery::search($tags, $this->actingUser);
             } else {
                 $query = Gallery::search('*', $this->actingUser);
