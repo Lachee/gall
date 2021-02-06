@@ -2,9 +2,31 @@ import Bricks from 'bricks.js';
 
 import 'viewerjs/dist/viewer.css';
 import Viewer from 'viewerjs';
+import {delegate} from 'tippy.js';
 
 /** @var {./src/api/BaseAPI} api */
 const api = app.api;
+const gallery_cache = {};
+
+delegate('#grid', {
+    target: '.grid-image-container > img',
+    allowHTML: true,
+    multiple: true,
+    interactive: true,
+
+    content: (reference) => {
+        const gallery_id = reference.getAttribute('data-gallery');
+        const gallery = gallery_cache[gallery_id];
+        if (!gallery) return 'No Author';
+        
+        return `<div class="profile-hint">
+                    <img class="avatar" src="${gallery.founder.getAvatarUrl()}" alt="Avatar Picture"> 
+                    <span><a href="/profile/${gallery.founder.profileName || gallery.founder.snowflake}/">Lachee</a></span>
+                </div>`;
+    },
+    appendTo: 'parent',
+});
+
 
 $(document).ready(async () => {
 
@@ -68,7 +90,7 @@ $(document).ready(async () => {
         },
         url: function(image) {
             const url = image.getAttribute('data-src');
-            console.log(image, url);
+            //console.log(image, url);
             return url || 'https://placekitten.com/1028/1028'; //image.getAttribute('data-src');
         },
     });
@@ -94,7 +116,11 @@ $(document).ready(async () => {
         //Reload everything
         let imageLoadPromises = [];
         for(let i in galleries) {
+
+            //Load the gallery and store it in the cache
             const gallery = galleries[i];
+            gallery_cache[gallery.id] = gallery;
+
             //const image_url = gallery.cover.getUrl();
             const image_url = gallery.cover.getUrl();
             const thumbnail_url = gallery.cover.getThumbnail();
@@ -109,7 +135,6 @@ $(document).ready(async () => {
             imageLoadPromises.push(
                 new Promise((resolve, reject) => {
                     $img.one('load', () => {
-                        console.log('image loaded', image_url); 
                         pack();
                         resolve();
                     });

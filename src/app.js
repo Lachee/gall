@@ -1,5 +1,9 @@
 import './app.scss';
 
+import tippy from 'tippy.js';
+import 'tippy.js/dist/tippy.css'; // optional for styling
+import 'tippy.js/themes/light.css';
+
 //Get the route and remove the first element
 export let view;
 export let action;

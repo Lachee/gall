@@ -106,3 +106,20 @@ img.lg-thumbnail {
         color: white;
     }
 }
+
+/** Image Tooltips */
+.tippy-box .tippy-content {
+    .profile-hint {
+        img, span {
+            display: inline-block;
+            vertical-align: middle;
+            font-size: 13pt;
+            margin-right: 0.5em;
+        }
+        a {
+            color: white;
+            &:hover { color: #3273dc; }
+        }
+    }
+}
+

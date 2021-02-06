@@ -33,6 +33,17 @@ export class User extends APIObject{
         this.profileImage = data.profileImage ? new Image(api, data.profileImage) : null;
     }
 
+    /** Gets the user's avatar */
+    getAvatarUrl(size = 64) {
+        ///api/proxy?url=https%3A%2F%2Fd.lu.je%2Favatar%2F130973321683533824%3Fsize%3D64
+        return `https://d.lu.je/avatar/${this.snowflake}?size=${size}`;
+    }
+
+    /** Gets the user's avatar in a proxied way */
+    getProxiedAvatarUrl(size = 64) {
+
+        return '/api/proxy?url=' + encodeURIComponent(this.getAvatarUrl(size));
+    }
 }
 
 export class Gallery extends APIObject{

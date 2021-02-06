@@ -14,6 +14,7 @@ use kiss\Kiss;
     }
 </style>
 
+
 <h1>Browse</h1>
 <div id="grid" class="grid" style="width: 75%">
 </div>
@@ -22,6 +23,8 @@ use kiss\Kiss;
 
 <div id="grid-viewer">
 </div>
+
+<button id="test" class="button">Tool Tip</button>
 
 <!--
 <div class="grid">
