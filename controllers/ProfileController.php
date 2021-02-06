@@ -3,6 +3,7 @@
 use app\components\mixer\Mixer;
 use app\models\forms\ProfileSettingForm;
 use app\models\Gallery;
+use app\models\Sparkle;
 use kiss\exception\HttpException;
 use kiss\helpers\HTTP;
 use kiss\helpers\Response;
@@ -47,8 +48,9 @@ class ProfileController extends BaseController {
 
     /** Displays the sparkle stuff */
     function actionSparkles() {
+        Sparkle::migrate();
         $this->profile->recalculateSparkles();
-        return $this->actionIndex();
+        return Response::redirect(['/profile/:profileName', 'profileName' => $this->profile->profileName]);
     }
 
     function actionIndex() {

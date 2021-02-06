@@ -398,7 +398,7 @@ class User extends Identity {
         $spark = new Sparkle([
             'user_id' => $this->id,
             'type'      => $type,
-            'score'     => $sparkles,
+            'score'     => ceil($sparkles),
             'gallery_id'    => $gallery instanceof ActiveRecord ? $gallery->getKey() : $gallery,
             'resource'  => $resource instanceof ActiveRecord ? $resource->getKey() : $resource,
         ]);
