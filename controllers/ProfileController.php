@@ -39,7 +39,7 @@ class ProfileController extends BaseController {
             throw new HttpException(HTTP::UNAUTHORIZED, 'Need to be logged in to see your own profile.');
 
         //Record a browse
-        if ($this->profile->id !== GALL::$app->user->id) 
+        if (GALL::$app->loggedIn() && $this->profile->id !== GALL::$app->user->id) 
             $this->profile->recordViewage();
 
         parent::action($endpoint, ...$args);
