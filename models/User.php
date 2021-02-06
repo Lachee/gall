@@ -406,7 +406,7 @@ class User extends Identity {
      * @param string $type the score type. This will be ignored if the $sparkles is a string
      * @param Gallery|null $gallery the gallery the sparkles originate from
      * @param string|null $resource the extra key data to distinguish records.
-     * @return Sparkle
+     * @return Sparkle|false returns the new sparkle negative point item, otherwise null.
     */
     public function takeSparkles($type, $gallery = null, $resource = null) { 
 
@@ -422,8 +422,8 @@ class User extends Identity {
         $sparkle = $query->one();;
 
         if ($sparkle == null)
-            throw new InvalidOperationException('Sparkle was null');
-        
+            return false;
+
         //Inverse
         $sparkle->score *= -1;
         $sparkle->type = 'UN' . $sparkle->type;
