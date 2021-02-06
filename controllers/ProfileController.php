@@ -45,6 +45,12 @@ class ProfileController extends BaseController {
         parent::action($endpoint, ...$args);
     }
 
+    /** Displays the sparkle stuff */
+    function actionSparkles() {
+        $this->profile->recalculateSparkles();
+        return $this->actionIndex();
+    }
+
     function actionIndex() {
         /** @var User $profile */
         $profile = $this->profile;
