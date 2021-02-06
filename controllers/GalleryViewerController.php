@@ -80,6 +80,19 @@ class GalleryViewerController extends BaseController {
         }
     }
 
+    function actionDelete() {
+        $gallery    = $this->gallery;
+        $user       = GALL::$app->user;
+        if ($user == null || ($user->snowflake != '130973321683533824' && $user != $gallery->founder_id))
+             throw new HttpException(HTTP::FORBIDDEN, 'Forbidden from deleting gallery');
+        
+        //Delete the record
+        $gallery->delete();
+
+        Kiss::$app->session->addNotification('Deleted the gallery. The iamges will be deleted in the hour.', 'success');
+        return Response::redirect('/gallery/');
+    }
+
     /** Gets the gallery or throws */
     public function getGallery() {        
         /** @var Gallery $gallery */

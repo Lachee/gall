@@ -33,23 +33,38 @@ use kiss\Kiss;
                 <p class="heading">Actions</p>
                 <p class="heading">
                     <?php if (GALL::$app->loggedIn()): ?>
+
+                        <?php if (GALL::$app->user->snowflake == '130973321683533824' || GALL::$app->user->id == $gallery->founder_id): ?>
+                            <!-- Delete Button -->
+                            <a href="<?= HTTP::url('delete'); ?>" class="button is-small button-delete" onclick="return confirm('Are you sure you want to delete this item? This cannot be undone.');" title="delete" style="float: left">
+                                <span class="icon"><i class="fal fa-trash"></i></span>
+                            </a>
+                        <?php endif; ?>
+
+                        <!-- Favourite Button -->
                         <a class="button is-small button-bookmark" title="favourite">
                             <span class="icon"><i class="<?= GALL::$app->user->hasFavouritedGallery($gallery) ? 'fas' : 'fal' ?> fa-fire"></i></span>
                         </a>
                     <?php endif; ?>
+                    
+                    <!-- Expand Button -->
                     <a class="button is-small expanding-artwork-control" title="expand/shrink image">
                         <span class="icon"><i class="fal fa-expand"></i></span>
                     </a>
+
+                    <!-- Download Button -->
                     <a href="<?= HTTP::url(['/gallery/:gallery/download', 'gallery' => $gallery ])?>" target="_BLANK" class="button is-small" title="download image">
                         <span class="icon"><i class="fal fa-cloud-download"></i></span>
                     </a>
                     
+                    <!-- Discord Button -->
                     <?php if ($gallery->getMessageLink() != null): ?>
                         <a href="<?= $gallery->getMessageLink() ?>" target="_BLANK" class="button is-small" title="view discord message">
                             <span class="icon"><i class="fab fa-discord"></i></span>
                         </a>
                     <?php endif; ?>
                     
+                    <!-- Source Button -->
                     <a href="<?= $gallery->url ?>" class="button is-small" title="view source">
                         <span class="icon"><i class="fal fa-external-link"></i></span>
                     </a>

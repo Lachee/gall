@@ -46,6 +46,9 @@ class User extends Identity {
         ];
     }
 
+    /** @return string Current discord snowflake of the logged in user. */
+    public function getSnowflake() { return $this->snowflake; }
+
     /** Finds by snowflake */
     public static function findBySnowflake($snowflake) {
         return self::find()->where(['snowflake', $snowflake]);
