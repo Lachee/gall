@@ -78,7 +78,9 @@ class User extends Identity {
      * @return string the URL
      */
     public function getAvatarUrl($size = 64) {
-        return HTTP::url( ['/api/proxy', 'url' => "https://d.lu.je/avatar/{$this->snowflake}?size=$size" ] );  
+        $url = "https://d.lu.je/avatar/{$this->snowflake}?size=$size";
+        return $url;
+        //return HTTP::url( ['/api/proxy', 'url' =>  $url ] );  
     }
     /** @return ActiveQuery|Image gets the profile image */
     public function getProfileImage() {
