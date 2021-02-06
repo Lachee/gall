@@ -62,8 +62,8 @@ class Sparkle extends ActiveRecord {
                 if (!Strings::startsWith($const, 'SCORE_')) continue;
 
                 $name = substr(strtoupper($const), 6);
-                $db->createQuery()->update([ 'score' => $score ])->where(['type' => $name ])->execute();
-                $db->createQuery()->update([ 'score' => -$score ])->where(['type' => "UN$name" ])->execute();
+                $db->createQuery()->update([ 'score' => $score ], self::tableName())->where(['type', $name ])->execute();
+                $db->createQuery()->update([ 'score' => -$score ], self::tableName())->where(['type', "UN$name" ])->execute();
             }
 
             $db ->commit();

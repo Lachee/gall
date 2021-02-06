@@ -50,7 +50,7 @@ class ProfileController extends BaseController {
     function actionSparkles() {
         Sparkle::migrate();
         $this->profile->recalculateSparkles();
-        return Response::redirect(['/profile/:profileName', 'profileName' => $this->profile->profileName]);
+        return Response::redirect(['/profile/:profileName/', 'profileName' => $this->profile->profileName]);
     }
 
     function actionIndex() {
