@@ -21,7 +21,7 @@ delegate('#grid', {
         
         return `<div class="profile-hint">
                     <img class="avatar" src="${gallery.founder.getAvatarUrl()}" alt="Avatar Picture"> 
-                    <span><a href="/profile/${gallery.founder.profileName || gallery.founder.snowflake}/">Lachee</a></span>
+                    <span><a href="/profile/${gallery.founder.profileName || gallery.founder.snowflake}/">${gallery.founder.displayName}</a></span>
                 </div>`;
     },
     appendTo: 'parent',
