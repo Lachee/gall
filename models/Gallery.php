@@ -94,6 +94,16 @@ class Gallery extends ActiveRecord {
         return $this->title;
     }
 
+    /** @return string gets the current title */
+    public function getTitle() { return $this->title; }
+
+    /**
+     * Sets the title of the gallery
+     * @param string $title the title
+     * @return $this 
+     */
+    public function setTitle($title) { $this->title = $title; return $this; }
+
     /** Gets the discord message link
      * @return string link to the message, otherwise null
      */

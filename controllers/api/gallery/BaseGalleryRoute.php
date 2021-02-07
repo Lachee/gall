@@ -1,25 +1,15 @@
 <?php namespace app\controllers\api;
 
+use GALL;
+use Throwable;
 use app\models\Gallery;
 use app\models\Guild;
 use app\models\ScrapeData;
-use app\models\Tag;
 use app\models\User;
-use GALL;
-use kiss\controllers\api\ApiRoute;
 use kiss\exception\HttpException;
-use kiss\exception\NotYetImplementedException;
 use kiss\helpers\Arrays;
 use kiss\helpers\HTTP;
 use kiss\helpers\Response;
-use kiss\helpers\Strings;
-use kiss\Kiss;
-use kiss\models\BaseObject;
-use kiss\router\Route;
-use kiss\router\RouteFactory;
-use League\OAuth2\Client\OptionProvider\HttpBasicAuthOptionProvider;
-use Ramsey\Uuid\Uuid;
-use Throwable;
 
 class BaseGalleryRoute extends BaseApiRoute {
     use \kiss\controllers\api\Actions;
@@ -118,7 +108,15 @@ class BaseGalleryRoute extends BaseApiRoute {
         $message_snowflake = $data['message_id'] ?? null;
         $channel_snowflake = $data['channel_id'] ?? null;
         $guild_id = $data['guild_id'] ?? null;
-            
+
+        $title = $data['title'] ?? null;
+        if ($title != null && !is_string($title)) throw new HttpException(HTTP::BAD_REQUEST, '"title" must be a string if provided');
+        
+        $individual = $data['individual'] ?? false;
+        if (is_bool($individual)) throw new HttpException(HTTP::BAD_REQUEST, '"individual" must be a boolean');
+        
+
+
         if (!empty($guild_id)) {
             $guild = Guild::findByKey($guild_id)->orWhere(['snowflake', $guild_id])->one();
             $guild_id = $guild == null ? null : $guild->getKey();
@@ -128,10 +126,6 @@ class BaseGalleryRoute extends BaseApiRoute {
             throw new HttpException(HTTP::BAD_REQUEST, 'Message Snowflake must have channel and guild given too');
 
         if (isset($data['url']) || isset($data['urls'])) {
-            
-            // Check if we should save them as seperate galleries
-            $individual = $data['individual'] ?? false;
-            if (is_bool($individual)) throw new HttpException(HTTP::BAD_REQUEST, '"individual" must be a boolean');
             
             /** @var Gallery $baseGallery */
             $baseGallery    = null; // This is the gallery we will merge all the scrapped data into
@@ -175,9 +169,13 @@ class BaseGalleryRoute extends BaseApiRoute {
                                             $gallery->message_snowflake = $message_snowflake;
                                             $needSaving = true;
                                         }
-
+                                        if (!empty($title)) {
+                                            $gallery->title = $title;
+                                            $needSaving = true;
+                                        }
+                                        
                                         if ($needSaving)
-                                            $gallery->save(false, [ 'guild_id', 'channel_snowflake', 'message_snowflake' ]);
+                                            $gallery->save(false, [ 'title', 'guild_id', 'channel_snowflake', 'message_snowflake' ]);
                                     }
                                     
                                     //Pre-Proxy the url
