@@ -113,7 +113,7 @@ class BaseGalleryRoute extends BaseApiRoute {
         if ($title != null && !is_string($title)) throw new HttpException(HTTP::BAD_REQUEST, '"title" must be a string if provided');
         
         $individual = $data['individual'] ?? false;
-        if (is_bool($individual)) throw new HttpException(HTTP::BAD_REQUEST, '"individual" must be a boolean');
+        if (!is_bool($individual)) throw new HttpException(HTTP::BAD_REQUEST, '"individual" must be a boolean');
         
 
 
@@ -131,8 +131,9 @@ class BaseGalleryRoute extends BaseApiRoute {
             $baseGallery    = null; // This is the gallery we will merge all the scrapped data into
             
             //Scrape the URLS and save them
-            $urls           = $data['urls'] ?? [ $data['url'] ];   
             $results        = [];
+            $urls           = $data['urls'] ?? $data['url'];   
+            if (!is_array($urls)) $urls = [ $urls ];
             
             foreach($urls as $url) {
                 try {
