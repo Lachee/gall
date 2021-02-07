@@ -120,6 +120,7 @@ class BaseGalleryRoute extends BaseApiRoute {
         if (!empty($guild_id)) {
             $guild = Guild::findByKey($guild_id)->orWhere(['snowflake', $guild_id])->one();
             $guild_id = $guild == null ? null : $guild->getKey();
+            if ($guild_id == null) throw new HttpException(HTTP::BAD_REQUEST, 'Guild is unavailable');
         }
 
         if (!empty($message_snowflake) && (empty($guild_id) || empty($channel_snowflake)))
@@ -149,11 +150,11 @@ class BaseGalleryRoute extends BaseApiRoute {
                             if (count($scrapedData->images) > 1 || $individual || $baseGallery == null) {
                                     
                                 $gallery = $scrapedData->publish($user);
-                                if ($gallery !== false) {
+                                if ($gallery !== false && $gallery !== null) {
 
                                     //Store the base gallery. We will add to this with individual images
                                     if ($baseGallery == null)
-                                        $gallery = $baseGallery;
+                                        $baseGallery = $gallery;
 
                                     //set the origin message, but only if thsi is a new record
                                     if ($scrapedData->hasPublishedNewGallery()) {
