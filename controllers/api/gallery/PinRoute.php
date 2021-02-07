@@ -9,18 +9,14 @@ use kiss\Kiss;
 use kiss\router\Route;
 
 class PinRoute extends GalleryRoute {
+    use \kiss\controllers\api\Actions;
+
 
     protected $gallery_id;
     
     //We are going to return our routing. Any segment that starts with : is a property.
     // Note that more explicit routes get higher priority. So /example/apple will take priority over /example/:fish
     protected static function route() { return parent::route() . "/pin"; }
-
-    public function get() { throw new HttpException(HTTP::METHOD_NOT_ALLOWED); }
-    public function options() { throw new HttpException(HTTP::METHOD_NOT_ALLOWED); }
-    public function delete() { throw new HttpException(HTTP::METHOD_NOT_ALLOWED); }
-    public function put($data) { throw new HttpException(HTTP::METHOD_NOT_ALLOWED); }    
-    //public function post($data) { throw new HttpException(HTTP::METHOD_NOT_ALLOWED); }
 
     /** Sets the user's profile image */
     public function post($data) {

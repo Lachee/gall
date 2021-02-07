@@ -14,6 +14,8 @@ use kiss\router\RouteFactory;
 use Ramsey\Uuid\Uuid;
 
 class ProxyRoute extends BaseApiRoute {
+    use \kiss\controllers\api\Actions;
+
 
     public const CACHE_DURATION = 60 * 60; //* 24 * 7;
     public const CACHE_VERSION = 10;

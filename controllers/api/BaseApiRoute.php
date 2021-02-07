@@ -14,7 +14,8 @@ use Ramsey\Uuid\Uuid;
  * @package app\controllers\api
  */
 class BaseApiRoute extends ApiRoute {
-    
+    use \kiss\controllers\api\Actions;
+
     /** @var User the identity we are acting on behalf */
     private $_user;
 

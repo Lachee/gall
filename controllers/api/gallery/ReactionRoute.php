@@ -11,6 +11,8 @@ use kiss\Kiss;
 use kiss\router\Route;
 
 class ReactionRoute extends GalleryRoute {
+    use \kiss\controllers\api\Actions;
+
 
     protected $gallery_id;
     
@@ -73,8 +75,4 @@ class ReactionRoute extends GalleryRoute {
         $user->removeReaction($gallery, $emote);
         return true;
     }
-
-    
-    public function options() { throw new HttpException(HTTP::METHOD_NOT_ALLOWED); }
-    public function put($data) { throw new HttpException(HTTP::METHOD_NOT_ALLOWED); }    
 }

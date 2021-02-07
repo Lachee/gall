@@ -14,6 +14,8 @@ use kiss\router\Route;
 use kiss\router\RouteFactory;
 
 class SlashRoute extends BaseApiRoute {
+    use \kiss\controllers\api\Actions;
+
 
     const DEFAULT_PAGE_SIZE = 10;
     const MAX_PAGE_SIZE = 150;

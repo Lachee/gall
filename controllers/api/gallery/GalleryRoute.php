@@ -12,6 +12,8 @@ use kiss\router\Route;
  * @package app\controllers\api\gallery
  */
 class GalleryRoute extends BaseApiRoute {
+    use \kiss\controllers\api\Actions;
+
 
     protected $gallery_id;
     
@@ -52,11 +54,6 @@ class GalleryRoute extends BaseApiRoute {
 
         return $this->gallery;
     }
-
-    //public function get() { throw new HttpException(HTTP::METHOD_NOT_ALLOWED); }
-    public function options() { throw new HttpException(HTTP::METHOD_NOT_ALLOWED); }
-    public function delete() { throw new HttpException(HTTP::METHOD_NOT_ALLOWED); }
-    public function post($data) { throw new HttpException(HTTP::METHOD_NOT_ALLOWED); }
 
     /**
      * Finds a project

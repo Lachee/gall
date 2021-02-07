@@ -39,10 +39,4 @@ class FavouriteRoute extends GalleryRoute {
         return $user->removeFavourite($gallery);
     }
 
-    //public function get() { throw new HttpException(HTTP::METHOD_NOT_ALLOWED); }
-    public function options() { throw new HttpException(HTTP::METHOD_NOT_ALLOWED); }
-    //public function delete() { throw new HttpException(HTTP::METHOD_NOT_ALLOWED); }
-    public function put($data) { throw new HttpException(HTTP::METHOD_NOT_ALLOWED); }    
-    //public function post($data) { throw new HttpException(HTTP::METHOD_NOT_ALLOWED); }
-
 }

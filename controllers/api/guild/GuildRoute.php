@@ -9,6 +9,8 @@ use kiss\helpers\HTTP;
 use kiss\router\Route;
 
 class GuildRoute extends BaseApiRoute {
+    use \kiss\controllers\api\Actions;
+
 
     protected $guild_id;
     private $_guild;
@@ -60,10 +62,6 @@ class GuildRoute extends BaseApiRoute {
         
         return $this->guild;
     }
-
-    //public function get() { throw new HttpException(HTTP::METHOD_NOT_ALLOWED); }
-    public function options() { throw new HttpException(HTTP::METHOD_NOT_ALLOWED); }
-    public function post($data) { throw new HttpException(HTTP::METHOD_NOT_ALLOWED); }
 
     /**
      * Finds a project

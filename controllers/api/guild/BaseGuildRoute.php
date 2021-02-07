@@ -17,6 +17,8 @@ use Ramsey\Uuid\Uuid;
 use Throwable;
 
 class BaseGuildRoute extends BaseApiRoute {
+    use \kiss\controllers\api\Actions;
+
 
     protected static function route() { return "/guild"; }
 

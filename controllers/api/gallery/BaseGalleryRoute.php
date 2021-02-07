@@ -21,6 +21,8 @@ use Ramsey\Uuid\Uuid;
 use Throwable;
 
 class BaseGalleryRoute extends BaseApiRoute {
+    use \kiss\controllers\api\Actions;
+
 
     const DEFAULT_PAGE_SIZE = 1;
     const MAX_PAGE_SIZE = 5;
