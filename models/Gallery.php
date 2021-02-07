@@ -201,13 +201,13 @@ class Gallery extends ActiveRecord {
         //if (!($tag instanceof Tag)) throw new ArgumentException('$tag must be of type Tag');
         try {
             $tag_id = $tag instanceof Tag ? $tag->getId() : $tag;
-            Kiss::$app->db()->createQuery()->insert([
+            $success = Kiss::$app->db()->createQuery()->insert([
                 'tag_id'        => $tag_id,
                 'gallery_id'    => $this->getKey(),
                 'founder_id'    => $founder == null ? null : $founder->getKey(),
             ], '$tags' )->execute();
 
-            if ($founder != null)
+            if ($success && $founder != null)
                 $founder->giveSparkles('SCORE_TAG', $this, $tag_id);
             
             return true;
@@ -219,6 +219,8 @@ class Gallery extends ActiveRecord {
         if (is_string($tag)) $tag = Tag::findByName($tag)->one();
         if ($tag == null) throw new ArgumentException('Tag cannot be null');
         
+        //TODO: un award score because the tag was removed. UNTAG.
+
         $query = Kiss::$app->db()->createQuery();
         return $query->delete('$tags')->where(['tag_id', $tag->getKey() ])->andWhere(['gallery_id', $this->getKey() ])->execute();
     }

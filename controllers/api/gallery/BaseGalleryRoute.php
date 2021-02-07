@@ -17,6 +17,7 @@ use kiss\Kiss;
 use kiss\models\BaseObject;
 use kiss\router\Route;
 use kiss\router\RouteFactory;
+use League\OAuth2\Client\OptionProvider\HttpBasicAuthOptionProvider;
 use Ramsey\Uuid\Uuid;
 use Throwable;
 
@@ -127,10 +128,18 @@ class BaseGalleryRoute extends BaseApiRoute {
             throw new HttpException(HTTP::BAD_REQUEST, 'Message Snowflake must have channel and guild given too');
 
         if (isset($data['url']) || isset($data['urls'])) {
-
+            
+            // Check if we should save them as seperate galleries
+            $individual = $data['individual'] ?? false;
+            if (is_bool($individual)) throw new HttpException(HTTP::BAD_REQUEST, '"individual" must be a boolean');
+            
+            /** @var Gallery $baseGallery */
+            $baseGallery    = null; // This is the gallery we will merge all the scrapped data into
+            
             //Scrape the URLS and save them
-            $urls       = $data['urls'] ?? [ $data['url'] ];   
-            $results    = [];
+            $urls           = $data['urls'] ?? [ $data['url'] ];   
+            $results        = [];
+            
             foreach($urls as $url) {
                 try {
                     //Make sure we dont have a matching gallery first
@@ -142,38 +151,50 @@ class BaseGalleryRoute extends BaseApiRoute {
                         $scrapedData = GALL::$app->scraper->scrape($url);
                         if ($scrapedData !== false) {
                             
-                            $gallery = $scrapedData->publish($user);
-                            if ($gallery !== false) {
+                            if (count($scrapedData->images) > 1 || $individual || $baseGallery == null) {
+                                    
+                                $gallery = $scrapedData->publish($user);
+                                if ($gallery !== false) {
 
-                                //set the origin message, but only if thsi is a new record
-                                if ($scrapedData->hasPublishedNewGallery()) {
-                                    $needSaving = false;
-                                    if (!empty($guild_id)) {
-                                        $gallery->guild_id = $guild_id;
-                                        $needSaving = true;
-                                    }
-                                    if (!empty($channel_snowflake)) {
-                                        $gallery->channel_snowflake = $channel_snowflake;
-                                        $needSaving = true;
-                                    }
-                                    if (!empty($message_snowflake)) {
-                                        $gallery->message_snowflake = $message_snowflake;
-                                        $needSaving = true;
-                                    }
+                                    //Store the base gallery. We will add to this with individual images
+                                    if ($baseGallery == null)
+                                        $gallery = $baseGallery;
 
-                                    if ($needSaving)
-                                        $gallery->save(false, [ 'guild_id', 'channel_snowflake', 'message_snowflake' ]);
+                                    //set the origin message, but only if thsi is a new record
+                                    if ($scrapedData->hasPublishedNewGallery()) {
+                                        $needSaving = false;
+                                        if (!empty($guild_id)) {
+                                            $gallery->guild_id = $guild_id;
+                                            $needSaving = true;
+                                        }
+                                        if (!empty($channel_snowflake)) {
+                                            $gallery->channel_snowflake = $channel_snowflake;
+                                            $needSaving = true;
+                                        }
+                                        if (!empty($message_snowflake)) {
+                                            $gallery->message_snowflake = $message_snowflake;
+                                            $needSaving = true;
+                                        }
+
+                                        if ($needSaving)
+                                            $gallery->save(false, [ 'guild_id', 'channel_snowflake', 'message_snowflake' ]);
+                                    }
+                                    
+                                    //Pre-Proxy the url
+                                    //$url = Kiss::$app->baseURL() . substr($gallery->cover->proxyUrl, 1);
+                                    //file_get_contents($url);
+
+                                    //Store results
+                                    $results[$url] = $gallery;
+                                } else {
+                                    //Store error
+                                    $results[$url] = $scrapedData->errorSummary();
                                 }
-                                
-                                //Pre-Proxy the url
-                                //$url = Kiss::$app->baseURL() . substr($gallery->cover->proxyUrl, 1);
-                                //file_get_contents($url);
-
-                                //Store results
-                                $results[$url] = $gallery;
                             } else {
-                                //Store error
-                                $results[$url] = $scrapedData->errorSummary();
+                                //We need to add it to the base gallery
+                                assert($baseGallery instanceof Gallery, 'base gallery has been set');
+                                $scrapedData->publishTo($user, $baseGallery);
+                                $results[$url] = $gallery;
                             }
                         } else {
                             //Store generic error

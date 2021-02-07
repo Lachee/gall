@@ -100,33 +100,7 @@ class ScrapeData extends BaseObject {
         }
 
         //Prepare a list of tags
-        $tags = [];
-        $missingTags = [];
-
-        //Search tags, artist and languages
-        if (!empty($this->tags))
-            foreach($this->tags as $name) {
-                $name = trim(Strings::toLowerCase($name));
-                $tag = Tag::find()->where(['name', $name])->andWhere([ 'type', Tag::TYPE_TAG ])->remember(false)->ttl(0)->one();
-                if ($tag == null) $missingTags[] = [ 'name' => $name, 'type' => Tag::TYPE_TAG ];
-                else $tags[] = $tag;
-            }     
-
-        if (!empty($this->artist))
-            foreach($this->artist as $name) {
-                $name = trim(Strings::toLowerCase($name));
-                $tag = Tag::find()->where(['name', $name])->andWhere([ 'type', Tag::TYPE_ARTIST ])->one();
-                if ($tag == null) $missingTags[] = [ 'name' => $name, 'type' => Tag::TYPE_ARTIST ];
-                else $tags[] = $tag;
-            }        
-
-        if (!empty($this->languages))
-            foreach($this->languages as $name) {
-                $name = trim(Strings::toLowerCase($name));
-                $tag = Tag::find()->where(['name', $name])->andWhere([ 'type', Tag::TYPE_LANGUAGE ])->one();
-                if ($tag == null) $missingTags[] = [ 'name' => $name, 'type' => Tag::TYPE_LANGUAGE ];
-                else $tags[] = $tag;
-            }
+        [ $tags, $missingTags ] = $this->searchTags();
 
         $gallery = null;
         $lastUploadedImage = null;
@@ -258,5 +232,87 @@ class ScrapeData extends BaseObject {
         //$publisher->profileImage = $cover ?: $lastUploadedImage;
         //$s = $publisher->save();
         return $gallery;
+    }
+
+    /** Publishes the data into the specific gallery
+     * @param User $publisher the person adding the gallery to the other one (they get credit for images).
+     * @param Gallery $gallery the gallery to push into
+     */
+    public function publishTo($publisher, $gallery) {
+        if (!($gallery instanceof Gallery)) throw new ArgumentException('Gallery must be of type Gallery');
+
+        //Prepare the tags
+        [ $tags, $missingTags ] = $this->searchTags();
+        
+        //Start the transaction
+        Kiss::$app->db()->beginTransaction();
+        try  {
+            //Assign the tags
+            $assignedids = [];
+            foreach($tags as $tag) {
+                if (in_array($tag->getKey(), $assignedids)) continue;
+                $assignedids[] = $tag->getKey();
+                $gallery->addTag($tag, $publisher);
+            }
+
+            //Insert the images
+            foreach($this->images as $img) {
+                $lastUploadedImage = $image = new Image([
+                    'origin'        => $img,
+                    'founder_id'    => $publisher->getKey(),
+                    'gallery_id'    => $gallery->getKey(),
+                    'scraper'       => $this->scraper,
+                ]);
+
+                //Save the gallery and abort otherwise
+                if (!$image->save()) {
+                    $this->addError($image->errors());
+                    Kiss::$app->db()->rollBack();
+                    return false;
+                }
+            }
+
+            Kiss::$app->db()->commit();
+        } catch (Throwable $e) {
+            Kiss::$app->db()->rollBack();
+            $gallery->delete();
+            throw $e;
+        }
+
+        //Force update the tags
+        $gallery->updateTags();
+        return $gallery;
+    }
+
+    /** Searches for all the tags and generates a list of found and missing tags */
+    protected function searchTags() {
+        $tags = [];
+        $missingTags = [];
+
+        //Search tags, artist and languages
+        if (!empty($this->tags))
+            foreach($this->tags as $name) {
+                $name = trim(Strings::toLowerCase($name));
+                $tag = Tag::find()->where(['name', $name])->andWhere([ 'type', Tag::TYPE_TAG ])->remember(false)->ttl(0)->one();
+                if ($tag == null) $missingTags[] = [ 'name' => $name, 'type' => Tag::TYPE_TAG ];
+                else $tags[] = $tag;
+            }     
+
+        if (!empty($this->artist))
+            foreach($this->artist as $name) {
+                $name = trim(Strings::toLowerCase($name));
+                $tag = Tag::find()->where(['name', $name])->andWhere([ 'type', Tag::TYPE_ARTIST ])->one();
+                if ($tag == null) $missingTags[] = [ 'name' => $name, 'type' => Tag::TYPE_ARTIST ];
+                else $tags[] = $tag;
+            }        
+
+        if (!empty($this->languages))
+            foreach($this->languages as $name) {
+                $name = trim(Strings::toLowerCase($name));
+                $tag = Tag::find()->where(['name', $name])->andWhere([ 'type', Tag::TYPE_LANGUAGE ])->one();
+                if ($tag == null) $missingTags[] = [ 'name' => $name, 'type' => Tag::TYPE_LANGUAGE ];
+                else $tags[] = $tag;
+            }
+        return [ $tags, $missingTags ];
     }
 }

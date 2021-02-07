@@ -543,7 +543,7 @@ class Query extends BaseObject{
     }
 
     /** Builds the query and executes it, returning the result of the execute.
-     * @return array|int|false  If the query is select then it will return an associative array of the object; otherwise it will return the last auto incremented id.
+     * @return array|int|false  If the query is select then it will return an associative array of the object; otherwise it will return the last auto incremented id or the number of rows effected.
      */
     public function execute() {
         list($query, $bindings) = $this->build();
