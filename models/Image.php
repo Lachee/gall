@@ -62,6 +62,20 @@ class Image extends ActiveRecord {
         return $ext;
     }
 
+    /** Gets the extension with leading period
+     * @return string|false the extension, otherwise false if it cannot find it. Starts with .
+     */
+    public function getExtension() {
+        if (empty($this->url)) return $this->getOriginExtension();
+
+        $url = $this->url;
+        $url = explode('?', $url)[0];
+        $index = strrpos($url, '.');
+        if ($index === false) return $this->getOriginExtension();
+        $ext = substr($url, $index);
+        return $ext;
+    }
+
     /** @deprecated use getProxy instead*/
     public function getUrl() {
         return $this->getProxy();
@@ -71,11 +85,13 @@ class Image extends ActiveRecord {
     public function getProxy() {
         if (empty($this->url)) {
             if (GALL::$app->proxySettings != null) {
+                $ext = $this->getExtension();
                 $endpoint = \app\controllers\api\ProxyRoute::GenerateImgproxyURL( 
                                                         !empty($this->url) ? $this->url : $this->origin,
                                                         0, 
                                                         GALL::$app->proxySettings['key'], 
-                                                        GALL::$app->proxySettings['salt']
+                                                        GALL::$app->proxySettings['salt'],
+                                                        $ext != false ? $ext : 'jpg'
                                                     );
     
                 $proxy_url = trim(GALL::$app->proxySettings['baseUrl'], '/') . $endpoint;

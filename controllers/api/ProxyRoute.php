@@ -7,6 +7,7 @@ use kiss\controllers\api\ApiRoute;
 use kiss\exception\HttpException;
 use kiss\helpers\HTTP;
 use kiss\helpers\Response;
+use kiss\helpers\Strings;
 use kiss\Kiss;
 use kiss\models\BaseObject;
 use kiss\router\Route;
@@ -120,6 +121,9 @@ class ProxyRoute extends BaseApiRoute {
         if(empty($saltBin)) {
             die('Salt expected to be hex-encoded string');
         }
+
+        //Trim leading .
+        $ext = Strings::trimStart($ext, ' .');
 
         $resize = 'fit';
         $width = $size;
