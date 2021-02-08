@@ -29,7 +29,7 @@ class TagGroup extends Widget {
         echo HTML::begin('div', [ 'class' => 'tag-group' ]);
 
         if (!empty($this->title))
-            echo HTML::tag('div', $this->title, [ 'class' => 'subtitle' ]);
+            echo HTML::tag('div', HTML::encode($this->title), [ 'class' => 'subtitle' ]);
         
         if ($this->tags != null) {
             $tags = $this->tags instanceof ActiveQuery ? $this->tags->all() : $this->tags;
@@ -69,6 +69,6 @@ class TagGroup extends Widget {
         if (!empty($style))
             $style = 'is-' . $style;
 
-        return HTML::a($route, HTML::tag('span', $name, ['class' => 'tag is-small ' . $style ]));
+        return HTML::a($route, HTML::tag('span', HTML::encode($name), ['class' => 'tag is-small ' . $style ]));
     }
 }

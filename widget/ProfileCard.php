@@ -54,6 +54,8 @@ class ProfileCard extends Widget {
 
         if ($this->small) {
             $profileLink = HTTP::url(['/profile/:profile/', 'profile' => $profile->profileName ]);
+            $username = HTML::encode($profile->username);
+
 $html = <<<HTML
     <div class="profile-card is-small">
         <div class="card">
@@ -62,7 +64,7 @@ $html = <<<HTML
                 <div class="avatar">
                     <img src="{$profile->avatarUrl}" alt="Avatar Picture">
                 </div>
-                <div class="title"><a href="{$profileLink}" class="has-text-white">{$profile->username}</a></div>
+                <div class="title"><a href="{$profileLink}" class="has-text-white">{$username}</a></div>
                 <div class="subtitle"><span class="icon"><i class="fal fa-sparkles"></i></span> {$score}</div>
             </div>
             {$toolbar}
@@ -75,11 +77,13 @@ HTML;
             $subs = Strings::shortNumber($profile->galleryCount);
             $tags = $profile->getFavouriteTags()->limit(5)->all();
             if (count($tags) == 0) $tags = $profile->getFavouriteTagsSubmitted()->limit(5)->all();
-            $tagsLinks = join(' ', Arrays::map($tags, function($tag) { return '<a href="'.HTTP::url(['/gallery/search', 'tag' => $tag->name ]).'">'.$tag->name.' ( '.$tag->count.' )</a>'; }));
+            $tagsLinks = join(' ', Arrays::map($tags, function($tag) { return '<a href="'.HTTP::url(['/gallery/search', 'tag' => $tag->name ]).'">'. HTML::encode($tag->name).' ( '.$tag->count.' )</a>'; }));
             
             $profileLink = HTTP::url(['/profile/:profile/', 'profile' => $profile->profileName ]);
             $favouriteLink = HTTP::url(['/profile/:profile/favourites', 'profile' => $profile->profileName ]);
             $submissionLink = HTTP::url(['/profile/:profile/submissions', 'profile' => $profile->profileName ]);
+            $username = HTML::encode($profile->username);
+            $displayName = HTML::encode($profile->displayName);
 
 $html = <<<HTML
     <div class="profile-card">
@@ -89,8 +93,8 @@ $html = <<<HTML
                 <div class="avatar">
                     <img src="{$profile->avatarUrl}" alt="Avatar Picture">
                 </div>
-                <div class="title">{$profile->username}</div>
-                <div class="subtitle"><a href="$profileLink">@{$profile->displayName}</a></div>
+                <div class="title">{$username}</div>
+                <div class="subtitle"><a href="$profileLink">@{$displayName}</a></div>
 
                 <div class="content">
                     <div class="metric" title="sparkles" style="text-align: center;"><span class="icon"><i class="fal fa-sparkles"></i></span> {$score}</div>

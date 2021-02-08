@@ -361,19 +361,26 @@ class Gallery extends ActiveRecord {
         
         //Cleanup the tags
         if (!is_array($tags)) {
-            $tags = preg_split('/,|\s/', $tags);
+            $tags = preg_split('/(,| )(?=([^\"]*\"[^\"]*\")*[^\"]*$)/', $tags);
         }
 
         //Build a list of valid IDS
         $whitelist = [];
         $blacklist = [];
         foreach($tags as $name) {
+
+            //Trim the name
+            $name = Strings::trim($name, " \n\r\t\v\0\x0B\"");
+
             //Check if its blacklist
             $isBlacklist = false;
             if (Strings::startsWith($name, '-')) {
                 $name = substr($name, 1);
                 $isBlacklist = true;
             }
+
+            //Skip empties
+            if (empty($name)) continue;
 
             /** @var Tag $tag */
             $tag = Tag::findByName($name)->one();

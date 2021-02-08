@@ -19,13 +19,13 @@ use kiss\Kiss;
     <section class="nav">
         <div class="columns">
             <div class="column is-three-fifths">
-                <p class="subtitle"><?= $gallery->title ?></p>
+                <p class="subtitle"><?= HTML::encode($gallery->title) ?></p>
             </div>
             <div class="column has-text-right">
                 <p class="heading">Reactions</p>
                 <section class="reactions">
                     <?php foreach($reactions as $reaction): ?>
-                        <img class="emote is-small" src="<?= $reaction['emote']->url ?>" title="<?= $reaction['user']->name ?>" />
+                        <img class="emote is-small" src="<?= $reaction['emote']->url ?>" title="<?= HTML::encode($reaction['user']->name) ?>" />
                     <?php endforeach; ?>
                 </section>
             </div>
@@ -91,7 +91,7 @@ use kiss\Kiss;
                 <?php if (!empty($gallery->description)) : ?>
                     <div class="tag-group">
                         <div class="subtitle">Description</div>
-                        <?= $gallery->description ?>
+                        <?= HTML::encode($gallery->description) ?>
                     </div>
                 <?php endif; ?>
 
@@ -111,18 +111,10 @@ use kiss\Kiss;
                         </section>
                     <?php endforeach; ?>
                 <?php else : ?>
-                    <?php if (!GALL::$app->loggedIn()): ?>
-                    <div class="notification is-warning">
-                        You are currently not <strong>logged in</strong>!<br>
-                        We have kept the higher quality versions of the gallery hidden for now to save our bandwidth. Please <a href="<?=HTTP::url(['/login'])?>">login</a> to view the comic in highest quality.
-                    </div>
-                    <?php endif; ?>
-
-
                     <section class="artwork has-lightbox">
                         <div id="lightgallery">
                             <?php foreach ($images as $image) : ?>
-                                <a href="<?= Kiss::$app->loggedIn() ? $image->url : $image->getThumbnail(250, 'NEAREST_NEIGHBOUR') ?>"><img loading=lazy class="expanding-artwork lg-thumbnail" data-expanding-class="lg-thumbnail" src="<?= $image->getThumbnail(250, 'NEAREST_NEIGHBOUR') ?>"></a>
+                                <a href="<?= (true || Kiss::$app->loggedIn()) ? $image->url : $image->getThumbnail(250, 'NEAREST_NEIGHBOUR') ?>"><img loading=lazy class="expanding-artwork lg-thumbnail" data-expanding-class="lg-thumbnail" src="<?= $image->getThumbnail(250, 'NEAREST_NEIGHBOUR') ?>"></a>
                             <?php endforeach; ?>
                         </div>
                     </section>
@@ -162,7 +154,7 @@ use kiss\Kiss;
                     <h1>Favourite List</h1>
                     <section class="favourited">
                         <?php foreach((array) $gallery->favourites as $f): ?>
-                            <a class="fav-profile" href="<?= HTTP::url(['/profile/:profile/', 'profile' => $f->profile->profileName ]); ?>" title="see <?= $f->profile->displayName ?>">
+                            <a class="fav-profile" href="<?= HTTP::url(['/profile/:profile/', 'profile' => $f->profile->profileName ]); ?>" title="see <?= HTML::encode($f->profile->displayName) ?>">
                                 <div class="avatar">
                                     <img src="<?= $f->profile->avatarUrl ?>" alt="Avatar Picture">
                                 </div>

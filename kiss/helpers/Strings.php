@@ -2,6 +2,17 @@
 
 
 class Strings {
+
+    /** Cleans a string up, stripping html tags and trimming the result 
+     * This should be used for most inputs
+     * @param string $str the string to clean
+     * @return string the trimmed and stripped tag. It is still recommended to encode the result.
+    */
+    public static function clean($str) {
+        $str = strip_tags($str);
+        return self::trim($str);
+    }
+
     /** Trims whitespaces or other characters from the string
      * @param string $str the string to trim
      * @param string $charlist the list of characters to trim

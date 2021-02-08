@@ -209,7 +209,7 @@ class HTTP {
             }
 
             if (!is_array($pair)) {
-                $route = str_replace(":$key", $pair, $route, $count);
+                $route = str_replace(":$key", self::safeURLEncode($pair), $route, $count);
             } else {
                 $count = 0;
             }
@@ -240,6 +240,12 @@ class HTTP {
             return trim(Kiss::$app->baseURL(), '/') . $route .  ($includeQuery ? $query : '');
 
         return $route . ($includeQuery ? $query : '');
+    }
+
+    /** @return string safely encoded URL, where its all URL encoded (no spaces) */
+    public static function safeURLEncode($url) {
+        $str = urlencode($url);
+        return str_replace('+', '%20', $str);
     }
 
     /** @return string The current route*/

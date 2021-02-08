@@ -45,7 +45,7 @@ try {
                             <span class="icon is-small is-left">
                                 <i class="fas fa-search"></i>
                             </span>
-                            <input id="navbar-search" name="q" autocomplete="off" class="input has-placeholder-transition" type="text" placeholder="" value="<?= HTTP::get('q', '') ?>" data-placeholders="<?= join('|', $searchPlaceholderTerms) ?>">
+                            <input id="navbar-search" name="q" autocomplete="off" class="input has-placeholder-transition" type="text" placeholder="" value="<?= HTML::encode(HTTP::get('q', '')) ?>" data-placeholders="<?= join('|', $searchPlaceholderTerms) ?>">
                         </div>
                         <div class="control">
                             <button id="navbar-submit" class="button " type="submit">

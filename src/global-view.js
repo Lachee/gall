@@ -46,7 +46,10 @@ const completer = new autoComplete({
     },
     onSelection: (feedback) => {
         const parts = document.querySelector("#navbar-search").value.split(' ');
-        parts[parts.length - 1] = feedback.selection.match;
+        let   match = feedback.selection.match;
+        if (match.includes(' ') || match.includes(',')) match = `"${match}"`;
+
+        parts[parts.length - 1] = match;
         document.querySelector("#navbar-search").value = parts.join(' ') + ' ';
         document.querySelector("#navbar-search").focus();
     },

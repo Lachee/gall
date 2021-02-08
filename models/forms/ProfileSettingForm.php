@@ -6,6 +6,7 @@ use app\models\User;
 use kiss\exception\InvalidOperationException;
 use kiss\helpers\Arrays;
 use kiss\helpers\HTML;
+use kiss\helpers\Strings;
 use kiss\Kiss;
 use kiss\models\forms\Form;
 use kiss\schema\ArrayProperty;
@@ -159,7 +160,7 @@ HTML;
 
         //Update the profile information
         if (!empty($this->profile_name)) {
-            $this->profile->profile_name = $this->profile_name;
+            $this->profile->profile_name = Strings::clean($this->profile_name);
             if (!$this->profile->save()) {
                 $this->addError($this->profile->errors());
                 return false;

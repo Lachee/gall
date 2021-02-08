@@ -78,6 +78,13 @@ class HTML {
         return htmlspecialchars($text);
     }
 
+    /** Alias of HTTP::safeURLEncode
+     * @return string safely encoded URL. This does not make it HTML safe nessarily tho.
+     */
+    public static function urlencode($text) {
+        return HTTP::safeURLEncode($text);
+    }
+
     /** Converts the model into a JS representation
      * @param boolean $asJSON when enabled, it will wrap the object in a JSON.Parse. This can be more efficient when creating larger objects.
      * @return string encodes the model as a JSON structure and wraps that in some javascript to create a model */
