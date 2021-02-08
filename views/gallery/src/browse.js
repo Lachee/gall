@@ -175,6 +175,7 @@ $(document).ready(async () => {
     // The loadPage function returns true if it thinks there is more images left. 
     //   - This will result in a extra request when we have finished loading everything, but this is easy for now.
     let page = 1;
+    let isLoadingPage = false;
     let moreImagesAvailable = true;
     moreImagesAvailable = await loadPage(page);
 
@@ -189,23 +190,49 @@ $(document).ready(async () => {
     });
 
     //When the button becomes visible, load the next page
-    const button = document.getElementById('grid-loader');
-    const visibilityHandler = onVisibilityChange(button, async () => {
-        if (moreImagesAvailable) {
-            moreImagesAvailable = await loadPage(++page);
-            if (!moreImagesAvailable) {
-                button.innerText = 'no more images';
-                //button.style.display = 'none';
-            }    
-        }
-    });
-    
+    const loader = document.getElementById('grid-loader');
+    loader.visible = false;
+
     //We hook the visibility handler to some key events in the dom, mainly scroll.
     // But we will also call it once too, so we can immediately update if we didn't load enough images initially
-    $(window).on('DOMContentLoaded load resize scroll mousemove touch', visibilityHandler);
-    visibilityHandler();
+    $(loader).on('click', nextPage);
+    $(window).on('DOMContentLoaded load resize scroll mousemove touch', (e) => {
+        const wasVisible = loader.visible;
+        const isVisible  = loader.visible = isElementInViewport(loader);
+        if (isVisible && !isLoadingPage && moreImagesAvailable) nextPage();
+    });
+    
+    //Initial Load
+    const initialLoadInterval = setInterval(async () => {
+        if (loader.visible = isElementInViewport(loader) && !isLoadingPage && moreImagesAvailable) {
+            await nextPage();
+        } else {
+            clearInterval(initialLoadInterval);
+        }
+    }, 1000);
 
-    $(button).on('click', () => { pack(); });
+    async function nextPage() {
+        console.log('Next Page was called. Pages Available:', moreImagesAvailable);
+        if (moreImagesAvailable) {            
+            try {
+                //Load the pages
+                isLoadingPage = true;
+                moreImagesAvailable = await loadPage(++page);
+                
+                //Update our states
+                console.log('Finished loading pages. Pages Available:', moreImagesAvailable);
+                if (!moreImagesAvailable) {
+                    loader.innerText = 'no more images';
+                    loader.style.display = 'none';
+                }
+            }catch(e) { 
+                loader.innerText = 'error occured';
+                throw e; 
+            } finally {
+                isLoadingPage = false;
+            }
+        }
+    }
 
     function pack() {
         instance.pack();
@@ -232,6 +259,7 @@ function onVisibilityChange(el, callback) {
         }
     }
 }
+
 //Checks if the element is within the view port
 function isElementInViewport (el) {
 
@@ -241,7 +269,6 @@ function isElementInViewport (el) {
     }
 
     var rect = el.getBoundingClientRect();
-
     return (
         rect.top >= 0 &&
         rect.left >= 0 &&
