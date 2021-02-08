@@ -78,6 +78,10 @@ class ImageCommand extends Command {
                             'contents'  => $key,
                         ],
                         [
+                            'name'      => 'name',
+                            'contents'  => 'n' . rand(),
+                        ],
+                        [
                             'name'      => 'd',
                             'contents'  => $data,
                             'filename'  => $image->id . $ext
