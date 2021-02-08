@@ -99,6 +99,19 @@ use kiss\Kiss;
                     <?= TagGroup::tag(['/gallery/search', 'scraper' => $gallery->scraper ], $gallery->scraper, 'info'); ?>
                 <?= TagGroup::widgetEnd(); ?>
 
+                <div class="tag-group">
+                    <div class="subtitle">Favourites</div>
+                    <section class="favourited">
+                        <?php foreach((array) $gallery->favourites as $f): ?>
+                            <?php if ($f->profile->anonymised) continue; ?>
+                            <a class="fav-profile" href="<?= HTTP::url(['/profile/:profile/', 'profile' => $f->profile->profileName ]); ?>" data-tippy-content="<?= HTML::encode($f->profile->displayName) ?>">
+                                <div class="avatar">
+                                    <img src="<?= $f->profile->avatarUrl ?>" alt="Avatar Picture">
+                                </div>
+                            </a>
+                        <?php endforeach; ?>
+                    </section>
+                </div>
             </div>
             <div class="column">
                 <?php if (count($images) == 0) $images = [ $gallery->cover ];  // this hot fix just in case. Should aways have an image :\ ?>
@@ -150,18 +163,6 @@ use kiss\Kiss;
                 </section>
                 -->
 
-                <?php if (GALL::$app->loggedIn()): ?>
-                    <h1>Favourite List</h1>
-                    <section class="favourited">
-                        <?php foreach((array) $gallery->favourites as $f): ?>
-                            <a class="fav-profile" href="<?= HTTP::url(['/profile/:profile/', 'profile' => $f->profile->profileName ]); ?>" title="see <?= HTML::encode($f->profile->displayName) ?>">
-                                <div class="avatar">
-                                    <img src="<?= $f->profile->avatarUrl ?>" alt="Avatar Picture">
-                                </div>
-                            </a>
-                        <?php endforeach; ?>
-                    </section>
-                <?php endif; ?>
             </div>
         </div>
     </section>

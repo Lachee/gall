@@ -30,34 +30,13 @@ img.lg-thumbnail {
 }
 
 .favourited {
-    $p-width: 75px;
-    display: flex;
-    padding-left: 30px;
+    $p-width: 32px;
     .fav-profile {
-        display: inline-block;
-        margin-right: -($p-width/2);
-        width:  100px;
-        height:  100px;
-        padding: 10px;
-        transition: margin 0.25s;
-        display: flex;
-        flex-direction: column;
-        overflow: hidden;
-        clear: both;
-        &:hover {            
-            margin-right: -20px;
-            .avatar { transform: translateY(-10px); }
+        float: left;
+        .avatar, .avatar img {        
+            width:  $p-width;
+            height:  $p-width;
         }
-    }
-
-    .avatar {        
-        transition: transform 0.5s;
-        width:  $p-width;
-        height:  $p-width;
-        padding: 10px;
-        background: #121212;
-        box-shadow: -6px 1px 6px #00000073;
-        img { width: 100%; height: 100% }
     }
 }
 

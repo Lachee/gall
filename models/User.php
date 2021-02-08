@@ -53,8 +53,13 @@ class User extends Identity {
 
     /** @return string Current discord snowflake of the logged in user. */
     public function getSnowflake() { 
-        if (!Kiss::$app->loggedIn()) return '0';
+        if ($this->getAnonymised()) return '0';
         return $this->snowflake; 
+    }
+
+    /** @return bool returns if the profile is currently anonymised */
+    public function getAnonymised() {
+        return !Kiss::$app->loggedIn() && $this->anonymise;
     }
 
     /** Finds by snowflake */
@@ -111,17 +116,17 @@ class User extends Identity {
 
     /** @return string the name of the profile page. Some users may have a custom one. */
     public function getProfileName() {
-        if (!Kiss::$app->loggedIn()) return $this->uuid->toString();
+        if ($this->getAnonymised()) return $this->uuid->toString();
         return !empty($this->profile_name) ? $this->profile_name : $this->snowflake;
     }
     /** @return string the name to display to others. */
     public function getDisplayName() {
-        if (!Kiss::$app->loggedIn()) return 'anonymous';
+        if ($this->getAnonymised()) return 'anonymous';
         return !empty($this->profile_name) ? $this->profile_name :  $this->username;
     }
     /** @return string the username */
     public function getUsername() {
-        if (!Kiss::$app->loggedIn()) return 'anonymous';
+        if ($this->getAnonymised()) return 'anonymous';
         return $this->username;
     }
 #endregion

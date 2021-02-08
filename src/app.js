@@ -3,6 +3,14 @@ import './app.scss';
 import tippy from 'tippy.js';
 import 'tippy.js/dist/tippy.css'; // optional for styling
 import 'tippy.js/themes/light.css';
+import 'tippy.js/animations/scale.css';
+
+tippy.setDefaultProps({    
+    appendTo: 'parent',
+    inertia: true,
+    animation: 'scale',
+});
+
 
 //Get the route and remove the first element
 export let view;
@@ -25,6 +33,10 @@ const actionName = kiss.ACTION;
 console.log("Loading route's JS", { sourceDirectory, actionName });
 
 //TODO: Put this in KISS
+document.addEventListener('DOMContentLoaded', () => {
+    console.log('loading tippy');
+    tippy('[data-tippy-content]');
+}, { once: true });
 
 //Actually load the actions index
 // It has to be manually written out because webpack will generate a pattern

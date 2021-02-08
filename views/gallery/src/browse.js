@@ -13,7 +13,6 @@ delegate('#grid', {
     allowHTML: true,
     multiple: true,
     interactive: true,
-
     content: (reference) => {
         const gallery_id = reference.getAttribute('data-gallery');
         const gallery = gallery_cache[gallery_id];
@@ -24,7 +23,6 @@ delegate('#grid', {
                     <span><a href="/profile/${gallery.founder.profileName || gallery.founder.snowflake}/">${gallery.founder.displayName}</a></span>
                 </div>`;
     },
-    appendTo: 'parent',
 });
 
 
