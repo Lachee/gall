@@ -290,10 +290,9 @@ class User extends Identity {
                                     ->where([ 'user_id', $this->id ]);
     }
 
-    /**
-     * Applies a blacklist to the gallery
-     * @param ActiveQuery $galleryQuery 
-     * @return ActiveQuery the modified query 
+    /** Applies the user's blacklist as a WHERE condition to the query.
+     * @param ActiveQuery $galleryQuery Must be a query for the Gallery. Will throw otherwise.
+     * @return ActiveQuery The modified query.
      */
     public function applyGalleryBlacklist($galleryQuery) {
         if (!($galleryQuery instanceof ActiveQuery) || $galleryQuery->class() != Gallery::class)

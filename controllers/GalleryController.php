@@ -18,6 +18,7 @@ use Ramsey\Uuid\Uuid;
 
 class GalleryController extends BaseController {
 
+    /** Home Page, displays latest information */
     function actionIndex() {
         /** @var User $user */
         $user = Kiss::$app->user;
@@ -35,6 +36,8 @@ class GalleryController extends BaseController {
             $galleries['submitted'] = $user->getGalleries()->limit($limit);
             $galleries['favourites'] = $user->getFavouriteGalleries();
             $galleries['recommendation'] = $user->searchRecommdendedGalleries(0, $limit);
+
+            $galleries['latest']->andWhere([ 'founder_id', '!=', $user ]);
 
             //Query and blacklist the galleries
             foreach($galleries as $k => $gallery) {
@@ -57,6 +60,7 @@ class GalleryController extends BaseController {
         return $this->render('browse', []);
     }
 
+    /** New fancy search that browses the page */
     function actionQuery() {
         $query = HTTP::get('q', HTTP::get('gall-q', false));
         if ($query === false || empty($query))
@@ -120,6 +124,7 @@ class GalleryController extends BaseController {
         return Response::redirect([ 'browse', 'q' => $query ]);
     }
 
+    /** Deprecated search that displays it as cards */
     function actionSearch() {
 
         $page           = HTTP::get('page', 0);
