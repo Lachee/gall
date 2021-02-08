@@ -91,6 +91,25 @@ document.getElementById('navbar-search').addEventListener('keyup', (event) => {
         '(\\?[;&a-z\\d%_.~+=-]*)?'+ // query string
         '(\\#[-a-z\\d_]*)?$','i'); // fragment locator
         return !!pattern.test(str);
-    }
-        
+    }        
 });
+
+/** Image ALT feature.
+ * When a image fails to load, then its alt shall be used
+ */
+document.body.addEventListener(
+    'error',
+    function(event){
+        if(event.target.tagName == 'IMG'){
+            const src = event.target.src;
+            const alt = event.target.getAttribute('src-alt');
+            if (alt != null) {
+                if (src != alt) { 
+                    event.target.src = alt;
+                    console.warn('Image failed to load, so attempting the alt', src, alt);
+                }
+            }
+        }
+    },
+    true // <-- useCapture
+)

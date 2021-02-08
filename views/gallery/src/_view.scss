@@ -102,3 +102,25 @@ img.lg-thumbnail {
     }
 }
 
+/** Seperator **/
+.separator {
+    $spacing: 1em;
+    display: flex;
+    align-items: center;
+    text-align: center;
+    color: #0c0c0e;
+    font-weight: bold;
+    
+    &::before, &::after {
+        content: "";
+        flex: 1;
+        border-bottom: 5px solid #0c0c0e;
+        border-radius: 5px;
+    }
+    &::before {
+        margin-right: $spacing;
+    }
+    &::after {
+        margin-left: $spacing;
+    }
+}

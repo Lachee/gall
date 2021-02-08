@@ -16,15 +16,9 @@ use kiss\Kiss;
 
 
 <h1>Browse</h1>
-<div id="grid" class="grid" style="width: 75%">
-</div>
-
-<button id="next-page" class="next-page">Next Page</button>
-
-<div id="grid-viewer">
-</div>
-
-<button id="test" class="button">Tool Tip</button>
+<div id="grid" class="grid" style="width: 75%"></div>
+<div id="grid-loader" class="separator">loading</div>
+<div id="grid-viewer"></div>
 
 <!--
 <div class="grid">

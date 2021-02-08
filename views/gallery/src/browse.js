@@ -87,9 +87,8 @@ $(document).ready(async () => {
             }
         },
         url: function(image) {
-            const url = image.getAttribute('data-src');
-            //console.log(image, url);
-            return url || 'https://placekitten.com/1028/1028'; //image.getAttribute('data-src');
+            const url = image.getAttribute('src-alt');
+            return url || 'https://http.cat/404';
         },
     });
 
@@ -126,7 +125,7 @@ $(document).ready(async () => {
             //Load image
             const $img = $('<img>').attr('src', thumbnail_url);
             $img.addClass('grid-image');
-            $img.attr('data-src', image_url);
+            $img.attr('src-alt', image_url);
             $img.attr('data-gallery', gallery.id);
             $img.attr('id', 'grid-img-' + (currentCount++));
 
@@ -184,25 +183,29 @@ $(document).ready(async () => {
     });
 
     //When the button becomes visible, load the next page
-    const button = document.getElementById('next-page');
+    const button = document.getElementById('grid-loader');
     const visibilityHandler = onVisibilityChange(button, async () => {
         if (moreImagesAvailable) {
-            console.log('button visible', button);
             moreImagesAvailable = await loadPage(++page);
+            if (!moreImagesAvailable) {
+                button.innerText = 'no more images';
+                //button.style.display = 'none';
+            }    
         }
     });
     
     //We hook the visibility handler to some key events in the dom, mainly scroll.
     // But we will also call it once too, so we can immediately update if we didn't load enough images initially
-    $(window).on('DOMContentLoaded load resize scroll', visibilityHandler);
+    $(window).on('DOMContentLoaded load resize scroll mousemove touch', visibilityHandler);
     visibilityHandler();
 
     $(button).on('click', () => { pack(); });
 
     function pack() {
-        console.log('pack');
         instance.pack();
         viewer.update();
+        if (viewer.isShown)
+            viewer.view(currentIndex);
     }
     
 });
