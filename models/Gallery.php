@@ -369,6 +369,12 @@ class Gallery extends ActiveRecord {
         $blacklist = [];
         foreach($tags as $name) {
 
+            //Its a tag object already, so get its id.
+            if ($name instanceof Tag) {
+                $whitelist[] = $name->getId();
+                continue;
+            }
+
             //Trim the name
             $name = Strings::trim($name, " \n\r\t\v\0\x0B\"");
 

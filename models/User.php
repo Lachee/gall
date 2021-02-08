@@ -147,13 +147,16 @@ class User extends Identity {
         return $this->getGalleries()->select(null, [ 'COUNT(*)' ])->one(true)['COUNT(*)'];
     }
 
+    /** Searches galleries for tags that the user follows 
+     * @return ActiveQuery|Gallery[]  */
     public function searchRecommdendedGalleries($page, $limit) {
         $tags = $this->getFavouriteTags()->limit(5)->all();
         if (count($tags) == 0) $tags = $this->getFavouriteTagsSubmitted()->limit(5)->all();
         if (count($tags) == 0) return $this->getBestGalleries()->limit(5)->all();
 
-        $search = join(',', Arrays::map($tags, function($t) { return '|' . $t->name; }));
-        return Gallery::search([ 'tag' => $search ], $page, $limit);
+        return Gallery::search($tags, $this)                    // Search for the tags, excluding our blacklist
+                        ->andWhere(['founder_id', '<>', $this]) // Exclude our own posts
+                        ->orderByDesc('id');                    // Sort by newest
     }
 #endregion
 

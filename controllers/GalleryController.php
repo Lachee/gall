@@ -25,15 +25,15 @@ class GalleryController extends BaseController {
         $limit = 10;
 
         $galleries = [
-            'latest'            => Gallery::findByLatest()->limit($limit),
-            'top_rated'         => Gallery::findByRating()->limit($limit),
+            'latest'            => Gallery::findByLatest(),
+            'top_rated'         => Gallery::findByRating(),
             'submitted'         => [], 
             'favourites'        => [], 
             'recommendation'    => [],
         ];
         
         if ($user != null) {
-            $galleries['submitted'] = $user->getGalleries()->limit($limit);
+            $galleries['submitted'] = $user->getGalleries();
             $galleries['favourites'] = $user->getFavouriteGalleries();
             $galleries['recommendation'] = $user->searchRecommdendedGalleries(0, $limit);
 
