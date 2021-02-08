@@ -200,38 +200,44 @@ $(document).ready(async () => {
 
     //We hook the visibility handler to some key events in the dom, mainly scroll.
     // But we will also call it once too, so we can immediately update if we didn't load enough images initially
-    $(loader).on('click', nextPage);
+    $(loader).on('click', () => { 
+        console.log('Forcing to next page');
+        isLoadingPage = true;
+        moreImagesAvailable = true;
+        nextPage(); 
+    });
     $(window).on('DOMContentLoaded load resize scroll touch', (e) => {
         if (loader.shouldLoadMore()) nextPage();
     });
     
     async function nextPage() {
         console.log('Next Page was called. Pages Available:', moreImagesAvailable);
-        if (moreImagesAvailable) {            
-            try {
-                //Load the pages
-                isLoadingPage = true;
-                loader.innerText = 'loading';
-                moreImagesAvailable = await loadPage(++page);
                 
-                //Update our states
-                console.log('Finished loading pages. Pages Available:', moreImagesAvailable);
-                if (!moreImagesAvailable) {
-                    loader.innerText = 'no more images';
-                    loader.style.display = 'none';
-                } else {
-                    //Check if we should load more
-                    if (loader.isVisible()) 
-                        await nextPage();
-                }
-
-            }catch(e) { 
-                loader.innerText = 'error occured';
-                throw e; 
-            } finally {
-                loader.innerText = 'waiting';
-                isLoadingPage = false;
+        try {
+            //Load the pages
+            isLoadingPage = true;
+            loader.innerText = 'loading';
+            moreImagesAvailable = await loadPage(++page);
+            
+            //Update our states
+            console.log('Finished loading pages. Pages Available:', moreImagesAvailable);
+            if (moreImagesAvailable) {
+                //Check if we should load more
+                if (loader.isVisible()) 
+                    await nextPage();
             }
+
+        }catch(e) { 
+            loader.innerText = 'error occured';
+            throw e; 
+        } finally {
+            loader.innerText = 'waiting';
+            isLoadingPage = false;
+            
+            if (!moreImagesAvailable) {
+                loader.innerText = 'no more images';
+                loader.style.display = 'none';
+            } 
         }
     }
 
