@@ -39,16 +39,22 @@ $(document).ready(async () => {
 
     //Prepare the Bricks.js instance. This handles the masonry for us,
     const sizes = [
-        { columns: 2, gutter: 5 },
-        { mq: '768px', columns: 3, gutter: 5 },
-        { mq: '1024px', columns: 4, gutter: 5 }
+        { columns: 1, gutter: 5 },
+        { mq: '600px', columns: 2, gutter:1  },
+        { mq: '700px', columns: 2, gutter: 5 },
+        { mq: '970px', columns: 3, gutter: 5 },
+        { mq: '1260px', columns: 4, gutter: 5 },
+        { mq: '1560px', columns: 5, gutter: 5 },
+        { mq: '1860px', columns: 6, gutter: 5 },
+        { mq: '2160px', columns: 7, gutter: 5 },
     ];
     const instance =  Bricks({
-        container: container,
-        packed: 'data-packed',
-        sizes: sizes,
-        position: true
+        container:  container,
+        packed:     'data-packed',
+        sizes:      sizes,
+        position:   true
     });
+    instance.resize(true);
 
     const viewer = new Viewer(container, {
         container: document.getElementById('grid-viewer'),

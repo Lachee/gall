@@ -15,10 +15,15 @@ use kiss\Kiss;
 </style>
 
 
-<h1>Browse</h1>
-<div id="grid" class="grid" style="width: 75%"></div>
-<div id="grid-loader" class="separator">loading</div>
-<div id="grid-viewer"></div>
+
+<h1 class="title">Browse</h1>
+<h2 class="subtitle">Infinitely scroll</h2>
+<!-- TODO: Have buttons that will skip pages -->
+<div class="grid-container">
+    <div id="grid" class="grid" style="width: 75%"></div>
+    <div id="grid-loader" class="separator">loading</div>
+    <div id="grid-viewer"></div>
+</div>
 
 <!--
 <div class="grid">

@@ -1,3 +1,4 @@
+/** Image Utilities */
 .image.maintain-ratio {
     img {
         width: auto;
@@ -29,6 +30,7 @@ img.lg-thumbnail {
     object-fit: contain;
 }
 
+/** Gallery Favourite List */
 .favourited {
     $p-width: 32px;
     .fav-profile {
@@ -40,6 +42,7 @@ img.lg-thumbnail {
     }
 }
 
+/** Cover Images as a card */
 .cover-image {
     img { object-fit: cover;}
     .card {
@@ -102,25 +105,39 @@ img.lg-thumbnail {
     }
 }
 
-/** Seperator **/
-.separator {
-    $spacing: 1em;
-    display: flex;
-    align-items: center;
-    text-align: center;
-    color: #0c0c0e;
-    font-weight: bold;
-    
-    &::before, &::after {
-        content: "";
-        flex: 1;
-        border-bottom: 5px solid #0c0c0e;
-        border-radius: 5px;
+
+/** Grid */
+.grid-container {
+    .grid {
+        margin-left: auto;
+        margin-right: auto;
+        
+        .grid-image-container > img {
+            margin-left: auto;
+            display: block;
+            margin-right: auto;
+        }
     }
-    &::before {
-        margin-right: $spacing;
-    }
-    &::after {
-        margin-left: $spacing;
+
+    .separator {
+        $spacing: 1em;
+        display: flex;
+        align-items: center;
+        text-align: center;
+        color: #0c0c0e;
+        font-weight: bold;
+        
+        &::before, &::after {
+            content: "";
+            flex: 1;
+            border-bottom: 5px solid #0c0c0e;
+            border-radius: 5px;
+        }
+        &::before {
+            margin-right: $spacing;
+        }
+        &::after {
+            margin-left: $spacing;
+        }
     }
 }
