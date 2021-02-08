@@ -191,32 +191,23 @@ $(document).ready(async () => {
 
     //When the button becomes visible, load the next page
     const loader = document.getElementById('grid-loader');
-    loader.visible = false;
+    loader.isVisible = () => isElementInViewport(loader);
+    loader.shouldLoadMore = () => loader.isVisible() && !isLoadingPage && moreImagesAvailable;
 
     //We hook the visibility handler to some key events in the dom, mainly scroll.
     // But we will also call it once too, so we can immediately update if we didn't load enough images initially
     $(loader).on('click', nextPage);
-    $(window).on('DOMContentLoaded load resize scroll mousemove touch', (e) => {
-        const wasVisible = loader.visible;
-        const isVisible  = loader.visible = isElementInViewport(loader);
-        if (isVisible && !isLoadingPage && moreImagesAvailable) nextPage();
+    $(window).on('DOMContentLoaded load resize scroll touch', (e) => {
+        if (loader.shouldLoadMore()) nextPage();
     });
     
-    //Initial Load
-    const initialLoadInterval = setInterval(async () => {
-        if (loader.visible = isElementInViewport(loader) && !isLoadingPage && moreImagesAvailable) {
-            await nextPage();
-        } else {
-            clearInterval(initialLoadInterval);
-        }
-    }, 1000);
-
     async function nextPage() {
         console.log('Next Page was called. Pages Available:', moreImagesAvailable);
         if (moreImagesAvailable) {            
             try {
                 //Load the pages
                 isLoadingPage = true;
+                loader.innerText = 'loading';
                 moreImagesAvailable = await loadPage(++page);
                 
                 //Update our states
@@ -224,11 +215,17 @@ $(document).ready(async () => {
                 if (!moreImagesAvailable) {
                     loader.innerText = 'no more images';
                     loader.style.display = 'none';
+                } else {
+                    //Check if we should load more
+                    if (loader.isVisible()) 
+                        await nextPage();
                 }
+
             }catch(e) { 
                 loader.innerText = 'error occured';
                 throw e; 
             } finally {
+                loader.innerText = 'waiting';
                 isLoadingPage = false;
             }
         }
@@ -240,6 +237,9 @@ $(document).ready(async () => {
         if (viewer.isShown)
             viewer.view(currentIndex);
     }
+
+    //Perform the initial load
+    nextPage();
     
 });
 
