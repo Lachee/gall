@@ -98,6 +98,7 @@ class ImageCommand extends Command {
                         self::print("- Failed to save");
                     }
                 } else {
+                    file_put_contents('dmp.json', $respContent);
                     self::print("- Failed to upload");
                 }
             }catch(\Throwable $e) {

@@ -63,12 +63,14 @@ class ScrapeData extends BaseObject {
      * @return Gallery|null returns the matching gallery
      */
     public function findExistingGallery() {
+
+        //TODO: Find by image because we could accidentally repost images
+
         $gallery = Gallery::findByIdentifier($this->scraper, $this->id)->ttl(0)->one();
         if ($gallery != null) return $gallery;
 
         $gallery = Gallery::findByUrl($this->url)->ttl(0)->one();
-        if ($gallery != null) 
-            return $gallery;
+        if ($gallery != null) return $gallery;
 
         return null;
     }
@@ -240,6 +242,13 @@ class ScrapeData extends BaseObject {
      */
     public function publishTo($publisher, $gallery) {
         if (!($gallery instanceof Gallery)) throw new ArgumentException('Gallery must be of type Gallery');
+    
+        //Check it doesnt already exist. This is relied on by the search function
+        $existingGallery = $this->findExistingGallery();
+        if ($existingGallery != null) {
+            $this->_publishedNew = false;
+            return $existingGallery;
+        }
 
         //Prepare the tags
         [ $tags, $missingTags ] = $this->searchTags();
