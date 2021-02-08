@@ -108,7 +108,7 @@ class Form extends BaseObject {
         $field = HTML::comment("'$name' input");
         $field .= HTML::begin('div', [ 'class' => 'field' ]); 
         {
-            if (!empty($scheme->title))
+            if (!($scheme instanceof BooleanProperty) && !empty($scheme->title))
                 $field .= HTML::tag('label', $scheme->title, [ 'class' => 'label' ]);
 
             $field .= HTML::begin('div', ['class' => 'control']);
@@ -119,7 +119,7 @@ class Form extends BaseObject {
 
             if (!empty($scheme->description))
                 $field .= HTML::tag('p', $scheme->description, [ 'class' => 'help' ]);
-                
+        
         }
         $field .= HTML::end('div');
         return $field;
@@ -138,6 +138,24 @@ class Form extends BaseObject {
             'value'         => $this->getProperty($name, ''),
             'disabled'      => $scheme->getProperty('readOnly', false)
         ]);
+    }
+
+    
+    /** Renders a text field
+     * @param string $name the property name
+     * @param StringProperty $scheme
+     * @return string
+    */
+    protected function inputBoolean($name, $scheme, $options = []) {
+        $options = [ 
+            'name'          => $name,
+            'content'       => $scheme->description,
+            'disabled'      => $scheme->getProperty('readOnly', false)
+        ];
+        if ($this->getProperty($name, false)) $options['checked'] = true;
+
+        $tag = HTML::input('checkbox', $options);
+        return "<label class='label'>{$tag} {$scheme->title}</label>";
     }
 
     /** @inheritdoc */

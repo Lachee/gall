@@ -16,6 +16,7 @@ use kiss\helpers\HTTP;
 use kiss\helpers\Strings;
 use kiss\K;
 use kiss\Kiss;
+use kiss\schema\BooleanProperty;
 use kiss\schema\IntegerProperty;
 use kiss\schema\RefProperty;
 use kiss\schema\StringProperty;
@@ -32,22 +33,29 @@ class User extends Identity {
     protected $profile_image;
     protected $snowflake;
     protected $score;
+    protected $last_seen;
+    protected $anonymise = true;
 
     public static function getSchemaProperties($options = [])
     {
         return [
             'uuid'          => new StringProperty('ID of the user'),
             'snowflake'     => new StringProperty('Discord Snowflake id'),
-            'username'      => new StringProperty('Name of hte user'),
-            'displayName'   => new StringProperty('Name of hte user'),
+            'username'      => new StringProperty('Name of the user'),
+            'displayName'   => new StringProperty('Name of the user'),
             'profileName'   => new StringProperty('Name of the user\'s profile'),
             'profileImage'  => new RefProperty(Image::class, 'Profile image'),
-            'sparkles'      => new StringProperty('Number of sparkles the user has', [ 'readOnly' => true ])
+            'sparkles'      => new StringProperty('Number of sparkles the user has', [ 'readOnly' => true ]),
+            'anonymise'     => new BooleanProperty('Hides the user details from guests'),
+            'last_seen'     => new StringProperty('Last time this user was active')
         ];
     }
 
     /** @return string Current discord snowflake of the logged in user. */
-    public function getSnowflake() { return $this->snowflake; }
+    public function getSnowflake() { 
+        if (!Kiss::$app->loggedIn()) return '0';
+        return $this->snowflake; 
+    }
 
     /** Finds by snowflake */
     public static function findBySnowflake($snowflake) {
@@ -78,9 +86,8 @@ class User extends Identity {
      * @return string the URL
      */
     public function getAvatarUrl($size = 64) {
-        $url = "https://d.lu.je/avatar/{$this->snowflake}?size=$size";
+        $url = "https://d.lu.je/avatar/{$this->getSnowflake()}?size=$size";
         return $url;
-        //return HTTP::url( ['/api/proxy', 'url' =>  $url ] );  
     }
     /** @return ActiveQuery|Image gets the profile image */
     public function getProfileImage() {
@@ -104,11 +111,18 @@ class User extends Identity {
 
     /** @return string the name of the profile page. Some users may have a custom one. */
     public function getProfileName() {
+        if (!Kiss::$app->loggedIn()) return $this->uuid->toString();
         return !empty($this->profile_name) ? $this->profile_name : $this->snowflake;
     }
     /** @return string the name to display to others. */
     public function getDisplayName() {
+        if (!Kiss::$app->loggedIn()) return 'anonymous';
         return !empty($this->profile_name) ? $this->profile_name :  $this->username;
+    }
+    /** @return string the username */
+    public function getUsername() {
+        if (!Kiss::$app->loggedIn()) return 'anonymous';
+        return $this->username;
     }
 #endregion
 
@@ -243,6 +257,13 @@ class User extends Identity {
 
         return $results !== false && count($results) > 0;
     }
+
+    /** Updates that hte user has been seen */
+    public function seen() {
+        $stm = Kiss::$app->db()->prepare('UPDATE $users SET `last_seen` = now() WHERE `id` = :id');
+        $stm->bindParam(':id', $this->id);
+        $stm->execute();
+    }
 #endregion
 
 #region Blacklist
@@ -368,6 +389,20 @@ class User extends Identity {
     public function isMe() {
         if (Kiss::$app->user == null) return false;
         return $this->id == Kiss::$app->user->id;
+    }
+
+    /** @inheritdoc */
+    public function login() {
+
+        //Undo the anonymise for new accounts
+        if (empty($this->last_seen)) { 
+            $this->anonymise = false;
+            $this->markDirty('anonymise');
+            $this->save(false, [ 'anonymise' ]);
+        }
+
+        //Login
+        return parent::login();
     }
 
     /** Gives the user a specific amount of sparkles 

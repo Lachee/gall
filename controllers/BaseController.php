@@ -20,7 +20,7 @@ class BaseController extends Controller {
     private $_previousRoute;
 
     public function authorize($action) {        
-        if (!GALL::$app->allowVisitors && !Kiss::$app->loggedIn()) return false;
+        if (!GALL::$app->allowVisitors && !GALL::$app->loggedIn()) return false;
         return true;
     }
 
@@ -29,11 +29,12 @@ class BaseController extends Controller {
         HTML::$title = Kiss::$app->title;
 
         //Force a check on the mixer user, validating the oauth. We dont want to apply this rule to the /auth endpoint tho.
-        if (Kiss::$app->loggedIn() && $endpoint != '/auth' && $endpoint != '/login' && $endpoint != 'exception') {
-            if (!GALL::$app->getUser()->validateDiscordToken()) {
+        if (GALL::$app->loggedIn()) {
+
+            //If we were unable to validate the user, log them out
+            if ($endpoint != '/auth' && $endpoint != '/login' && $endpoint != 'exception' && !GALL::$app->getUser()->validateDiscordToken()) {
                 try { 
                     $discordUser = GALL::$app->getUser()->getDiscordUser();
-
                 } catch(\Exception $ex) { 
                     //We failed to get the user for what ever reason, lets abort
                     Kiss::$app->getUser()->logout(); 
@@ -42,6 +43,9 @@ class BaseController extends Controller {
                     return Kiss::$app->respond(Response::redirect($referal));
                 }
             }
+
+            //Update that we have seen them
+            GALL::$app->user->seen();
         }
     
         if (!$this->authorize($endpoint))

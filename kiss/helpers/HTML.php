@@ -117,6 +117,20 @@ class HTML {
         return self::tag('input', $type == 'textarea' ? ($options['value'] ?? '') : '', $options);
     }
 
+    /** Creates a HTML checkbox
+     * @param string $type type of input
+     * @param array $options the attribute options. disabled and value are treated specially.
+     * @return string the HTML tag.
+     */
+    public static function checkbox($options = []) {
+        $disabled = $options['disabled'] ?? false;
+        $options['disabled'] = true;
+        if (!$disabled) unset($options['disabled']);
+        
+        if ($options['value']) $options['checked'] = true;
+        return self::tag('checkbox', $options['label'] ?? '', $options);
+    }
+
     /**
      * Creates a HTML A tag
      * @param mixed $route the route

@@ -139,8 +139,14 @@ class ProfileController extends BaseController {
             throw new HttpException(HTTP::UNAUTHORIZED, 'Need to be logged in');
         
         if ($this->_profile != null) return $this->_profile;        
+
         $this->_profile = User::findByProfileName($this->profile_name)->ttl(false)->one();
-        if ($this->_profile == null) throw new HttpException(HTTP::NOT_FOUND, 'Profile doesn\'t exist');
-        return $this->_profile;
+        if ($this->_profile != null) return $this->_profile;        
+
+        $this->_profile = User::find()->where(['uuid', $this->profile_name])->ttl(false)->one();
+        if ($this->_profile != null) return $this->_profile;        
+
+        //This is bunk, we found nudda
+        throw new HttpException(HTTP::NOT_FOUND, 'Profile doesn\'t exist');
     }
 }

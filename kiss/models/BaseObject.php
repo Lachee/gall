@@ -3,6 +3,7 @@ namespace kiss\models;
 
 use JsonSerializable;
 use kiss\db\ActiveQuery;
+use kiss\db\Query;
 use kiss\exception\InvalidOperationException;
 use kiss\helpers\Arrays;
 use kiss\helpers\Strings;
@@ -124,8 +125,7 @@ class BaseObject implements SchemaInterface, JsonSerializable {
             if ($result instanceof ActiveQuery) {
                 $all = $result->all();
                 $limit = $result->getLimit();
-                if ($limit == null || $limit[1] > 1) 
-                    return $all;
+                if ($limit == null || $limit[1] > 1) return $all;
                 return $all[0] ?? null;
             }
             return $result;
@@ -535,7 +535,7 @@ class BaseObject implements SchemaInterface, JsonSerializable {
         $properties = [];
         $schema = get_called_class()::getSchemaProperties([ 'serializer' => 'json' ]);
         foreach($schema as $name => $property) {
-            $properties[$name] = $this->{$name};
+            $properties[$name] = $this->__get($name);
         }
         return $properties;
     }

@@ -86,6 +86,16 @@ class ActiveRecord extends BaseObject{
         }         
     }
 
+    /** @inheritdoc */
+    protected function loadProperty($schema, $property, $value, $append = false) {
+        if (parent::loadProperty($schema, $property, $value, $append)) {
+            $this->markDirty($property);
+            return true;
+        }
+        
+        return false;
+    }
+
     /** Before the load */
     protected function beforeQueryLoad($data) {}
     /** After the load */

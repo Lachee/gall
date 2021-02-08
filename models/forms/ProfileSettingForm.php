@@ -9,6 +9,7 @@ use kiss\helpers\HTML;
 use kiss\Kiss;
 use kiss\models\forms\Form;
 use kiss\schema\ArrayProperty;
+use kiss\schema\BooleanProperty;
 use kiss\schema\ObjectProperty;
 use kiss\schema\StringProperty;
 
@@ -21,6 +22,7 @@ class ProfileSettingForm extends Form {
     public $blacklist = [ ];
     public $reaction_emotes = [];
     public $reaction_tags = [];
+    public $anonymise = false;
 
     protected function init()
     {
@@ -31,7 +33,8 @@ class ProfileSettingForm extends Form {
 
         $this->profile_name = $this->profile->profile_name;
         $this->blacklist = Arrays::map($this->profile->getBlacklist()->fields(['tag_id'])->ttl(0)->execute(), function($t) { return $t['tag_id']; });
-    
+        $this->anonymise = $this->profile->anonymise;
+
         $autoTags = $this->profile->getAutoTags()->ttl(0)->execute();
         foreach($autoTags as $at) {
             $this->reaction_emotes[] = $at['emote_id'];
@@ -46,6 +49,8 @@ class ProfileSettingForm extends Form {
             'blacklist'         => new ArrayProperty(new StringProperty('Tag name'), [ 'title' => 'Tag Blacklist', 'description' => 'Tags that will be hidden in recommendations']),
             'reaction_emotes'   => new ArrayProperty(new StringProperty('Reaction id'), [ 'title' => 'Auto Tag', 'description' => 'Automatically tags items when you react with one of these']),
             'reaction_tags'   => new ArrayProperty(new StringProperty('')),
+            'anonymise'         => new BooleanProperty('Hide your account details to guest users', true, [ 'title' => 'Anonymise' ]),
+         
             //'api_key'       => new StringProperty('Authorization Token for the API', '', [ 'title' => 'API Key', 'required' => false, 'readOnly' => true ]),
         ];
     }
@@ -160,6 +165,10 @@ HTML;
                 return false;
             }
         }
+
+        //Update other metadata
+        $this->profile->anonymise = $this->anonymise;
+        $this->profile->save();
 
         // === BLACKLIST
         //Prepare a list of blacklist items we did have

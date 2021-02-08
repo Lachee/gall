@@ -400,6 +400,7 @@ class Query extends BaseObject{
 
         foreach($this->values as $key => $pair) {
             if ($pair !== null || $this->includeNull) {
+                //Regular binding
                 $value_fields[] = $key;
                 $value_binds[] = "?";
                 if (is_bool($pair)) $pair = $pair === true ? 1 : 0;
