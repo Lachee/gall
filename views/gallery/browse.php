@@ -19,6 +19,7 @@ use kiss\Kiss;
 <h1 class="title">Browse</h1>
 <h2 class="subtitle">Infinitely scroll</h2>
 <!-- TODO: Have buttons that will skip pages -->
+<!-- TODO: A progress bar that slowly keeps adding pages across the screen -->
 <div class="grid-container">
     <div id="grid" class="grid" style="width: 75%"></div>
     <div id="grid-loader" class="separator">loading</div>
