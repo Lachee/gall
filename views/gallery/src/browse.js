@@ -163,7 +163,11 @@ $(document).ready(async () => {
         }
 
         //We need to wait for all the images to finish loading so we can more accurately pack them.
-        await Promise.all(imageLoadPromises);
+        await Promise.any([
+            new Promise((resolve, reject) => setTimeout(() => { resolve(); }, 5000) ),
+            Promise.all(imageLoadPromises),
+        ]);
+
         //pack();
         //instance.update(); // While update is faster, it doesn't produce accurate results.
 

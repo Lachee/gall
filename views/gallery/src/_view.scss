@@ -120,17 +120,19 @@ img.lg-thumbnail {
     }
 
     .separator {
+        $color: #8a8a8a;
         $spacing: 1em;
+
         display: flex;
         align-items: center;
         text-align: center;
-        color: #0c0c0e;
+        color: $color;
         font-weight: bold;
         
         &::before, &::after {
             content: "";
             flex: 1;
-            border-bottom: 5px solid #0c0c0e;
+            border-bottom: 5px solid $color;
             border-radius: 5px;
         }
         &::before {
