@@ -42,8 +42,10 @@ class BaseObject implements SchemaInterface, JsonSerializable {
         $valid = true;
         $schema = get_called_class()::getSchemaProperties(['serializer' => 'form']);
         foreach($schema as $property => $scheme) {
-            if (($err = $scheme->validate($this->{$property})) !== true) {
-                $this->addError($err);
+            $value          = $this->{$property};
+            $validation     = $scheme->validateValue($value);
+            if ($validation !== true) {
+                $this->addError($validation);
                 $valid = false;
             }
         }

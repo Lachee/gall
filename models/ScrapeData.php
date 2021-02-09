@@ -40,7 +40,7 @@ class ScrapeData extends BaseObject {
             'title'         => new StringProperty('The title of the artwork'),
             'url'           => new StringProperty('URL to source material'),
             'tags'          => new ArrayProperty(new StringProperty('Tag name')),
-            'images'        => new ArrayProperty(new StringProperty('Image URL'), [ 'min' => 1 ]),
+            'images'        => new ArrayProperty(new StringProperty('Image URL'), [ 'minItems' => 1 ]),
             'cover'         => new StringProperty('URL to cover image'),
 
             'pages'         => new IntegerProperty('Number of pages', 1, ['required' => false]),
@@ -99,6 +99,10 @@ class ScrapeData extends BaseObject {
                 $this->_publishedNew = false;
                 return $existingGallery;
             }
+        }
+
+        if (!$this->validate()) {
+            return false;
         }
 
         //Prepare a list of tags
