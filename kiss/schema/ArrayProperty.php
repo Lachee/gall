@@ -34,6 +34,7 @@ class ArrayProperty extends Property {
     /** @inheritdoc */
     public function validateValue($value)
     {
+        if ($value == null) return parent::validateValue($value);
         if (!is_array($value)) {
             return "Expected an array.";
         }

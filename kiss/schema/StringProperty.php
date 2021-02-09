@@ -19,9 +19,8 @@ class StringProperty extends Property {
     /** @inheritdoc */
     public function validateValue($value)
     {
-        if (!is_string($value)) 
-            return "Expected a string.";
-
+        if ($value == null) return parent::validateValue($value);
+        if (!is_string($value)) return "Expected a string.";
         return parent::validateValue($value);
     }
 }

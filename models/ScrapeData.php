@@ -41,8 +41,8 @@ class ScrapeData extends BaseObject {
             'url'           => new StringProperty('URL to source material'),
             'tags'          => new ArrayProperty(new StringProperty('Tag name')),
             'images'        => new ArrayProperty(new StringProperty('Image URL'), [ 'minItems' => 1 ]),
-            'cover'         => new StringProperty('URL to cover image'),
-
+            
+            'cover'         => new StringProperty('URL to cover image', null, [ 'required' => false ]),
             'pages'         => new IntegerProperty('Number of pages', 1, ['required' => false]),
             'description'   => new StringProperty('Description of artwork', null, ['required' => false]),
             'artist'        => new ArrayProperty(new StringProperty('Artist name'), [ 'required' => false ]),

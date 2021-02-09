@@ -43,6 +43,7 @@ class EnumProperty extends StringProperty {
     /** @inheritdoc */
     public function validateValue($value)
     {
+        if ($value == null) return parent::validateValue($value);
         if ($this->assoc) {
             foreach($this->enum as $index => $enumValue) {
                 if ($index == $value) {

@@ -2,6 +2,7 @@
 
 use app\components\mixer\Mixer;
 use app\models\forms\ProfileSettingForm;
+use app\models\forms\TagManagementForm;
 use app\models\Gallery;
 use app\models\Tag;
 use kiss\exception\HttpException;
@@ -19,6 +20,18 @@ class TagController extends BaseController {
 
     function actionIndex() {
         throw new NotYetImplementedException('TODO: Show all tags');
+    }
+
+    function actionManage() {
+        //Verified they are logged in
+        if (!GALL::$app->loggedIn())
+            throw new HttpException(HTTP::UNAUTHORIZED, 'Need to be logged in to manage tags.');
+    
+        $form = new TagManagementForm();
+        return $this->render('manage', [
+            'model' => $form,
+            'fullwidth' => false,
+        ]);
     }
 
     function actionEdit() {
