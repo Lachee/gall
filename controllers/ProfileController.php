@@ -64,7 +64,7 @@ class ProfileController extends BaseController {
     }
 
     function actionFavourites() {
-        $galleries = $this->profile->getFavouriteGalleries()->all();
+        $galleries = $this->profile->getFavouriteGalleries()->orderByDesc('id')->all();
         return $this->render('browse', [
             'title'     => 'Favourites',
             'profile'   => $this->profile,
@@ -73,7 +73,7 @@ class ProfileController extends BaseController {
     }
 
     function actionSubmissions() {
-        $galleries = $this->profile->getGalleries()->all();
+        $galleries = $this->profile->getGalleries()->orderByDesc('id')->all();
         return $this->render('browse', [
             'title'     => 'Submissions',
             'profile'   => $this->profile,
