@@ -7,23 +7,16 @@ import {delegate} from 'tippy.js';
 /** @var {./src/api/BaseAPI} api */
 const api = app.api;
 const gallery_cache = {};
-const includeTooltip = false;
+const includeTooltip = true;
 
 if (includeTooltip) {
     delegate('#grid', {
-        target: '.grid-image-container > img',
+        target: '[data-tooltip]',
         allowHTML: true,
         multiple: true,
-        interactive: true,
         content: (reference) => {
-            const gallery_id = reference.getAttribute('data-gallery');
-            const gallery = gallery_cache[gallery_id];
-            if (!gallery) return 'No Author';
-            
-            return `<div class="profile-hint">
-                        <img class="avatar" src="${gallery.founder.getAvatarUrl()}" alt="Avatar Picture"> 
-                        <span><a href="/profile/${gallery.founder.profileName || gallery.founder.snowflake}/">${gallery.founder.displayName}</a></span>
-                    </div>`;
+            const content = reference.getAttribute('data-tooltip');
+            return content;
         },
     });
 }
@@ -149,6 +142,8 @@ const animateButton = (button) => {
                 for(var k in images) {
 
                     const image = images[k];
+                    if (image.isCover) continue;
+                    
                     const image_url = image.getUrl();
                     const thumbnail_url = image.getThumbnail();
 
@@ -162,17 +157,23 @@ const animateButton = (button) => {
                     const $panel = $(`
                     <div class='grid-panel is-hidden'>
                         <div class='columns'>
-                            <div class='column'>Lachee</div>
+                            <div class='column'>
+                                <div class="profile-hint" data-tooltip="${gallery.founder.displayName}">
+                                    <a href="/profile/${gallery.founder.profileName || gallery.founder.snowflake}/">
+                                        <img class="avatar" src="${gallery.founder.getAvatarUrl()}" alt="${gallery.founder.displayName}">
+                                    </a>
+                                </div>
+                            </div>
                             <div class='column'>
                                 <div class='buttons has-addons is-full-width'>
-                                    <a class='button button-favourite'>
+                                    <a class='button button-favourite' data-tooltip='Favourite the gallery'>
                                         <span class="icon is-small"><i class="${favouritedStyle} fa-fire"></i></span>
                                     </a>
-                                    <a class='button button-pin'>
+                                    <a class='button button-pin' data-tooltip='Pin to your profile'>
                                         <span class="icon is-small"><i class="fal fa-map-pin"></i></span>
                                     </a>
                                     
-                                    <a href='/gallery/${gallery.id}/' class='button button-view'>
+                                    <a href='/gallery/${gallery.id}/' class='button button-view' data-tooltip='Open gallery'>
                                         <span class="icon is-small"><i class="fal fa-eye"></i></span>
                                     </a>
                                 </div>

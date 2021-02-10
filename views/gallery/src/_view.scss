@@ -91,18 +91,7 @@ img.lg-thumbnail {
 
 /** Image Tooltips */
 .tippy-box .tippy-content {
-    .profile-hint {
-        img, span {
-            display: inline-block;
-            vertical-align: middle;
-            font-size: 13pt;
-            margin-right: 0.5em;
-        }
-        a {
-            color: white;
-            &:hover { color: #3273dc; }
-        }
-    }
+
 }
 
 
@@ -136,6 +125,19 @@ img.lg-thumbnail {
 
                 /** Remove the stupid button z-indexing issue  */
                 .button:hover, .button:active, .button:focus { z-index: auto; }
+                
+                .profile-hint {
+                    img, span {
+                        display: inline-block;
+                        vertical-align: middle;
+                        font-size: 13pt;
+                        margin-right: 0.5em;
+                    }
+                    a {
+                        color: white;
+                        &:hover { color: #3273dc; }
+                    }
+                }
             }
 
             .grid-image {
