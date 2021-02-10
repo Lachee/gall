@@ -1,5 +1,5 @@
 //import fetch from 'node-fetch';
-import { User, Gallery } from './Types.mjs';
+import { User, Gallery, Image } from './Types.mjs';
 
 export class BaseAPI {
     /** @var {String} baseUrl the root URL to the API */
@@ -68,6 +68,15 @@ export class BaseAPI {
         const results = await this.fetch('GET', `/gallery/${id}`);
         return new Gallery(this, results);
     }
+    /** Get a gallery's images */
+    async getImages(gallery) {
+        if (typeof kiss !== 'undefined' && gallery == null) gallery = kiss.PARAMS.gallery_id;
+        if (gallery == null) throw new Error('Cannot get gallery images without an id. Either pass an ID or visit a gallery page');
+        const gallery_id = gallery.id || gallery;
+        const images = await this.fetch('GET', `/gallery/${gallery_id}/images`);
+        if (images == null) return [];
+        return images.map(i => new Image(this, i));
+    }
 
     //Reactions
     /** Adds a reaction for the current user. */
@@ -122,12 +131,21 @@ export class BaseAPI {
 
     /** Gallery stuff that will be mvoed back */
     
-    async pin(gallery = null) {
+    /** Pins a gallery */
+    async pinGallery(gallery = null) {
         if (typeof kiss !== 'undefined' && gallery == null) gallery = kiss.PARAMS.gallery_id;
         if (gallery == null) throw new Error('Cannot pin gallery without an id. Either pass an ID or visit a gallery page');
         const gallery_id = gallery.id || gallery;
         return await this.fetch('POST', `/gallery/${gallery_id}/pin`);
     }
+
+    /** Pins an image */
+    async pinImage(image) {
+        if (image == null) throw new Error('Cannot pin a null image');
+        const image_id = image.id || image;
+        return await this.fetch('POST', `/image/${image_id}/pin`);
+    }
+
     async favourite(gallery = null) {
         if (typeof kiss !== 'undefined' && gallery == null) gallery = kiss.PARAMS.gallery_id;
         if (gallery == null) throw new Error('Cannot favourite gallery without an id. Either pass an ID or visit a gallery page');

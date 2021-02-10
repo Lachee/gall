@@ -224,7 +224,8 @@ class User extends Identity {
 
     /** @return bool returns if the user has favourited a particular gallery */
     public function hasFavouritedGallery($gallery) {
-        return Favourite::findByProfile($this)->select(null, [ 'COUNT(*)' ])->andWhere(['gallery_id', $gallery])->andWhere(['user_id', $this])->ttl(false)->one(true)['COUNT(*)'] != 0;
+        $results = Favourite::findByProfile($this)->andWhere(['gallery_id', $gallery])->ttl(false)->one(true);
+        return $results != null;
     }
     
     /** @return ActiveQuery|Favourite[] gets the favourites */

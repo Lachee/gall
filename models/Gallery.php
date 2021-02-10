@@ -12,6 +12,7 @@ use kiss\exception\SQLDuplicateException;
 use kiss\helpers\Arrays;
 use kiss\helpers\Strings;
 use kiss\Kiss;
+use kiss\schema\BooleanProperty;
 use kiss\schema\EnumProperty;
 use kiss\schema\IntegerProperty;
 use kiss\schema\RefProperty;
@@ -60,6 +61,7 @@ class Gallery extends ActiveRecord {
             'cover'             => new RefProperty(Image::class, 'Cover image'),
             'views'             => new IntegerProperty('Number of views'),
             'messageLink'       => new StringProperty('Link to the discord message'),
+            'favourited'        => new BooleanProperty('Is this object favourited by the current active user', false, [ 'readOnly' => true ]),
         ];
     }
 
@@ -185,6 +187,12 @@ class Gallery extends ActiveRecord {
     /** @return ActiveQuery|Favourite list of all people that favourited this gallery */
     public function getFavourites() {
         return Favourite::find()->where(['gallery_id',  $this->getKey() ]);
+    }
+
+    /** @return bool checks if the current user has favourited this gallery */
+    public function getFavourited() { 
+        if (!GALL::$app->loggedIn()) return false;
+        return GALL::$app->user->hasFavouritedGallery($this);
     }
 
 #region views

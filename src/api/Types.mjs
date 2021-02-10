@@ -59,6 +59,8 @@ export class Gallery extends APIObject{
     views;
     isNew;
 
+    favourited;
+
     constructor(api, data) {
         super(api);
         this.id             = data.id;
@@ -71,6 +73,38 @@ export class Gallery extends APIObject{
         this.cover          = data.cover ? new Image(api, data.cover) : null;
         this.views          = data.views !== null ? data.views : 0;
         this.isNew          = data.views === null;
+        this.favourited     = data.favourited === true;
+    }
+
+    /** Pins the image to the current user's profile */
+    async pin() { return await this.api.pinGallery(this.id); }
+
+    /** Gets the images of the gallery. 
+     * The results are not cached.
+    */
+    async fetchImages() { return await this.api.getImages(this.id); }
+
+    /** Favourites the gallery */
+    async favourite() { 
+        this.favourited = true;
+        return await this.api.favourite(this);
+    }
+
+    /** Unfavourites the gallery */
+    async unfavourite() {
+        this.favourited = false;
+        return await this.api.unfavourite(this);
+    }
+
+    /** Toogles the favourite state */
+    async toggleFavourite() {
+        if (this.favourited) {
+            await this.unfavourite();
+            return false;
+        }
+
+        await this.favourite();
+        return true;
     }
 
 }
@@ -120,4 +154,7 @@ export class Image extends APIObject{
         if (this.proxy != null && this.proxy != '')  return this.proxy;
         return this.getProxyUrl();
     }
+
+    /** Pins the image to the current user's profile */
+    async pin() { return await this.api.pinImage(this.id); }
 }

@@ -8,14 +8,6 @@ use kiss\Kiss;
 
 ?>
 
-<style>
-    .grid-image-container {
-        width: 300px;
-    }
-</style>
-
-
-
 <h1 class="title">Browse</h1>
 <h2 class="subtitle">Infinitely scroll</h2>
 <!-- TODO: Have buttons that will skip pages -->

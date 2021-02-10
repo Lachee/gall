@@ -43,7 +43,7 @@ use kiss\Kiss;
 
                         <!-- Favourite Button -->
                         <a class="button is-small button-bookmark" title="favourite">
-                            <span class="icon"><i class="<?= GALL::$app->user->hasFavouritedGallery($gallery) ? 'fas' : 'fal' ?> fa-fire"></i></span>
+                            <span class="icon"><i class="<?= $gallery->favourited ? 'fas' : 'fal' ?> fa-fire"></i></span>
                         </a>
                     <?php endif; ?>
                     
