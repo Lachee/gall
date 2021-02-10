@@ -12,7 +12,6 @@ export class BaseAPI {
         this.baseUrl = baseUrl;
         this.#authorization = authorization;
         this.#actingAs = null;
-        console.log('constructed new Base API');
     }
 
     /** Sets who we are going to act as.
@@ -34,7 +33,6 @@ export class BaseAPI {
 
     /** Publishes a URL */
     async publish(url, guild_id = null, channel_id = null, message_id = null) {
-        console.log('publishing gallery');
         const result = await this.fetch('POST', `/gallery`, { 
             url:        url,
             guild_id:   guild_id,
@@ -169,13 +167,14 @@ export class BaseAPI {
         if (this.#actingAs != null)         headers['X-Actors-Snowflake'] = this.#actingAs;
         if (this.#authorization != null)    headers['Authorization'] = 'Bearer ' + this.#authorization;
 
-        console.log(method, endpoint, data, headers);
+        //console.log(method, endpoint, data, headers);
         const body = data ? JSON.stringify(data) : null;
         let response = await fetch(`${this.baseUrl}${endpoint}`, { 
             method: method,
             headers: headers,
             body: body
         });
+        
 
         if (!response.ok) {
             console.error("Failed ", method, endpoint, response, await response.json());
@@ -191,7 +190,7 @@ export class BaseAPI {
         }
     
         let json = await response.json();
-        console.log(method, endpoint, data, body, json);
+        //console.log(method, endpoint, data, body, json);
         return json.data;
     }
 

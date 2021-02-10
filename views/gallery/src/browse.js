@@ -28,7 +28,24 @@ if (includeTooltip) {
     });
 }
 
-$(document).ready(async () => {
+/** Animates the button */
+const animateButton = (button) => {
+    if (button == null) {
+        console.error('cannot animate because button is null');
+        return false;
+    }
+    if (button.classList.contains('anim-rubber')) {
+        
+    console.log('removing class from', button);
+        button.classList.remove('anim-rubber');
+        setTimeout(() => animateButton(button), 100);
+        return;
+    }
+    console.log('adding class to', button);
+    button.classList.add('anim-rubber');
+}
+
+(async () => {
 
     let currentIndex;
     let currentCount = 0;
@@ -166,8 +183,6 @@ $(document).ready(async () => {
                     
                     //$panel.find('.button-view').on('click', () => $div.addClass('focused'));
                     $panel.find('.button-favourite').on('click', async (e) => {
-                        $(e.target).addClass('anim-rubber');
-                        console.log(e.target);
                         const setState = function(state) {
                             $container
                                 .find(`.grid-image-container[data-gallery=${gallery.id}] .button-favourite i`)
@@ -176,13 +191,16 @@ $(document).ready(async () => {
                         };
 
                         //Set the state, then eventually update it to what the state actually is
+                        animateButton($('.button-favourite').get(0));
                         setState(!gallery.favourited);
                         setState(await gallery.toggleFavourite());
                     });
-                    $panel.find('.button-pin').on('click', (e) => {
-                        $(this).removeClass('anim-rubber').delay(10).addClass('anim-rubber');
-                        image.pin()
+                    
+                    $panel.find('.button-pin').on('click', async function(e) {    //cannot use arrow function because that doesn't rebind the context.
+                        animateButton($('.button-pin').get(0));
+                        await image.pin();
                     });
+
 
 
                     //Add the image
@@ -301,7 +319,7 @@ $(document).ready(async () => {
     //Perform the initial load
     nextPage();
     
-});
+})();
 
 
 // jQuery
