@@ -375,6 +375,9 @@ class Gallery extends ActiveRecord {
         //Build a list of valid IDS
         $whitelist = [];
         $blacklist = [];
+        $userWhitelist     = [];
+        $userBlacklist     = [];
+
         foreach($tags as $name) {
 
             //Its a tag object already, so get its id.
@@ -396,6 +399,21 @@ class Gallery extends ActiveRecord {
             //Skip empties
             if (empty($name)) continue;
 
+            //Determine if its a control tag
+            if (count($control = explode(':', $name, 2)) > 1) {
+                $key    = Strings::toLowerCase(Strings::trim($control[0]));
+                $value  = Strings::trim($control[1]);
+                switch($key) {
+                    default: break; // We dont care, continue processing
+                    case 'user': 
+                        $profile = User::findByProfileName($value)->fields(['id'])->one();
+                        if ($profile == null) break;    // Break the switch statement and continue processing
+                        if ($isBlacklist) $userBlacklist[] = $profile->getKey();
+                        else              $userWhitelist[] = $profile->getKey();
+                        continue;   // Continue here so we skip processing this tag.
+                }
+            }
+
             /** @var Tag $tag */
             $tag = Tag::findByName($name)->one();
             if ($tag != null) {
@@ -406,6 +424,8 @@ class Gallery extends ActiveRecord {
 
         //Create the query
         $query  = self::find()->orderByDesc('id');
+
+        //---- Tag Whitelist
         if (count($whitelist) > 0) {
             foreach($whitelist as $tag_id) {
                 $query->andWhere(['id', Kiss::$app->db()->createQuery()
@@ -415,6 +435,7 @@ class Gallery extends ActiveRecord {
             }
         }
 
+        //---- Tag Blacklist
         if (count($blacklist) > 0) {
             $query->andWhere(['id', 'NOT',  Kiss::$app->db()->createQuery()
                                                                 ->select('$tags', [ 'gallery_id' ])
@@ -422,6 +443,19 @@ class Gallery extends ActiveRecord {
                             ]);
         }
 
+        //---- User Whitelist
+        if (count($userWhitelist) > 0) {
+            foreach($userWhitelist as $tag_id) {
+                $query->andWhere(['founder_id', $userWhitelist ]);  // We can only have 1 user anyways, so it doesn't matter that it's oring it.
+            }
+        }
+
+        //---- User Blacklist
+        if (count($userBlacklist) > 0) {
+            $query->andWhere(['founder_id', 'NOT',  $userBlacklist ]);
+        }
+
+        
         //Setup the additional blacklist
         if ($additionalBlacklist != null) {
             $adQuery = null;

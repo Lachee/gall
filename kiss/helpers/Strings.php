@@ -69,6 +69,11 @@ class Strings {
         return (substr($string, -$len) === $needle); 
     } 
 
+    /** Checks if the string contains the substring */
+    public static function contains(String $string, String $needle) : bool {
+        return strrpos($string, $needle) !== false;
+    }
+
     /** Generates a cryptographically secure random token
      * @return string Hexidecimal token.
      */
