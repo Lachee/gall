@@ -83,8 +83,14 @@ class MainController extends BaseController {
             GALL::$app->discord->getStorage($user->uuid)->setTokens($tokens);
             $guilds = GALL::$app->discord->getGuilds($tokens);
             $guilds = Arrays::map($guilds, function($g) { return $g['id']; });
-            $guild = Guild::find()->where(['snowflake', $guilds ])->one(true);
-            if ($guild == null) throw new Exception('Cannot possibly logged in because you do not share a server');
+            $guilds = Guild::find()->where(['snowflake', $guilds ])->fields(['id'])->all();
+            if ($guilds == null || count($guilds) == 0) 
+                throw new Exception('Cannot possibly logged in because you do not share a server');
+            
+            //Add the user to each guild
+            foreach($guilds as $guild) {
+                $user->addGuild($guild);
+            }
 
             //Update our name and save
             $user->username = $duser->username;
