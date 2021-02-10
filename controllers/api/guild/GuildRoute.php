@@ -21,7 +21,7 @@ class GuildRoute extends BaseApiRoute {
 
     protected function scopes() {
         switch(HTTP::method()) {
-            default:  return [ ];
+            default:  return parent::scopes();
             case HTTP::PUT:     return [ 'guild.update' ];
             case HTTP::DELETE:  return [ 'guild.delete' ];
         }

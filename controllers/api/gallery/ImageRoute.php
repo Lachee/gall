@@ -18,10 +18,6 @@ class ImageRoute extends GalleryRoute {
     // Note that more explicit routes get higher priority. So /example/apple will take priority over /example/:fish
     protected static function route() { return parent::route() . "/images"; }
 
-    /** @inheritdoc */
-    public function scopes() {
-        return null;
-    }
     public function get() {
         $gallery    = $this->getGallery();
         return $gallery->getImages()->fields(['id', 'url', 'origin'])->all();

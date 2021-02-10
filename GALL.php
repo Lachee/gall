@@ -15,7 +15,7 @@ class GALL extends Kiss {
     public $serverInvite = '';
 
     /** @var bool allows logged out users */
-    public $allowVisitors = true;
+    public $allowVisitors = false;
 
     /** @var string the upload key to awooRocks */
     public $awooRocksUploadKey = '';

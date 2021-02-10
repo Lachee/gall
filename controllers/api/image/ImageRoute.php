@@ -20,12 +20,6 @@ class ImageRoute extends BaseApiRoute {
     // Note that more explicit routes get higher priority. So /example/apple will take priority over /example/:fish
     protected static function route() { return "/image/:image_id"; }
 
-    protected function scopes() {
-        switch(HTTP::method()) {
-            default:  return [ ];
-        }
-    }
-
     /** Gets a guild object */
     public function get() {
         return $this->image;

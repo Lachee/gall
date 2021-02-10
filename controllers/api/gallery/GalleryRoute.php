@@ -23,8 +23,8 @@ class GalleryRoute extends BaseApiRoute {
 
     protected function scopes() {
         switch(HTTP::method()) {
-            default:            return [];
-            case HTTP::GET:     return null;
+            default:            return parent::scopes();
+            case HTTP::GET:     return parent::scopes();
             case HTTP::PUT:     return [ 'gallery.update' ];
         }
     }

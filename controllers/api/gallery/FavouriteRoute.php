@@ -18,7 +18,7 @@ class FavouriteRoute extends GalleryRoute {
 
     protected function scopes() {
         switch(HTTP::method()) {
-            default:            return [];
+            default:            return parent::scopes();
             case HTTP::POST:    return [ 'ctrl:allow_users', 'gallery' ];
         }
     }

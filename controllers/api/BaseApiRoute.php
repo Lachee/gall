@@ -23,6 +23,9 @@ class BaseApiRoute extends ApiRoute {
     public function getActingUser() { return $this->_user ?? GALL::$app->user; }
 
     /** @inheritdoc */
+    protected function scopes() { return GALL::$app->allowVisitors ? null : [ ]; } 
+
+    /** @inheritdoc */
     public function authenticate($identity)
     {
         //Do base auth stuff

@@ -23,7 +23,7 @@ class BaseGalleryRoute extends BaseApiRoute {
     /** @inheritdoc */
     public function scopes() {
         switch(HTTP::method()) {
-            default:            return null; //[ 'ctrl:allow_users', 'gallery.search' ];
+            default:            return parent::scopes(); //[ 'ctrl:allow_users', 'gallery.search' ];
             case HTTP::POST:    return [ 'gallery.publish' ];
         }
     }
