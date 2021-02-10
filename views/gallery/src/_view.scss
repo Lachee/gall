@@ -89,11 +89,6 @@ img.lg-thumbnail {
     }
 }
 
-/** Image Tooltips */
-.tippy-box .tippy-content {
-
-}
-
 
 /** Grid */
 .grid-container {
@@ -104,12 +99,13 @@ img.lg-thumbnail {
         
         .grid-image-container { 
             $panel-height: 100px;
-            $background-color: #030106;
+            $background-color: #2f2f2f;
 
             width: 300px;
             border-radius: 10px;
             overflow: hidden;
             background: $background-color;
+            box-shadow: -4px 4px 18px 1px #000000a1;
 
             .grid-image, .grid-panel {
             }
@@ -122,6 +118,7 @@ img.lg-thumbnail {
         
                 transition: bottom 0.25s ease-in-out;
                 padding: 1em;
+                box-shadow: inset 4px 14px 10px 0px #000000bd;
 
                 /** Remove the stupid button z-indexing issue  */
                 .button:hover, .button:active, .button:focus { z-index: auto; }
