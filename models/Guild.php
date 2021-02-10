@@ -88,6 +88,6 @@ class Guild extends ActiveRecord {
 
     /** @return \kiss\db\ActiveQuery|Guild[] tags with the matching name*/
     public static function findBySnowflake($name) {
-        return self::find()->where(['name', Strings::toLowerCase($name) ]);
+        return self::find()->where(['snowflake', Strings::toLowerCase($name) ]);
     }
 }
