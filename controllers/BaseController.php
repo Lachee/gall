@@ -1,5 +1,6 @@
 <?php namespace app\controllers;
 
+use app\models\Ban;
 use Exception;
 use GALL;
 use kiss\controllers\Controller;
@@ -32,20 +33,26 @@ class BaseController extends Controller {
         if (GALL::$app->loggedIn()) {
 
             //If we were unable to validate the user, log them out
-            if ($endpoint != '/auth' && $endpoint != '/login' && $endpoint != 'exception' && !GALL::$app->getUser()->validateDiscordToken()) {
-                try { 
-                    $discordUser = GALL::$app->getUser()->getDiscordUser();
-                } catch(\Exception $ex) { 
-                    //We failed to get the user for what ever reason, lets abort
-                    Kiss::$app->getUser()->logout(); 
-                    Kiss::$app->session->addNotification('Failed to validate the Discord authentication.', 'danger');
-                    $referal = Kiss::$app->session->get('LOGIN_REFERRAL', HTTP::referral());
-                    return Kiss::$app->respond(Response::redirect($referal));
-                }
-            }
+            //if ($endpoint != '/auth' && $endpoint != '/login' && $endpoint != 'exception' && !GALL::$app->getUser()->validateDiscordToken()) {
+            //    //try { 
+            //    //    $discordUser = GALL::$app->getUser()->getDiscordUser();
+            //    //} catch(\Exception $ex) { 
+            //    //    //We failed to get the user for what ever reason, lets abort
+            //    //    Kiss::$app->getUser()->logout(); 
+            //    //    Kiss::$app->session->addNotification('Failed to validate the Discord authentication.', 'danger');
+            //    //    $referal = Kiss::$app->session->get('LOGIN_REFERRAL', HTTP::referral());
+            //    //    return Kiss::$app->respond(Response::redirect($referal));
+            //    //}
+            //}
 
             //Update that we have seen them
             GALL::$app->user->seen();
+
+            //Validate they are not on our blacklist
+            if (Ban::findBySnowflake(GALL::$app->user->getSnowflake())->one() != null) {
+                Kiss::$app->getUser()->logout(); 
+                Kiss::$app->session->addNotification('Failed to validate the Discord authentication.', 'danger');
+            }
         }
     
         if (!$this->authorize($endpoint))

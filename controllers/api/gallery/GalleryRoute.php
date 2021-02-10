@@ -3,6 +3,7 @@
 use app\controllers\api\BaseApiRoute;
 use app\models\Gallery;
 use app\models\Guild;
+use GALL;
 use kiss\exception\HttpException;
 use kiss\helpers\HTTP;
 use kiss\router\Route;
@@ -65,6 +66,12 @@ class GalleryRoute extends BaseApiRoute {
         $query = Gallery::findByKey($this->gallery_id)->limit(1);
         $gallery = $query->one();
         if ($gallery == null) throw new HttpException(HTTP::NOT_FOUND);
+
+        if (!GALL::$app->allowVisitors) {
+            if (!empty($gallery->guild_id) && !$this->actingUser->inGuild($gallery->guild_id))
+                throw new HttpException(HTTP::FORBIDDEN, 'You are not in the correct guild to view this gallery');
+        }
+
         return $gallery;
     }
 

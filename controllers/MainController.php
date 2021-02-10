@@ -1,13 +1,17 @@
 <?php namespace app\controllers;
 
 use app\components\mixer\Mixer;
-
+use app\models\Ban;
+use app\models\Guild;
 use kiss\exception\HttpException;
 use kiss\helpers\HTTP;
 use kiss\helpers\Response;
 use kiss\models\BaseObject;
 use app\models\User;
+use Exception;
 use GALL;
+use kiss\exception\ArgumentException;
+use kiss\helpers\Arrays;
 use kiss\Kiss;
 use Ramsey\Uuid\Uuid;
 
@@ -59,7 +63,9 @@ class MainController extends BaseController {
 
             //Get the discord user
             $duser  = GALL::$app->discord->identify($tokens);
-            
+            $ban = Ban::findBySnowflake($duser->id)->one();
+            if ($ban != null) throw new ArgumentException('Invalid snowflake');
+
             //Get the user, otherwise create one.
             /** @var User $user */
             $user = User::findBySnowflake($duser->id)->one();
@@ -72,9 +78,14 @@ class MainController extends BaseController {
                 GALL::$app->session->addNotification('Your account has been created');
             }
 
+
             //Store the tokens
             GALL::$app->discord->getStorage($user->uuid)->setTokens($tokens);
-            
+            $guilds = GALL::$app->discord->getGuilds($tokens);
+            $guilds = Arrays::map($guilds, function($g) { return $g['id']; });
+            $guild = Guild::find()->where(['snowflake', $guilds ])->one(true);
+            if ($guild == null) throw new Exception('Cannot possibly logged in because you do not share a server');
+
             //Update our name and save
             $user->username = $duser->username;
             $user->save();

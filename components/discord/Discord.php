@@ -2,6 +2,8 @@
 
 use app\components\discord\interaction\Interaction;
 use kiss\components\oauth\Provider;
+use kiss\components\oauth\Storage;
+use kiss\components\oauth\TokenCollection;
 use kiss\exception\ArgumentException;
 use kiss\exception\ExpiredOauthException;
 use kiss\helpers\HTML;
@@ -41,6 +43,35 @@ class Discord extends Provider  {
         $json = $this->request('GET', "/guilds/{$snowflake}");
         return $json;
     }
+
+    /** Gets all the guilds the user is in
+     * @param TokenCollection|Storage|string $token
+     * @return object the identity
+    */
+    public function getGuilds($token) {
+
+        //Get the actual token and make sure it isn't null or empty
+        $accessToken = $token;
+        if ($token instanceof TokenCollection) {
+            $accessToken = $token->access_token;
+        } else  if ($token instanceof Storage) { 
+            $accessToken = $token->getAccessToken(true);
+        }
+        
+
+        //Get the user
+        $response = $this->guzzle->request('GET', 'https://discordapp.com/api/v6/users/@me/guilds', [
+            'headers' => [
+                'content-type'  => 'application/json',
+                'authorization' => 'Bearer ' . $accessToken 
+            ]
+        ]);
+        
+        $json = json_decode($response->getBody()->getContents(), true);
+        return $json;
+    }
+
+
 
     /** Verifies the interaction signature passed in the current request.
      * @return bool true if its valid

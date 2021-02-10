@@ -116,11 +116,14 @@ class BaseGalleryRoute extends BaseApiRoute {
         if (!is_bool($individual)) throw new HttpException(HTTP::BAD_REQUEST, '"individual" must be a boolean');
         
 
-
         if (!empty($guild_id)) {
+            //Get the guild
             $guild = Guild::findByKey($guild_id)->orWhere(['snowflake', $guild_id])->one();
             $guild_id = $guild == null ? null : $guild->getKey();
             if ($guild_id == null) throw new HttpException(HTTP::BAD_REQUEST, 'Guild is unavailable');
+
+            //Add the user to guild
+            $this->actingUser->addGuild($guild);
         }
 
         if (!empty($message_snowflake) && (empty($guild_id) || empty($channel_snowflake)))

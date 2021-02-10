@@ -1,5 +1,6 @@
 <?php namespace app\controllers\api;
 
+use app\models\Ban;
 use app\models\User;
 use GALL;
 use kiss\controllers\api\ApiRoute;
@@ -48,6 +49,15 @@ class BaseApiRoute extends ApiRoute {
                 if ($impersonated !== null) throw new HttpException(HTTP::BAD_REQUEST, 'Cannot act as invalid snowflakes.');
                 GALL::$app->redis()->set($redis_key, $snowflake);
                 GALL::$app->redis()->expire($redis_key, 3600);
+
+                //If this user is specifically banned, lets anon it.
+                $ban = Ban::findBySnowflake($snowflake)->one();
+                if ($ban != null) {
+                    $user = User::findAnnon()->one();
+                    if ($user == null) throw new HttpException(HTTP::BAD_REQUEST, 'Cannot act as invalid snowflakes.');
+                    $this->_user = $user;
+                    return;
+                }
 
                 //We didnt find one, so setup the discord user
                 $duser = GALL::$app->discord->getUser($snowflake);

@@ -455,7 +455,12 @@ class Gallery extends ActiveRecord {
             $query->andWhere(['founder_id', 'NOT',  $userBlacklist ]);
         }
 
-        
+        //---- Guilds Whitelist
+        if (GALL::$app->loggedIn()) {
+            $user = GALL::$app->user;
+            $query->andWhere(['guild_id', Arrays::map($user->getGuilds()->all(true), function($g) { return $g['id']; })]);
+        }
+
         //Setup the additional blacklist
         if ($additionalBlacklist != null) {
             $adQuery = null;

@@ -42,12 +42,19 @@ class GalleryViewerController extends BaseController {
             return Response::redirect(['/gallery/:gallery/', 'gallery' => $this->gallery_id ]);
 
         if (Kiss::$app->loggedIn()) {
+            if (!empty($gallery->guild_id) && !GALL::$app->user->inGuild($gallery->guild_id))
+                throw new HttpException(HTTP::FORBIDDEN, 'You are not in the correct guild to view this image');
+
             //Force our tags to update
             $gallery->updateTags();
 
             //Dont trigger the views if its your own
             if ($gallery->founder_id != Kiss::$app->user->id)
                 $gallery->incrementView();
+                
+        } else {
+            if (!GALL::$app->allowVisitors)
+                throw new HttpException(HTTP::FORBIDDEN, 'You must be logged in to see a gallery');
         }
 
         /** @var Image[] $images */

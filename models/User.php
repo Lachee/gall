@@ -76,6 +76,13 @@ class User extends Identity {
         $this->_discordUser = GALL::$app->discord->identify($storage);
         return $this->_discordUser;
     }
+
+    /** Gets the discord guilds */
+    public function getDiscordGuilds() {
+        $storage = GALL::$app->discord->getStorage($this->uuid);
+        return GALL::$app->discord->getGuilds($storage);
+    }
+
     /** Runs a quick validation on the discord token
      * @return bool true if the token is valid
      */
@@ -239,6 +246,33 @@ class User extends Identity {
         return Gallery::find()->leftJoin(Favourite::class, [ '$gallery.id' => 'gallery_id' ])->where(['user_id', $this ]);
     }
 
+#endregion
+
+#region Guilds
+    /** Gets the guilds the user has posted in */
+    public function getGuilds() {        
+        return Guild::find()->leftJoin('$users_guilds', ['id' => 'guild_id'])->where(['user_id', $this->id]);
+    }
+
+    /** Checks if the user is in the guild
+     * @param Guild|ActiveRecord|string|int $guild the guild
+     * @return bool true if they are in the guild
+     */
+    public function inGuild($guild) {
+        $guild_id = $guild instanceof ActiveRecord ? $guild->getKey() : $guild;
+        return $this->getGuilds()->andWhere(['guild_id', $guild_id])->one(true) != null;
+    }
+
+    /** Adds the user to the guild if able
+     * @param Guild|ActiveRecord|string|int $guild the guild
+     * @return bool true if they are in the guild
+     */
+    public function addGuild($guild) {
+        if (!$this->inGuild($guild)) {
+            $guild_id = $guild instanceof ActiveRecord ? $guild->getKey() : $guild;
+            GALL::$app->db()->createQuery()->insert(['user_id' => $this->id, 'guild_id' => $guild_id ], '$users_guidls')->execute();
+        }
+    }
 #endregion
 
 #region History
@@ -508,4 +542,8 @@ class User extends Identity {
         return self::findBySnowflake($profile)->orWhere(['profile_name', $profile]);
     }
 
+    /** @return ActiveQuery|$this finds an anonymous account to post under */
+    public static function findAnnon() {
+        return self::find()->where(['anon_bot', true]);
+    }
 }
