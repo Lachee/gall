@@ -83,9 +83,11 @@ class MainController extends BaseController {
             GALL::$app->discord->getStorage($user->uuid)->setTokens($tokens);
             $guilds = GALL::$app->discord->getGuilds($tokens);
             $guilds = Arrays::map($guilds, function($g) { return $g['id']; });
-            $guilds = Guild::find()->where(['snowflake', $guilds ])->fields(['id'])->all();
-            if ($guilds == null || count($guilds) == 0) 
-                throw new Exception('Cannot possibly logged in because you do not share a server');
+            $guilds = Guild::find()->where(['snowflake', $guilds ])->all();
+            if ($guilds == null || count($guilds) == 0) { 
+                GALL::$app->session->addNotification('Cannot possibly logged in because you do not share a server', 'danger');
+                throw new Exception('Not in any guilds');
+            }
             
             //Add the user to each guild
             foreach($guilds as $guild) {
@@ -103,7 +105,7 @@ class MainController extends BaseController {
         } 
         catch(\Exception $e) 
         {
-            GALL::$app->session->addNotification('Woops, something went wrong while trying to perform that action! ' . (KISS_DEBUG ? $e->getMessage() : ''), 'danger');
+            GALL::$app->session->addNotification('Woops, something went wrong while trying to perform that action! ' . ($e->getMessage()), 'danger');
         }         
         
         $referal = Kiss::$app->session->get('LOGIN_REFERRAL', HTTP::referral());
