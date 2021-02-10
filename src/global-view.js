@@ -104,8 +104,9 @@ document.body.addEventListener(
             const src = event.target.src;
             const alt = event.target.getAttribute('src-alt');
             if (alt != null) {
-                if (src != alt) { 
+                if (src != alt && !event.target.hasAttribute('no-retry')) { 
                     event.target.src = alt;
+                    event.target.setAttribute('no-retry', true);
                     console.warn('Image failed to load, so attempting the alt', src, alt);
                 }
             }
