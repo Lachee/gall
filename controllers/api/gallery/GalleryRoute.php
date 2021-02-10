@@ -23,7 +23,8 @@ class GalleryRoute extends BaseApiRoute {
 
     protected function scopes() {
         switch(HTTP::method()) {
-            default:            return [ 'ctrl:allow_users', 'gallery' ];
+            default:            return [];
+            case HTTP::GET:     return null;
             case HTTP::PUT:     return [ 'gallery.update' ];
         }
     }

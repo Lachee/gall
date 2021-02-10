@@ -7,32 +7,43 @@ import {delegate} from 'tippy.js';
 /** @var {./src/api/BaseAPI} api */
 const api = app.api;
 const gallery_cache = {};
+const includeTooltip = true;
 
-delegate('#grid', {
-    target: '.grid-image-container > img',
-    allowHTML: true,
-    multiple: true,
-    interactive: true,
-    content: (reference) => {
-        const gallery_id = reference.getAttribute('data-gallery');
-        const gallery = gallery_cache[gallery_id];
-        if (!gallery) return 'No Author';
+if (includeTooltip) {
+    delegate('#grid', {
+        target: '[data-tooltip]',
+        allowHTML: true,
+        multiple: true,
+        content: (reference) => {
+            const content = reference.getAttribute('data-tooltip');
+            return content;
+        },
+    });
+}
+
+/** Animates the button */
+const animateButton = (button) => {
+    if (button == null) {
+        console.error('cannot animate because button is null');
+        return false;
+    }
+    if (button.classList.contains('anim-rubber')) {
         
-        return `<div class="profile-hint">
-                    <img class="avatar" src="${gallery.founder.getAvatarUrl()}" alt="Avatar Picture"> 
-                    <span><a href="/profile/${gallery.founder.profileName || gallery.founder.snowflake}/">${gallery.founder.displayName}</a></span>
-                </div>`;
-    },
-});
+    console.log('removing class from', button);
+        button.classList.remove('anim-rubber');
+        setTimeout(() => animateButton(button), 100);
+        return;
+    }
+    console.log('adding class to', button);
+    button.classList.add('anim-rubber');
+}
 
-
-$(document).ready(async () => {
+(async () => {
 
     let currentIndex;
     let currentCount = 0;
 
     //Prepare the grid container
-    const incapsulateLink = false;
     const container = document.getElementById('grid');
     const $container = $(container);
     
@@ -117,55 +128,113 @@ $(document).ready(async () => {
         }
 
         //Reload everything
-        let imageLoadPromises = [];
+        let loadPromise = [];
         for(let i in galleries) {
 
-            //Load the gallery and store it in the cache
-            const gallery = galleries[i];
-            gallery_cache[gallery.id] = gallery;
+            let load = async () => {
+                //Load the gallery and store it in the cache
+                const gallery = galleries[i];
+                gallery_cache[gallery.id] = gallery;
+                console.log('loading gallery', gallery.id, gallery.title);
 
-            //const image_url = gallery.cover.getUrl();
-            const image_url = gallery.cover.getUrl();
-            const thumbnail_url = gallery.cover.getThumbnail();
+                //Fetch the image, and add an item for each image.
+                const images = await gallery.fetchImages();
+                for(var k in images) {
 
-            //Load image
-            const $img = $('<img>').attr('src', thumbnail_url);
-            $img.addClass('grid-image');
-            $img.attr('src-alt', image_url);
-            $img.attr('data-gallery', gallery.id);
-            $img.attr('id', 'grid-img-' + (currentCount++));
+                    const image = images[k];
+                    if (image.isCover) continue;
+                    
+                    const image_url = image.getUrl();
+                    const thumbnail_url = image.getThumbnail();
 
-            imageLoadPromises.push(
-                new Promise((resolve, reject) => {
-                    $img.one('load', () => {
-                        pack();
-                        resolve();
+                    //Prepare the container
+                    const $div = $('<div>');
+                    $div.addClass('grid-image-container');
+                    $div.attr('data-gallery', gallery.id);
+
+                    //Add a info box
+                    const favouritedStyle = gallery.favourited ? 'fas' : 'fal';
+                    const $panel = $(`
+                    <div class='grid-panel is-hidden'>
+                        <div class='columns'>
+                            <div class='column'>
+                                <div class="profile-hint" data-tooltip="${gallery.founder.displayName}">
+                                    <a href="/profile/${gallery.founder.profileName || gallery.founder.snowflake}/">
+                                        <img class="avatar" src="${gallery.founder.getAvatarUrl()}" alt="${gallery.founder.displayName}">
+                                    </a>
+                                </div>
+                            </div>
+                            <div class='column'>
+                                <div class='buttons has-addons is-full-width'>
+                                    <a class='button button-favourite' data-tooltip='Favourite the gallery'>
+                                        <span class="icon is-small"><i class="${favouritedStyle} fa-fire"></i></span>
+                                    </a>
+                                    <a class='button button-pin' data-tooltip='Pin to your profile'>
+                                        <span class="icon is-small"><i class="fal fa-map-pin"></i></span>
+                                    </a>
+                                    
+                                    <a href='/gallery/${gallery.id}/' class='button button-view' data-tooltip='Open gallery'>
+                                        <span class="icon is-small"><i class="fal fa-eye"></i></span>
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>`);
+                    $div.append($panel);
+                    
+                    //$panel.find('.button-view').on('click', () => $div.addClass('focused'));
+                    $panel.find('.button-favourite').on('click', async (e) => {
+                        const setState = function(state) {
+                            $container
+                                .find(`.grid-image-container[data-gallery=${gallery.id}] .button-favourite i`)
+                                .removeClass(state ? 'fal' : 'fas')
+                                .addClass(state ? 'fas' : 'fal');
+                        };
+
+                        //Set the state, then eventually update it to what the state actually is
+                        animateButton($('.button-favourite').get(0));
+                        setState(!gallery.favourited);
+                        setState(await gallery.toggleFavourite());
                     });
-                })
-            );
+                    
+                    $panel.find('.button-pin').on('click', async function(e) {    //cannot use arrow function because that doesn't rebind the context.
+                        animateButton($('.button-pin').get(0));
+                        await image.pin();
+                    });
 
-            //Prepaare the container
-            const $div = $('<div>');
-            $div.addClass('grid-image-container');
 
-            //Prepare the link
-            if (incapsulateLink) {
-                let $href = $('<a>').attr('href', `/gallery/${gallery.id}/`);
-                $href.addClass('grid-link');
-                $href.append($img);
-                $div.append($href);
-            } else {
-                $div.append($img);
-            }
 
-            //Append to container
-            $container.append($div);
+                    //Add the image
+                    const $img = $('<img>').attr('src', thumbnail_url);
+                    $img.addClass('grid-image');
+                    $img.attr('src-alt', image_url);
+                    $img.attr('data-image', image.id);
+                    $img.attr('id', 'grid-img-' + (currentCount++));
+                    $div.append($img);
+
+                    //Append to container
+                    $container.append($div);
+                    
+
+                    //Add the image load event as a promise
+                    loadPromise.push(
+                        new Promise((imageResolve, imageReject) => {
+                            $img.one('load', () => { $panel.removeClass('is-hidden'); pack(); imageResolve(); });
+                            $img.one('error', () => { imageReject(); });
+                        })
+                    );
+                }
+
+            };
+
+            //Push the function
+            loadPromise.push(load());
         }
 
         //We need to wait for all the images to finish loading so we can more accurately pack them.
         await Promise.any([
             new Promise((resolve, reject) => setTimeout(() => { resolve(); }, 5000) ),
-            Promise.all(imageLoadPromises),
+            Promise.all(loadPromise),
         ]);
 
         //pack();
@@ -251,7 +320,7 @@ $(document).ready(async () => {
     //Perform the initial load
     nextPage();
     
-});
+})();
 
 
 // jQuery

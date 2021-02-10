@@ -42,7 +42,7 @@ if (KISS_DEBUG)
 try {
     //Prepare the route we wish to use 
     //Just exit with no response because they are accessing the API page directly
-    $route = HTTP::route();
+    $route = Strings::trimEnd(HTTP::route(), '/');
     if (empty($route)) die('no route given');
 
     //Register all the routes in the specified folder    

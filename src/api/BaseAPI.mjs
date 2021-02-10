@@ -1,5 +1,5 @@
 //import fetch from 'node-fetch';
-import { User, Gallery } from './Types.mjs';
+import { User, Gallery, Image } from './Types.mjs';
 
 export class BaseAPI {
     /** @var {String} baseUrl the root URL to the API */
@@ -12,7 +12,6 @@ export class BaseAPI {
         this.baseUrl = baseUrl;
         this.#authorization = authorization;
         this.#actingAs = null;
-        console.log('constructed new Base API');
     }
 
     /** Sets who we are going to act as.
@@ -34,7 +33,6 @@ export class BaseAPI {
 
     /** Publishes a URL */
     async publish(url, guild_id = null, channel_id = null, message_id = null) {
-        console.log('publishing gallery');
         const result = await this.fetch('POST', `/gallery`, { 
             url:        url,
             guild_id:   guild_id,
@@ -67,6 +65,15 @@ export class BaseAPI {
     async getGallery(id) {
         const results = await this.fetch('GET', `/gallery/${id}`);
         return new Gallery(this, results);
+    }
+    /** Get a gallery's images */
+    async getImages(gallery) {
+        if (typeof kiss !== 'undefined' && gallery == null) gallery = kiss.PARAMS.gallery_id;
+        if (gallery == null) throw new Error('Cannot get gallery images without an id. Either pass an ID or visit a gallery page');
+        const gallery_id = gallery.id || gallery;
+        const images = await this.fetch('GET', `/gallery/${gallery_id}/images`);
+        if (images == null) return [];
+        return images.map(i => new Image(this, i));
     }
 
     //Reactions
@@ -122,12 +129,21 @@ export class BaseAPI {
 
     /** Gallery stuff that will be mvoed back */
     
-    async pin(gallery = null) {
+    /** Pins a gallery */
+    async pinGallery(gallery = null) {
         if (typeof kiss !== 'undefined' && gallery == null) gallery = kiss.PARAMS.gallery_id;
         if (gallery == null) throw new Error('Cannot pin gallery without an id. Either pass an ID or visit a gallery page');
         const gallery_id = gallery.id || gallery;
         return await this.fetch('POST', `/gallery/${gallery_id}/pin`);
     }
+
+    /** Pins an image */
+    async pinImage(image) {
+        if (image == null) throw new Error('Cannot pin a null image');
+        const image_id = image.id || image;
+        return await this.fetch('POST', `/image/${image_id}/pin`);
+    }
+
     async favourite(gallery = null) {
         if (typeof kiss !== 'undefined' && gallery == null) gallery = kiss.PARAMS.gallery_id;
         if (gallery == null) throw new Error('Cannot favourite gallery without an id. Either pass an ID or visit a gallery page');
@@ -151,13 +167,14 @@ export class BaseAPI {
         if (this.#actingAs != null)         headers['X-Actors-Snowflake'] = this.#actingAs;
         if (this.#authorization != null)    headers['Authorization'] = 'Bearer ' + this.#authorization;
 
-        console.log(method, endpoint, data, headers);
+        //console.log(method, endpoint, data, headers);
         const body = data ? JSON.stringify(data) : null;
         let response = await fetch(`${this.baseUrl}${endpoint}`, { 
             method: method,
             headers: headers,
             body: body
         });
+        
 
         if (!response.ok) {
             console.error("Failed ", method, endpoint, response, await response.json());
@@ -173,7 +190,7 @@ export class BaseAPI {
         }
     
         let json = await response.json();
-        console.log(method, endpoint, data, body, json);
+        //console.log(method, endpoint, data, body, json);
         return json.data;
     }
 
