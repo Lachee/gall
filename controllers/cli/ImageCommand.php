@@ -78,10 +78,6 @@ class ImageCommand extends Command {
                             'contents'  => $key,
                         ],
                         [
-                            'name'      => 'name',
-                            'contents'  => 'n' . rand(),
-                        ],
-                        [
                             'name'      => 'd',
                             'contents'  => $data,
                             'filename'  => $image->id . $ext
@@ -102,8 +98,8 @@ class ImageCommand extends Command {
                         self::print("- Failed to save");
                     }
                 } else {
-                    //file_put_contents('dmp.json', $respContent);
-                    self::print("- Failed to upload");
+                    file_put_contents('upload_failure.json', $respContent);
+                    self::print("- Failed to upload: " . $respContent);
                 }
             }catch(\Throwable $e) {
                 self::print('- Failed. ' . $e->getMessage());
