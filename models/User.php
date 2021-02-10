@@ -270,7 +270,7 @@ class User extends Identity {
     public function addGuild($guild) {
         if (!$this->inGuild($guild)) {
             $guild_id = $guild instanceof ActiveRecord ? $guild->getKey() : $guild;
-            GALL::$app->db()->createQuery()->insert(['user_id' => $this->id, 'guild_id' => $guild_id ], '$users_guidls')->execute();
+            GALL::$app->db()->createQuery()->insert(['user_id' => $this->id, 'guild_id' => $guild_id ], '$users_guilds')->execute();
         }
     }
 #endregion
