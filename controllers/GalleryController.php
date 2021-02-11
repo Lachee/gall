@@ -64,7 +64,7 @@ class GalleryController extends BaseController {
     function actionQuery() {
         $query = HTTP::get('q', HTTP::get('gall-q', false));
         if ($query === false || empty($query))
-            return Response::redirect(['/gallery/']);
+            return Response::redirect(['/gallery/browse']);
 
         //Return to ourselves
         if (Strings::startsWith($query, '@me')) {
@@ -118,7 +118,7 @@ class GalleryController extends BaseController {
         }
 
         //Check to see if it is a profile?
-        if (($profile = User::findByProfileName($query)->one()))
+        if (($profile = User::findByProfileName($query)->andWhere(['anon_bot', false])->one()))
             return Response::redirect(['/profile/:profile/', 'profile' => $profile->profileName]);
 
         return Response::redirect([ 'browse', 'q' => $query ]);
