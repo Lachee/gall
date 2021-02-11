@@ -11,6 +11,7 @@ module.exports = [
       FontAwesome:  'kiss.fontAwesome',
     },
     entry: './src/app.js',
+    devtool: 'source-map',
     output: {
       filename:       'app.js',
       chunkFilename:  'app.[name].js',

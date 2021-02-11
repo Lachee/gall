@@ -97,8 +97,10 @@ $html = <<<HTML
                 <div class="subtitle"><a href="$profileLink">@{$displayName}</a></div>
 
                 <div class="content">
-                    <div class="metric" title="sparkles" style="text-align: center;"><span class="icon"><i class="fal fa-sparkles"></i></span> {$score}</div>
-                    <div class="metric" title="favourites"><a href="$favouriteLink"><span class="icon"><i class="fal fa-fire"></i></span> {$favs}</a> <a href="$submissionLink" style="float:right;"><span class="icon"><i class="fal fa-books-medical"></i></span> {$subs}</a></div>
+                    <div class="metric" style="text-align: center;"  data-tooltip="Sparkles"><span class="icon"><i class="fal fa-sparkles"></i></span> {$score}</div>
+                    <div class="metric">
+                        <a href="$favouriteLink" data-tooltip="Favourites"><span class="icon" ><i class="fal fa-fire"></i></span> {$favs}</a> 
+                        <a href="$submissionLink" style="float:right;" data-tooltip="Submissions"><span class="icon"><i class="fal fa-books-medical"></i></span> {$subs}</a></div>
                 </div>
 
                 <div class="content">

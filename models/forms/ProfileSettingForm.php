@@ -50,7 +50,7 @@ class ProfileSettingForm extends Form {
             'blacklist'         => new ArrayProperty(new StringProperty('Tag name'), [ 'title' => 'Tag Blacklist', 'description' => 'Tags that will be hidden in recommendations']),
             'reaction_emotes'   => new ArrayProperty(new StringProperty('Reaction id'), [ 'title' => 'Auto Tag', 'description' => 'Automatically tags items when you react with one of these']),
             'reaction_tags'   => new ArrayProperty(new StringProperty('')),
-            'anonymise'         => new BooleanProperty('Hide your account details to guest users', true, [ 'title' => 'Anonymise' ]),
+            //'anonymise'         => new BooleanProperty('Hide your account details to guest users', true, [ 'title' => 'Anonymise' ]),
          
             //'api_key'       => new StringProperty('Authorization Token for the API', '', [ 'title' => 'API Key', 'required' => false, 'readOnly' => true ]),
         ];
@@ -168,7 +168,7 @@ HTML;
         }
 
         //Update other metadata
-        $this->profile->anonymise = $this->anonymise;
+        //$this->profile->anonymise = $this->anonymise;
         $this->profile->save();
 
         // === BLACKLIST

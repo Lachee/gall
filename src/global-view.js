@@ -1,3 +1,5 @@
+import {delegate} from 'tippy.js';
+
 console.log('Initializing Global');
 
 /**== Navigation Script
@@ -94,25 +96,38 @@ document.getElementById('navbar-search').addEventListener('keyup', (event) => {
     }        
 });
 
-/** Image ALT feature.
- * When a image fails to load, then its alt shall be used
- */
-document.body.addEventListener(
-    'error',
-    function(event){
-        if(event.target.tagName == 'IMG'){
-            const src = event.target.src;
-            const alt = event.target.getAttribute('src-alt');
-            if (alt != null) {
-                if (src != alt && !event.target.hasAttribute('no-retry')) { 
-                    event.target.setAttribute('src-origin', event.target.src);
-                    event.target.setAttribute('no-retry', true);
+if (!window.isMobile()) {
+    /** Image ALT feature.
+     * When a image fails to load, then its alt shall be used
+     */
+    document.body.addEventListener(
+        'error',
+        function(event){
+            if(event.target.tagName == 'IMG'){
+                const src = event.target.src;
+                const alt = event.target.getAttribute('src-alt');
+                if (alt != null) {
+                    if (src != alt && !event.target.hasAttribute('no-retry')) { 
+                        event.target.setAttribute('src-origin', event.target.src);
+                        event.target.setAttribute('no-retry', true);
 
-                    event.target.src = alt;
-                    console.warn('Image failed to load, so attempting the alt', src, alt);
+                        event.target.src = alt;
+                        console.warn('Image failed to load, so attempting the alt', src, alt);
+                    }
                 }
             }
-        }
+        },
+        true // <-- useCapture
+    );
+}
+
+/** Tooltips */
+delegate('body', {
+    target: '[data-tooltip], [title]',
+    allowHTML: true,
+    multiple: true,
+    content: (reference) => {
+        const content = reference.getAttribute('data-tooltip') || reference.getAttribute('title');
+        return content;
     },
-    true // <-- useCapture
-)
+});

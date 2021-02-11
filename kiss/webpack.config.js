@@ -15,6 +15,7 @@ module.exports = {
     publicPath:     '/dist/kiss/',
     library:        'kiss',
   },
+  devtool: 'source-map',
   module: {
     rules: [
       {
