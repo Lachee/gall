@@ -27,13 +27,16 @@ const animateButton = (button) => {
         console.error('cannot animate because button is null');
         return false;
     }
+
+    //Clear the button's timeout
     if (button.classList.contains('anim-rubber')) {
-        
-    console.log('removing class from', button);
+        console.log('clear', button);
         button.classList.remove('anim-rubber');
-        setTimeout(() => animateButton(button), 100);
+        setTimeout(() => animateButton(button), 1);
         return;
     }
+    
+    //Add the class and set the timeout
     console.log('adding class to', button);
     button.classList.add('anim-rubber');
 }
@@ -192,13 +195,13 @@ const animateButton = (button) => {
                         };
 
                         //Set the state, then eventually update it to what the state actually is
-                        animateButton($('.button-favourite').get(0));
+                        animateButton($panel.find('.button-favourite').get(0));
                         setState(!gallery.favourited);
                         setState(await gallery.toggleFavourite());
                     });
                     
                     $panel.find('.button-pin').on('click', async function(e) {    //cannot use arrow function because that doesn't rebind the context.
-                        animateButton($('.button-pin').get(0));
+                        animateButton($panel.find('.button-pin').get(0));
                         await image.pin();
                     });
 
