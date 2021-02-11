@@ -20,6 +20,6 @@ class ImageRoute extends GalleryRoute {
 
     public function get() {
         $gallery    = $this->getGallery();
-        return $gallery->getImages()->fields(['id', 'url', 'origin'])->all();
+        return $gallery->getImages()->fields(['id', 'url', 'origin', 'is_cover'])->all();
     }
 }
