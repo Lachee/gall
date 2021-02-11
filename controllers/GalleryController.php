@@ -118,7 +118,7 @@ class GalleryController extends BaseController {
         }
 
         //Check to see if it is a profile?
-        if (($profile = User::findByProfileName($query)->andWhere(['anon_bot', false])->one()))
+        if (($profile = User::findByProfileName($query)->andWhere(['anon_bot', '0'])->one()) != null && $profile->getSnowflake() != 0)
             return Response::redirect(['/profile/:profile/', 'profile' => $profile->profileName]);
 
         return Response::redirect([ 'browse', 'q' => $query ]);
