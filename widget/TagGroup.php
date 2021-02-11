@@ -42,7 +42,7 @@ class TagGroup extends Widget {
                 if ($tag instanceof Tag) {
                     $name = $tag->name;
                     $style = $tag->getBulmaStyle();
-                    $route = ['/gallery/search', 'tag' => $name ];
+                    $route = ['/gallery/browse', 'q' => $name ];
                 }
                     
                 echo self::tag($route, $name, $style);
