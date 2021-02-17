@@ -212,11 +212,34 @@ class Gallery extends ActiveRecord {
 #endregion
 
     /** Creates a link between the tag and this gallery
-     * @param Tag $tag the tag to add
+     * @param Tag|string $tag the tag to add
      * @param User $founder the person to add the tag
+     * @return Tag|false returns the tag
      */
     public function addTag($tag, $founder = null) {
         //if (!($tag instanceof Tag)) throw new ArgumentException('$tag must be of type Tag');
+
+        //Convert the name to a tag
+        if (is_string($tag)) {
+            $name = trim(Strings::toLowerCase($tag));
+            $tag = Tag::find()->where(['name', $name])->andWhere([ 'type', Tag::TYPE_TAG ])->remember(false)->ttl(0)->one();
+
+            //Create a new tag if it doesn't exist
+            if ($tag == null) {
+                $tag = new Tag([
+                    'name'          => $name,
+                    'type'          => Tag::TYPE_TAG,
+                    'founder_id'    => $founder == null ? null : $founder->getKey(),
+                ]);
+
+                //Save the tag
+                if (!$tag->save()) {
+                    $this->addError($tag->errors());
+                    return false;
+                }
+            }
+        }
+
         try {
             $tag_id = $tag instanceof Tag ? $tag->getId() : $tag;
             $success = Kiss::$app->db()->createQuery()->insert([
@@ -228,8 +251,9 @@ class Gallery extends ActiveRecord {
             if ($success && $founder != null)
                 $founder->giveSparkles('SCORE_TAG', $this, $tag_id);
             
-            return true;
-        } catch(SQLDuplicateException $dupeException) { return true; }
+            return $tag;
+        } catch(SQLDuplicateException $dupeException) { return $tag; }
+        return false;
     }
 
     /** Removes a specific tag */
@@ -243,8 +267,15 @@ class Gallery extends ActiveRecord {
         return $query->delete('$tags')->where(['tag_id', $tag->getKey() ])->andWhere(['gallery_id', $this->getKey() ])->execute();
     }
 
-    /** Checks the tags and removes any duplicates */
-    public function updateTags() {        
+    /** Checks the tags and removes any duplicates.
+     * Additionally, it checks for automatic tagging
+     */
+    public function updateTags() {
+
+        //Insure that we have all the nessary tags first
+        $this->insureTags();
+
+        //Sort the tags
         $tags = Tag::find()
                         ->fields(['*', '$tags.founder_id as FID'])
                         ->leftJoin('$tags', ['id' => 'tag_id'])
@@ -308,6 +339,31 @@ class Gallery extends ActiveRecord {
                 break;
             }
         }
+    }
+
+
+    /** Checks for any automatically determined tags and assigns them (like discord or video) */
+    protected function insureTags() {
+
+        //Prepare a list of additional tags to add
+        $tags = [];
+
+        //Scan for all the videos
+        /** @var Image[] $images */
+        $images = $this->getImages()->fields(['origin'])->all();
+        foreach($images as $image) {
+            if ($image->isVideo()) {
+                $tags[] = 'video';
+                $tags[] = 'animated';
+            }
+
+            if ($image->getExtension() == '.gif' || $image->getExtension() == '.apng')
+                $tags[] = 'animated';
+        }
+
+        //Remove dupes and add them
+        $tags = array_unique($tags);
+        foreach($tags as $tag) $this->addTag($tag);
     }
 
     /** @return Query|array returns all the reactions for the gallery */
