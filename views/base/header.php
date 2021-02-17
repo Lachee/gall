@@ -14,7 +14,8 @@ $theme = HTTP::get('theme', 'lumen');
     <meta charset="utf-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    
+    <meta name="theme-color" content="#17181c">
+
     <link rel="icon" href="<?= Kiss::$app->favicon ?: Kiss::$app->logo ?>" sizes="16x16" type="image/png">
 
     <!-- JQuery -->
