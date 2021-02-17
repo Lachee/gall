@@ -161,9 +161,9 @@ class User extends Identity {
         if (count($tags) == 0) $tags = $this->getFavouriteTagsSubmitted()->limit(5)->all();
         if (count($tags) == 0) return $this->getBestGalleries()->limit(5)->all();
 
-        return Gallery::search($tags, $this)                    // Search for the tags, excluding our blacklist
-                        ->andWhere(['founder_id', '<>', $this]) // Exclude our own posts
-                        ->orderByDesc('id');                    // Sort by newest
+        return Gallery::search([], $this, $tags)                    // Search for the tags, excluding our blacklist
+                        ->andWhere(['founder_id', '<>', $this])     // Exclude our own posts
+                        ->orderByDesc('id');                        // Sort by newest
     }
 #endregion
 

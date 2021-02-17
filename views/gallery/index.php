@@ -42,6 +42,9 @@ use kiss\Kiss;
         <?= GalleryList::widget([ 'galleries' => $recommendation ]); ?>
     <?php endif; ?>
 
+    <div class="subtitle ml-4">Submitted</div>
+    <?= GalleryList::widget([ 'galleries' => $submitted ]); ?>
+
     <div class="subtitle ml-4">Favourites</div>
     <?= GalleryList::widget([ 'galleries' => $favourites ]); ?>
 

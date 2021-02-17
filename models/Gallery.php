@@ -363,10 +363,18 @@ class Gallery extends ActiveRecord {
     /** Finds galleries based of their tags
      * @param string|string[] $tags the name of the tags the gallery requires. If a tag is prefixed with - then it shall be excluded. If a single string, then it should be comma delimitered.
      * @param Tag[]|string[]|User|Query|null $additionalBlacklist additional tags that should be blacklisted. The Query type is only valid if it's a Gallery subquery that returns only the `gallery_id`. If a user is given, then their blacklist will be used.
+     * @param Tag[]|string[]|null $additionalOR list of tags that will it has to contain, but doesnt have to contain all of them.
      * @return ActiveQuery|Gallery[] all valid galleries that match the criteria
     */
-    public static function search($tags, $additionalBlacklist = null) {
+    public static function search($tags, $additionalBlacklist = null, $additionalOR = null) {
         
+        //additionalOR is utilised by the recommendation
+        //additionalBlacklist is used to filter by user
+
+        $MODE_WHITELIST = 1;
+        $MODE_BLACKLIST = 2;
+        $MODE_ORLIST    = 3;
+
         //Cleanup the tags
         if (!is_array($tags)) {
             $tags = preg_split('/(,| )(?=([^\"]*\"[^\"]*\")*[^\"]*$)/', $tags);
@@ -375,14 +383,38 @@ class Gallery extends ActiveRecord {
         //Build a list of valid IDS
         $whitelist = [];
         $blacklist = [];
+        $orlist    = [];
         $userWhitelist     = [];
         $userBlacklist     = [];
+        $userOrlist        = [];
 
+
+        //---- Addionitional Orlist        
+        if ($additionalOR != null) { 
+            foreach($additionalOR as $tag) {
+                //Its alread a tag
+                if ($tag instanceof Tag) {
+                    $id = $tag->getId();
+                    if (!empty($id)) $orlist[] = $id;
+                    continue;
+                } 
+
+                //Skip empties
+                if (!empty($tag)) { 
+                    /** @var Tag $tag */
+                    $tag = Tag::findByName($tag)->one();
+                    if ($tag != null) $orlist[] = $tag->getId();
+                }
+            }
+        }
+
+        //Scan each tag
         foreach($tags as $name) {
 
             //Its a tag object already, so get its id.
             if ($name instanceof Tag) {
-                $whitelist[] = $name->getId();
+                $id = $name->getId();
+                if (!empty($id)) $whitelist[] = $id;
                 continue;
             }
 
@@ -390,10 +422,13 @@ class Gallery extends ActiveRecord {
             $name = Strings::trim($name, " \n\r\t\v\0\x0B\"");
 
             //Check if its blacklist
-            $isBlacklist = false;
+            $mode = $MODE_WHITELIST;
             if (Strings::startsWith($name, '-')) {
                 $name = substr($name, 1);
-                $isBlacklist = true;
+                $mode = $MODE_BLACKLIST;
+            } else if (Strings::startsWith($name, '|')) {                
+                $name = substr($name, 1);
+                $mode = $MODE_ORLIST;
             }
 
             //Skip empties
@@ -408,17 +443,40 @@ class Gallery extends ActiveRecord {
                     case 'user': 
                         $profile = User::findByProfileName($value)->fields(['id'])->one();
                         if ($profile == null) break;    // Break the switch statement and continue processing
-                        if ($isBlacklist) $userBlacklist[] = $profile->getKey();
-                        else              $userWhitelist[] = $profile->getKey();
-                        continue;   // Continue here so we skip processing this tag.
+                        switch($mode) {
+                            default:
+                            case $MODE_WHITELIST:
+                                $userWhitelist[] = $profile->getKey();
+                                break;
+
+                            case $MODE_BLACKLIST:
+                                $userBlacklist[] = $profile->getKey();
+                                break;
+
+                            case $MODE_ORLIST:
+                                $userOrlist[] = $profile->getKey();
+                                break;
+                        }
                 }
             }
 
             /** @var Tag $tag */
             $tag = Tag::findByName($name)->one();
             if ($tag != null) {
-                if ($isBlacklist) $blacklist[] = $tag->getId();
-                else              $whitelist[] = $tag->getId();
+                switch($mode) {
+                    default:
+                    case $MODE_WHITELIST:
+                        $whitelist[] = $tag->getId();
+                        break;
+
+                    case $MODE_BLACKLIST:
+                        $blacklist[] = $tag->getId();
+                        break;
+
+                    case $MODE_ORLIST:
+                        $orlist[] = $tag->getId();
+                        break;
+                }
             }
         }
 
@@ -441,7 +499,16 @@ class Gallery extends ActiveRecord {
                                                                 ->select('$tags', [ 'gallery_id' ])
                                                                 ->where([ 'tag_id', $blacklist ])
                             ]);
+        }        
+        
+        //---- Tag Orlist
+        if (count($orlist) > 0) {
+            $query->orWhere(['id',  Kiss::$app->db()->createQuery()
+                                                            ->select('$tags', [ 'gallery_id' ])
+                                                            ->where([ 'tag_id', $orlist ])
+                            ]);
         }
+
 
         //---- User Whitelist
         if (count($userWhitelist) > 0) {
@@ -455,12 +522,18 @@ class Gallery extends ActiveRecord {
             $query->andWhere(['founder_id', 'NOT',  $userBlacklist ]);
         }
 
-        //---- Guilds Whitelist
-        if (GALL::$app->loggedIn()) {
-            $user = GALL::$app->user;
-            $query->andWhere(['guild_id', Arrays::map($user->getGuilds()->all(true), function($g) { return $g['id']; })]);
+        //---- User Orlist
+        if (count($userOrlist) > 0) {
+            $query->orWhere(['founder_id', $userOrlist ]);
         }
 
+        //---- Guilds Whitelist
+        //if (GALL::$app->loggedIn()) {
+        //    $user = GALL::$app->user;
+        //    $query->andWhere(['guild_id', Arrays::map($user->getGuilds()->all(true), function($g) { return $g['id']; })]);
+        //}
+
+        
         //Setup the additional blacklist
         if ($additionalBlacklist != null) {
             $adQuery = null;
