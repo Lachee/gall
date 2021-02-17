@@ -81,10 +81,15 @@ class Image extends ActiveRecord {
         return $this->getProxy();
     }
 
+    public function isVideo() {
+        $video = [ '.webm', '.mp4' ];
+        return in_array($this->getExtension(), $video);
+    }
+
     /** Gets the url that is suitable for display */
     public function getProxy() {
         if (empty($this->url)) {
-            if (GALL::$app->proxySettings != null) {
+            if (GALL::$app->proxySettings != null && !$this->isVideo()) {
                 $ext = $this->getExtension();
                 $endpoint = \app\controllers\api\ProxyRoute::GenerateImgproxyURL( 
                                                         !empty($this->url) ? $this->url : $this->origin,
@@ -112,7 +117,7 @@ class Image extends ActiveRecord {
         $route = [ '/api/proxy' ];
         $route['url'] = empty($this->url) ? $this->origin : $this->url;
         if ($filename !== false) $route['filename'] = $filename;
-        return HTTP::url($route);
+        return $this->isVideo() ? $route['url'] :  HTTP::url($route);
     }
 
     /** Gets the thumbnail url for the given size. This will go through our proxy */
