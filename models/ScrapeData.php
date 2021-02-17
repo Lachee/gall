@@ -72,6 +72,11 @@ class ScrapeData extends BaseObject {
         $gallery = Gallery::findByUrl($this->url)->ttl(0)->one();
         if ($gallery != null) return $gallery;
 
+        /** @var Image[] $images */
+        $images = Image::find()->where(['origin', $this->images ])->all();
+        if ($images != null && count($images) > 0)
+            return $images[0]->getGallery()->one();
+
         return null;
     }
 
