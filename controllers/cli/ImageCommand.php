@@ -82,6 +82,9 @@ class ImageCommand extends Command {
                             'contents'  => $data,
                             'filename'  => $image->id . $ext
                         ]
+                    ],
+                    'allow_redirects' => [
+                        'max' => 10,
                     ]
                 ]);
 
