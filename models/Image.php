@@ -97,7 +97,7 @@ class Image extends ActiveRecord {
                 $origin = HTTP::url( ['/api/proxy', 'attachment' => $origin ], true);
             
             //Return video's immediately. They cannot be proxied.
-            if ($this->isVideo()) return $origin;
+            // if ($this->isVideo()) return $origin;
             
             if (GALL::$app->proxySettings != null) {
                 //We have proxy settings, so lets use those directly instead of going through our old proxy
@@ -144,7 +144,7 @@ class Image extends ActiveRecord {
             $origin = HTTP::url( ['/api/proxy', 'attachment' => $origin ], true);
             
         //If this is a video, then just return it immediately
-        if ($this->isVideo()) return !empty($this->url) ? $this->url : $origin;
+        //if ($this->isVideo()) return !empty($this->url) ? $this->url : $origin;
 
         if (GALL::$app->proxySettings != null) {
             $endpoint = \app\controllers\api\ProxyRoute::generateImgproxyURL( 
