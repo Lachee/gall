@@ -229,7 +229,7 @@ class Gallery extends ActiveRecord {
                 $tag = new Tag([
                     'name'          => $name,
                     'type'          => Tag::TYPE_TAG,
-                    'founder_id'    => $founder == null ? null : $founder->getKey(),
+                    'founder_id'    => $founder == null ? Kiss::$app->user->id : $founder->getKey(),
                 ]);
 
                 //Save the tag
