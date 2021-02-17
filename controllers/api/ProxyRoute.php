@@ -225,6 +225,9 @@ class ProxyRoute extends BaseApiRoute {
         $dataCache      = Kiss::$app->redis()->get($dataKey);
         if ($dataCache != null) return base64_decode($dataCache);
 
+        if (!is_dir(PUBLIC_DIR . '/cache'))
+            mkdir(PUBLIC_DIR . '/cache');
+            
         $temp = tempnam(PUBLIC_DIR . "/cache", "vid");
         try {
             
