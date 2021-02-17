@@ -273,7 +273,7 @@ class Gallery extends ActiveRecord {
     public function updateTags() {
 
         //Insure that we have all the nessary tags first
-        $this->insureTags();
+        $this->ensureTags();
 
         //Sort the tags
         $tags = Tag::find()
@@ -343,7 +343,7 @@ class Gallery extends ActiveRecord {
 
 
     /** Checks for any automatically determined tags and assigns them (like discord or video) */
-    protected function insureTags() {
+    protected function ensureTags() {
 
         //Prepare a list of additional tags to add
         $tags = [];
