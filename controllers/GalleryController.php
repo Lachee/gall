@@ -42,7 +42,7 @@ class GalleryController extends BaseController {
             //Query and blacklist the galleries
             foreach($galleries as $k => $gallery) {
                 if (!is_array($gallery))
-                    $galleries[$k] = $user->applyGalleryBlacklist($gallery)->limit($limit)->all();
+                    $galleries[$k] = $user->applyGalleryBlacklist($gallery)->orderByDesc('id')->limit($limit)->all();
             }
         } else {
             
