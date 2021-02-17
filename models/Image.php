@@ -86,16 +86,29 @@ class Image extends ActiveRecord {
         return in_array($this->getExtension(), $video);
     }
 
+    /** @return bool true if the image is an attachment */
+    public function isAttachment() {
+        return preg_match('/cdn\.discord(app)?.(com|gg)\/attachments\//', $this->origin);
+    }
+
     /** Gets the url that is suitable for display */
     public function getProxy() {
-        if ($this->isVideo())
-            return !empty($this->url) ? $this->url : $this->origin;
+        //if ($this->isVideo())
+        //    return !empty($this->url) ? $this->url : $this->origin;
             
         if (empty($this->url)) {
+            //Setup the origin that we will proxy
+            $origin = $this->origin;
+            
+            //If this is an attachment, we need to proxy it
+            if ($this->isAttachment())
+                $origin = HTTP::url( ['/api/proxy', 'attachment' => $origin ], true);
+            
             if (GALL::$app->proxySettings != null) {
+                //We have proxy settings, so lets use those directly instead of going through our old proxy
                 $ext = $this->getExtension();
                 $endpoint = \app\controllers\api\ProxyRoute::GenerateImgproxyURL( 
-                                                        !empty($this->url) ? $this->url : $this->origin,
+                                                        $origin,
                                                         0, 
                                                         GALL::$app->proxySettings['key'], 
                                                         GALL::$app->proxySettings['salt'],
@@ -104,11 +117,13 @@ class Image extends ActiveRecord {
     
                 $proxy_url = trim(GALL::$app->proxySettings['baseUrl'], '/') . $endpoint;
                 return $proxy_url;
+            } else {
+                //We will just go through our old proxt
+                return HTTP::url( ['/api/proxy', 'url' => $origin ] );
             }
-
-            return HTTP::url( ['/api/proxy', 'url' => $this->origin ] );
         }
         
+        //Return our URL
         return $this->url;
     }
 
@@ -126,9 +141,16 @@ class Image extends ActiveRecord {
     /** Gets the thumbnail url for the given size. This will go through our proxy */
     public function getThumbnail($size = 512, $algo = IMG_BICUBIC) {
         
+        //Setup the origin that we will proxy
+        $origin = $this->origin;
+        
+        //If this is an attachment, we need to proxy it
+        if ($this->isAttachment())
+            $origin = HTTP::url( ['/api/proxy', 'attachment' => $origin ], true);
+
         if (GALL::$app->proxySettings != null) {
             $endpoint = \app\controllers\api\ProxyRoute::GenerateImgproxyURL( 
-                                                    !empty($this->url) ? $this->url : $this->origin,
+                                                    !empty($this->url) ? $this->url : $origin,
                                                     $size, 
                                                     GALL::$app->proxySettings['key'], 
                                                     GALL::$app->proxySettings['salt']
@@ -136,9 +158,9 @@ class Image extends ActiveRecord {
 
             $proxy_url = trim(GALL::$app->proxySettings['baseUrl'], '/') . $endpoint;
             return $proxy_url;
+        } else {
+            return HTTP::url( ['/api/proxy', 'url' => !empty($this->url) ? $this->url : $origin, 'size' => $size, 'algo' => $algo ] );
         }
-
-        return HTTP::url( ['/api/proxy', 'url' => !empty($this->url) ? $this->url : $this->origin, 'size' => $size, 'algo' => $algo ] );
     }
 
     /** Downloads the origin data

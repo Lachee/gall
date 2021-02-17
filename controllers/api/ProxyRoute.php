@@ -34,20 +34,86 @@ class ProxyRoute extends BaseApiRoute {
     protected function scopes() { return null; } // Proxy doesn't need any scopes.
 
     public function get() {
-        $size   = HTTP::get('size', 512);
-        $url    = HTTP::get('url');
+
+        //Proxy the image otherwise
+        $attachment  = HTTP::get('attachment', false);
+        if ($attachment !== false) 
+            return $this->proxyAttachment();
+
+        return $this->proxyImage();
+    }
+
+    /** Converts an attachment for proxying */
+    private function proxyAttachment() {
+        $url  = HTTP::get('attachment', false);
+
+        //Return the cache
+        $dataKey        = 'proxy:'.md5(join(':', [self::CACHE_VERSION, 'attachments', $url, 'data']));
+        $headerKey      = 'proxy:'.md5(join(':', [self::CACHE_VERSION, 'attachments', $url, 'headers']));
+        $dataCache      = Kiss::$app->redis()->get($dataKey);
+        $headerCache    = Kiss::$app->redis()->get($headerKey);
+        if (!empty($dataCache) && !empty($headerCache)) {
+            $headers = explode("\n", $headerCache);
+            foreach($headers as $header) header($header);
+            die(base64_decode($dataCache));
+        }
+
+        //Open a temporary 
+        $guzzle = new \GuzzleHttp\Client([
+            'timeout' => KISS_DEBUG ? 20 : 5,
+            'headers' => [ 'Referer' => self::getReferer($url) ]
+        ]);
+        $response = $guzzle->request('GET', $url, []);
+        $data = $response->getBody()->getContents();
+
+        //Give all the headers we got from the response
+        $headers    = $response->getHeaders();
+        $headerList = [];
+        foreach($headers as $key => $header) {
+            if (strtolower($key) === 'content-disposition') continue;
+            $headerList[] = $header = $key . ':' . join(';', $header);
+            header($header);
+        }
+
+        //Set the cache
+        Kiss::$app->redis()->set($dataCache, base64_encode($data));
+        Kiss::$app->redis()->set($headerCache, join("\n", $headerList));
+        Kiss::$app->redis()->expire($dataCache, self::CACHE_DURATION);
+        Kiss::$app->redis()->expire($headerCache, self::CACHE_DURATION);
+
+        //Return the data directly.
+        die($data);
+    }
+
+    /** Returns the proxied image*/
+    private function proxyImage() {
+        $size       = HTTP::get('size', 512);
+        $url        = HTTP::get('url');
+        $attachment = preg_match('/cdn\.discord(app)?.(com|gg)\/attachments\//', $url);
+        if ($attachment) { 
+
+            //Debug just show the attachments raw, since the base will be offline
+            if (KISS_DEBUG) { 
+                $_GET['attachment'] = $url;
+                return $this->proxyAttachment();
+            }
+
+            //Set the URL to the base
+            $url = trim(GALL::$app->baseURL(), '/') . '/api/proxy?attachment=' . urldecode($url);
+        }
 
         //If we use the imgproxy, return immediately
         if (GALL::$app->proxySettings != null) {
-            $endpoint = self::GenerateImgproxyURL(  $url,
+            $size       = HTTP::get('size', 512);
+            $endpoint   = self::GenerateImgproxyURL($url,
                                                     $size, 
                                                     GALL::$app->proxySettings['key'], 
                                                     GALL::$app->proxySettings['salt']
                                                 );
-
             $proxy_url = trim(GALL::$app->proxySettings['baseUrl'], '/') . $endpoint;
             return Response::redirect($proxy_url);
         }
+    
 
         $algo   = HTTP::get('algo', IMG_BICUBIC);
         $interpolation = self::INTERPOLATIONS[$algo] ?? (in_array($algo, array_values(self::INTERPOLATIONS)) ? $algo : IMG_BILINEAR_FIXED);
