@@ -3,6 +3,7 @@
 
 //defined('KISS_SESSIONLESS') or define('KISS_SESSIONLESS', true);
 defined('KISS_DEBUG') or define('KISS_DEBUG', in_array(@$_SERVER['REMOTE_ADDR'], ['127.0.0.1', '::1']));
+define('PUBLIC_DIR', __DIR__ . '/..');
 
 include __DIR__ . "/../../autoload.php";
 

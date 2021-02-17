@@ -112,4 +112,18 @@ class Strings {
 
         return false;
     }
+
+    /** Gets the extension in the filename
+     * @param string $str the filename
+     * @param bool $lower converts the extension to lowercase
+     * @return string|false the extension, otherwise false if it cannot find it. Starts with .
+     */
+    public static function extension($str, $lower = true) {
+        $url = $str;
+        $url = explode('?', $url)[0];
+        $index = strrpos($url, '.');
+        if ($index === false) return false;
+        $ext = substr($url, $index);
+        return $lower ? strtolower($ext) : $ext;
+    }
 }

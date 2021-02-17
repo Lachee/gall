@@ -5,6 +5,7 @@ use app\models\User;
 use GALL;
 use kiss\controllers\api\ApiRoute;
 use kiss\exception\HttpException;
+use kiss\exception\NotYetImplementedException;
 use kiss\helpers\HTTP;
 use kiss\helpers\Response;
 use kiss\helpers\Strings;
@@ -19,7 +20,9 @@ class ProxyRoute extends BaseApiRoute {
 
 
     public const CACHE_DURATION = 60 * 60; //* 24 * 7;
-    public const CACHE_VERSION = 11;
+    public const VIDEO_CACHE_DURATION = 7 * 24 * 60 * 60; //* 24 * 7;
+    
+    public const CACHE_VERSION = 12;
     public const INTERPOLATIONS = [
         'NEAREST_NEIGHBOUR' => IMG_NEAREST_NEIGHBOUR, 
         'BILINEAR_FIXED'    => IMG_BILINEAR_FIXED, 
@@ -89,23 +92,22 @@ class ProxyRoute extends BaseApiRoute {
     private function proxyImage() {
         $size       = HTTP::get('size', 512);
         $url        = HTTP::get('url');
+        $ext        = Strings::extension($url);
+
+        //Check if its an attachment
         $attachment = preg_match('/cdn\.discord(app)?.(com|gg)\/attachments\//', $url);
-        if ($attachment) { 
-
-            //Debug just show the attachments raw, since the base will be offline
-            if (KISS_DEBUG) { 
-                $_GET['attachment'] = $url;
-                return $this->proxyAttachment();
-            }
-
-            //Set the URL to the base
+        if ($attachment) {
+            if (KISS_DEBUG && HTTP::https() == 'http') {  $_GET['attachment'] = $url; return $this->proxyAttachment(); } //Debug just show the attachments raw, since the base will be offline
             $url = trim(GALL::$app->baseURL(), '/') . '/api/proxy?attachment=' . urldecode($url);
         }
 
-        //If we use the imgproxy, return immediately
-        if (GALL::$app->proxySettings != null) {
+        //Check if its a video. If it is, generate teh thumbnail image and return it
+        $video = HTTP::get('video', false) !== false || in_array($ext, [ '.webm', '.mp4' ]);
+        
+        //Otherwise continue as if it was a normal image.
+        if (!$video && GALL::$app->proxySettings != null) {
             $size       = HTTP::get('size', 512);
-            $endpoint   = self::GenerateImgproxyURL($url,
+            $endpoint   = self::generateImgproxyURL($url,
                                                     $size, 
                                                     GALL::$app->proxySettings['key'], 
                                                     GALL::$app->proxySettings['salt']
@@ -127,21 +129,27 @@ class ProxyRoute extends BaseApiRoute {
         //Check the cahce
         $key = 'proxy:'.md5(join(':', [self::CACHE_VERSION, $size, $url, $interpolation]));
         $cache = Kiss::$app->redis()->get($key);
-        if ($cache) {
+        if (!$video && $cache) {
+            //We do not cache the video since it handles its own internal cache
             ob_clean();
             return Response::image(base64_decode($cache), 'jpeg', HTTP::get('filename', false));
         }
 
-        //Open a temporary 
-        $guzzle = new \GuzzleHttp\Client([
-            'timeout' => KISS_DEBUG ? 10 : 2,
-            'headers' => [
-                'Referer' => self::getReferer($url)
-            ]
-        ]);
-        $response = $guzzle->request('GET', $url, []);
-        $data = $response->getBody()->getContents();
-
+        $data = null;
+        if ($video) { 
+            //Video data is cached and processed seperately
+            $data = self::videoThumbnail($url);
+         } else {
+            //Regular images are processed normally
+            $guzzle = new \GuzzleHttp\Client([
+                'timeout' => KISS_DEBUG ? 10 : 2,
+                'headers' => [
+                    'Referer' => self::getReferer($url)
+                ]
+            ]);
+            $response = $guzzle->request('GET', $url, []);
+            $data = $response->getBody()->getContents();
+        }
 
         //Scale the image
         if ($size > 0) { 
@@ -160,7 +168,7 @@ class ProxyRoute extends BaseApiRoute {
             //Output its data
             $imdata = null;
             ob_start();
-                imagejpeg($im);
+                imagepng($im);
                 imagedestroy($im);
                 $imdata = ob_get_contents();
             ob_end_clean();
@@ -169,15 +177,18 @@ class ProxyRoute extends BaseApiRoute {
         }
         
         //Set the cache
-        Kiss::$app->redis()->set($key, base64_encode($imdata));
-        Kiss::$app->redis()->expire($key, self::CACHE_DURATION);
+        if (!$video) {
+            //We do not cache the video since it handles its own internal cache
+            Kiss::$app->redis()->set($key, base64_encode($imdata));
+            Kiss::$app->redis()->expire($key, self::CACHE_DURATION);
+        }
         
         //Send
         ob_clean();
-        return Response::image($imdata, 'jpeg', HTTP::get('filename', false));
+        return Response::image($imdata, 'png', HTTP::get('filename', false));
     }
 
-    public static function GenerateImgproxyURL($url, $size,  $key, $salt, $ext = "jpg") {
+    public static function generateImgproxyURL($url, $size,  $key, $salt, $ext = "jpg") {
         $keyBin = pack("H*" , $key);
         if(empty($keyBin)) {
             die('Key expected to be hex-encoded string');
@@ -202,6 +213,43 @@ class ProxyRoute extends BaseApiRoute {
         $path = "/{$resize}/{$width}/{$height}/{$gravity}/{$enlarge}/{$encodedUrl}.{$extension}";
         $signature = rtrim(strtr(base64_encode(hash_hmac('sha256', $saltBin.$path, $keyBin, true)), '+/', '-_'), '=');
         return sprintf("/%s%s", $signature, $path);
+    }
+
+    /** Generates a thumbnail image for the video. 
+     * @param string $url the url of the video
+     * @param string $time the duration
+     * @return mixed image data
+    */
+    private static function videoThumbnail($url, $time = 10, $duration = self::VIDEO_CACHE_DURATION) {
+        $dataKey        = 'proxy:'.md5(join(':', [self::CACHE_VERSION, 'video', $url, $time]));
+        $dataCache      = Kiss::$app->redis()->get($dataKey);
+        if ($dataCache != null) return base64_decode($dataCache);
+
+        $temp = tempnam(PUBLIC_DIR . "/cache", "vid");
+        try {
+            
+            //https://github.com/PHP-FFMpeg/PHP-FFMpeg#extracting-image
+            //Prepare the frame
+            $ffmpeg = \FFMpeg\FFMpeg::create();
+            $video = $ffmpeg->open($url);
+            $frame = $video->frame(\FFMpeg\Coordinate\TimeCode::fromSeconds($time));
+            
+            //Save the temporary data
+            $frame->save($temp);
+            
+            //Load into the cache
+            $dataCache = file_get_contents($temp);
+            Kiss::$app->redis()->set($dataKey, base64_encode($dataCache));
+            Kiss::$app->redis()->expire($dataKey, $duration);
+
+            //Save the result
+            return $dataCache;
+        } finally {
+            //Finally clear the data
+            unlink($temp);
+        }
+
+        return null;
     }
 
     private static function base64url_encode($data) {

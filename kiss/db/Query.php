@@ -451,7 +451,8 @@ class Query extends BaseObject{
         if ($this->join != null && is_array($this->join)) {
             foreach($this->join as $join) {
                 $table  = $join['table'];
-                $lhs    = array_key_first($join['on']);
+                $keys   = \array_keys($join['on']);
+                $lhs    = $keys[0];
                 $rhs    = $join['on'][$lhs];
                 $joins .= "{$join['type']} `{$table}` ON {$lhs} = `{$table}`.{$rhs} ";
             }

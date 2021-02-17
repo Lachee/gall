@@ -5,6 +5,7 @@ use GALL;
 use kiss\db\ActiveRecord;
 use kiss\helpers\HTML;
 use kiss\helpers\HTTP;
+use kiss\helpers\Strings;
 use kiss\schema\BooleanProperty;
 use kiss\schema\IntegerProperty;
 use kiss\schema\StringProperty;
@@ -54,12 +55,7 @@ class Image extends ActiveRecord {
      * @return string|false the extension, otherwise false if it cannot find it. Starts with .
      */
     public function getOriginExtension() {
-        $url = $this->origin;
-        $url = explode('?', $url)[0];
-        $index = strrpos($url, '.');
-        if ($index === false) return false;
-        $ext = substr($url, $index);
-        return $ext;
+        return Strings::extension($this->origin);
     }
 
     /** Gets the extension with leading period
@@ -67,12 +63,8 @@ class Image extends ActiveRecord {
      */
     public function getExtension() {
         if (empty($this->url)) return $this->getOriginExtension();
-
-        $url = $this->url;
-        $url = explode('?', $url)[0];
-        $index = strrpos($url, '.');
-        if ($index === false) return $this->getOriginExtension();
-        $ext = substr($url, $index);
+        $ext = Strings::extension($this->url);
+        if ($ext === false) return $this->getOriginExtension();
         return $ext;
     }
 
@@ -104,12 +96,13 @@ class Image extends ActiveRecord {
             if ($this->isAttachment())
                 $origin = HTTP::url( ['/api/proxy', 'attachment' => $origin ], true);
             
+            //Return video's immediately. They cannot be proxied.
             if ($this->isVideo()) return $origin;
             
             if (GALL::$app->proxySettings != null) {
                 //We have proxy settings, so lets use those directly instead of going through our old proxy
                 $ext = $this->getExtension();
-                $endpoint = \app\controllers\api\ProxyRoute::GenerateImgproxyURL( 
+                $endpoint = \app\controllers\api\ProxyRoute::generateImgproxyURL( 
                                                         $origin,
                                                         0, 
                                                         GALL::$app->proxySettings['key'], 
@@ -149,9 +142,12 @@ class Image extends ActiveRecord {
         //If this is an attachment, we need to proxy it
         if ($this->isAttachment())
             $origin = HTTP::url( ['/api/proxy', 'attachment' => $origin ], true);
+            
+        //If this is a video, then just return it immediately
+        if ($this->isVideo()) return !empty($this->url) ? $this->url : $origin;
 
         if (GALL::$app->proxySettings != null) {
-            $endpoint = \app\controllers\api\ProxyRoute::GenerateImgproxyURL( 
+            $endpoint = \app\controllers\api\ProxyRoute::generateImgproxyURL( 
                                                     !empty($this->url) ? $this->url : $origin,
                                                     $size, 
                                                     GALL::$app->proxySettings['key'], 
