@@ -49,7 +49,7 @@ class GalleryController extends BaseController {
             //Query all the galleries
             foreach($galleries as $k => $gallery) {
                 if (!is_array($gallery))
-                    $galleries[$k] = $gallery->limit($limit)->all();
+                    $galleries[$k] = $gallery->orderByDesc('id')->limit($limit)->all();
             }
         }
 
