@@ -88,8 +88,11 @@ class Image extends ActiveRecord {
 
     /** Gets the url that is suitable for display */
     public function getProxy() {
+        if ($this->isVideo())
+            return !empty($this->url) ? $this->url : $this->origin;
+            
         if (empty($this->url)) {
-            if (GALL::$app->proxySettings != null && !$this->isVideo()) {
+            if (GALL::$app->proxySettings != null) {
                 $ext = $this->getExtension();
                 $endpoint = \app\controllers\api\ProxyRoute::GenerateImgproxyURL( 
                                                         !empty($this->url) ? $this->url : $this->origin,
