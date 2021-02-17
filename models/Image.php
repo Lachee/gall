@@ -104,6 +104,8 @@ class Image extends ActiveRecord {
             if ($this->isAttachment())
                 $origin = HTTP::url( ['/api/proxy', 'attachment' => $origin ], true);
             
+            if ($this->isVideo()) return $origin;
+            
             if (GALL::$app->proxySettings != null) {
                 //We have proxy settings, so lets use those directly instead of going through our old proxy
                 $ext = $this->getExtension();

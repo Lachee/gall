@@ -118,9 +118,13 @@ use kiss\Kiss;
                 <?php if ($gallery->type != Gallery::TYPE_COMIC): //count($images) == 1) : ?>
                     <?php foreach ($images as $image) : ?>
                         <section class="artwork">
-                            <figure class="image is-16by9 expanding-artwork" data-expanding-class="is-16by9">
-                                <img style='object-fit: contain' src="<?= $image->url ?>">
-                            </figure>
+                                <?php if($image->isVideo()): ?>
+                                    <video controls autoplay loop muted style='object-fit: contain' src="<?= $image->proxy ?>">
+                                <?php else: ?>
+                                    <figure class="image is-16by9 expanding-artwork" data-expanding-class="is-16by9">
+                                        <img style='object-fit: contain' src="<?= $image->proxy ?>">
+                                    </figure>
+                                <?php endif; ?>
                         </section>
                     <?php endforeach; ?>
                 <?php else : ?>
