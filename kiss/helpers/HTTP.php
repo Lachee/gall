@@ -156,6 +156,12 @@ class HTTP {
     }
 
     
+    /** @return string either http or https */
+    public static function https() {
+        if (!empty($_SERVER['HTTP_X_FORWARDED_PROTO'])) return $_SERVER['HTTP_X_FORWARDED_PROTO'];
+        return (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off' || $_SERVER['SERVER_PORT'] == 443) ? 'https' : $_SERVER['REQUEST_SCHEME'];
+    }
+
     /** Checks if the request is likely to be a scraper from discord
      * @return boolean
      */
