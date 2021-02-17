@@ -99,7 +99,7 @@ class Image extends ActiveRecord {
             //Return video's immediately. They cannot be proxied.
             // if ($this->isVideo()) return $origin;
             
-            if (GALL::$app->proxySettings != null) {
+            if (!$this->isVideo() && GALL::$app->proxySettings != null) {
                 //We have proxy settings, so lets use those directly instead of going through our old proxy
                 $ext = $this->getExtension();
                 $endpoint = \app\controllers\api\ProxyRoute::generateImgproxyURL( 
@@ -114,7 +114,7 @@ class Image extends ActiveRecord {
                 return $proxy_url;
             } else {
                 //We will just go through our old proxt
-                return HTTP::url( ['/api/proxy', 'url' => $origin ] );
+                return HTTP::url( ['/api/proxy', 'url' => $origin, 'video' => $this->isVideo() ] );
             }
         }
         
@@ -146,7 +146,7 @@ class Image extends ActiveRecord {
         //If this is a video, then just return it immediately
         //if ($this->isVideo()) return !empty($this->url) ? $this->url : $origin;
 
-        if (GALL::$app->proxySettings != null) {
+        if (!$this->isVideo() && GALL::$app->proxySettings != null) {
             $endpoint = \app\controllers\api\ProxyRoute::generateImgproxyURL( 
                                                     !empty($this->url) ? $this->url : $origin,
                                                     $size, 
@@ -157,7 +157,7 @@ class Image extends ActiveRecord {
             $proxy_url = trim(GALL::$app->proxySettings['baseUrl'], '/') . $endpoint;
             return $proxy_url;
         } else {
-            return HTTP::url( ['/api/proxy', 'url' => !empty($this->url) ? $this->url : $origin, 'size' => $size, 'algo' => $algo ] );
+            return HTTP::url( ['/api/proxy', 'url' => !empty($this->url) ? $this->url : $origin, 'size' => $size, 'algo' => $algo, 'video' => $this->isVideo() ] );
         }
     }
 

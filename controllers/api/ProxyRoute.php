@@ -94,6 +94,9 @@ class ProxyRoute extends BaseApiRoute {
         $url        = HTTP::get('url');
         $ext        = Strings::extension($url);
 
+        //Check if its a video. If it is, generate teh thumbnail image and return it
+        $video = HTTP::get('video', 0) != 0 || in_array($ext, [ '.webm', '.mp4' ]);
+
         //Check if its an attachment
         $attachment = preg_match('/cdn\.discord(app)?.(com|gg)\/attachments\//', $url);
         if ($attachment) {
@@ -101,9 +104,6 @@ class ProxyRoute extends BaseApiRoute {
             $url = trim(GALL::$app->baseURL(), '/') . '/api/proxy?attachment=' . urldecode($url);
         }
 
-        //Check if its a video. If it is, generate teh thumbnail image and return it
-        $video = HTTP::get('video', false) !== false || in_array($ext, [ '.webm', '.mp4' ]);
-        
         //Otherwise continue as if it was a normal image.
         if (!$video && GALL::$app->proxySettings != null) {
             $size       = HTTP::get('size', 512);
