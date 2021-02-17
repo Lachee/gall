@@ -29,6 +29,7 @@ class Image extends ActiveRecord {
             'origin'        => new StringProperty('Original URL of the image'),
             'proxy'         => new StringProperty('Proxy URL of the image'),
             'thumbnail'     => new StringProperty('Thumbnail URL of the image'),
+            'extension'     => new StringProperty('File extension'),
             'is_cover'      => new BooleanProperty('Is the image only used as a cover'),
         ];
     }

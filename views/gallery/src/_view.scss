@@ -146,6 +146,22 @@ img.lg-thumbnail {
                 transform: translateY(0);
             }
 
+            .grid-image-paused {
+                filter: saturate(0.5);
+            }
+
+            .grid-video {
+                left: 0;
+                top: 0;
+                width: 32px;
+                height: 32px;
+                position: absolute;
+                background: #1b111175;
+                padding: 3px;
+                border-radius: 0 0 10px;
+                font-size: 20pt;
+            }
+
             &:hover, &:focus, &.focused {
                 .grid-image { transform: translateY(-$panel-height); }
                 /*.grid-panel { transform: translateY(0); };*/

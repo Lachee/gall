@@ -117,6 +117,7 @@ export class Image extends APIObject{
     origin;
     thumbnail;
     isCover;
+    extension;
 
     constructor(api, data) {
         super(api);
@@ -126,6 +127,7 @@ export class Image extends APIObject{
         this.origin = data.origin;
         this.isCover = data.is_cover;
         this.thumbnail = data.thumbnail;
+        this.extension = data.extension;
     }
 
     /** Gets the Proxy URL
@@ -153,6 +155,13 @@ export class Image extends APIObject{
         if (this.thumbnail != null && this.thumbnail != '')  return this.thumbnail;
         if (this.proxy != null && this.proxy != '')  return this.proxy;
         return this.getProxyUrl();
+    }
+
+    /** Checks if the image is a video */
+    get video() { 
+        return this.extension == '.webm' ||
+                this.extension == '.mp4' ||
+                this.extension == '.avi';
     }
 
     /** Pins the image to the current user's profile */

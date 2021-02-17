@@ -215,6 +215,11 @@ const animateButton = (button) => {
                     $img.attr('id', 'grid-img-' + (currentCount++));
                     $div.append($img);
 
+                    if (image.video) {
+                        $img.addClass('grid-image-paused');
+                        $div.append('<div class="grid-video"><i class="fal fa-play-circle"></i></div>');
+                    }
+
                     //Append to container
                     $container.append($div);
                     
