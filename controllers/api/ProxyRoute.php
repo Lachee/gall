@@ -86,7 +86,7 @@ class ProxyRoute extends BaseApiRoute {
         } else {
             //Just give the minimum header: content-type
             $contentType = $response->getHeader('content-type');
-            $headerList[] = 'Content-Type: ' . $contentType;
+            $headerList[] = 'Content-Type: ' . $contentType[0];
         }
 
         //Set the cache
