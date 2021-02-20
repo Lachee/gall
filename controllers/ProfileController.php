@@ -19,6 +19,12 @@ use Ramsey\Uuid\Uuid;
  * @property User $profile
  */
 class ProfileController extends BaseController {
+
+    public const DBEUG_USERS = [
+        '130973321683533824', // Lachee
+        '171764626755813376', // Swarely
+    ];
+
     /** SCopes while debugging */
     public const DEBUG_SCOPES = [
         'emote.update', 'emote.publish', 'emote.remove',
@@ -117,7 +123,7 @@ class ProfileController extends BaseController {
 
         //Setup the scopes
         $scopes = self::SCOPES;
-        if (KISS_DEBUG || $this->profile->snowflake == '130973321683533824') 
+        if (KISS_DEBUG || in_array($this->profile->snowflake, self:: DBEUG_USERS)) 
             $scopes = self::DEBUG_SCOPES;
 
             //var_dump($scopes);
