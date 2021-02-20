@@ -18,6 +18,8 @@ use Ramsey\Uuid\Uuid;
 class ProxyRoute extends BaseApiRoute {
     use \kiss\controllers\api\Actions;
 
+    /** Send the attachment's headers when proxying it */
+    private const PROXY_ATTACHMENT_HEADERS = false;
 
     public const CACHE_DURATION = 60 * 60; //* 24 * 7;
     public const VIDEO_CACHE_DURATION = 7 * 24 * 60 * 60; //* 24 * 7;
@@ -51,8 +53,8 @@ class ProxyRoute extends BaseApiRoute {
         $url  = HTTP::get('attachment', false);
 
         //Return the cache
-        $dataKey        = 'proxy:'.md5(join(':', [self::CACHE_VERSION, 'attachments', $url, 'data']));
-        $headerKey      = 'proxy:'.md5(join(':', [self::CACHE_VERSION, 'attachments', $url, 'headers']));
+        $dataKey        = 'proxy:'.join(':', [self::CACHE_VERSION, 'attachments', md5($url), self::PROXY_ATTACHMENT_HEADERS, 'data']);
+        $headerKey      = 'proxy:'.join(':', [self::CACHE_VERSION, 'attachments', md5($url), self::PROXY_ATTACHMENT_HEADERS, 'headers']);
         $dataCache      = Kiss::$app->redis()->get($dataKey);
         $headerCache    = Kiss::$app->redis()->get($headerKey);
         if (!empty($dataCache) && !empty($headerCache)) {
@@ -69,13 +71,22 @@ class ProxyRoute extends BaseApiRoute {
         $response = $guzzle->request('GET', $url, []);
         $data = $response->getBody()->getContents();
 
-        //Give all the headers we got from the response
-        $headers    = $response->getHeaders();
+        //Prepare header list
         $headerList = [];
-        foreach($headers as $key => $header) {
-            if (strtolower($key) === 'content-disposition') continue;
-            $headerList[] = $header = $key . ':' . join(';', $header);
-            header($header);
+
+        if (self::PROXY_ATTACHMENT_HEADERS) {
+            //Give all the headers we got from the response
+            $headers    = $response->getHeaders();
+            $forbidden  = ['content-disposition', 'set-cookie' ];
+            foreach($headers as $key => $header) {
+                if (in_array(strtolower($key), $forbidden)) continue;
+                $headerList[] = $header = $key . ':' . join(';', $header);
+                header($header);
+            }
+        } else {
+            //Just give the minimum header: content-type
+            $contentType = $response->getHeader('content-type');
+            $headerList[] = 'Content-Type: ' . $contentType;
         }
 
         //Set the cache
@@ -84,7 +95,8 @@ class ProxyRoute extends BaseApiRoute {
         Kiss::$app->redis()->expire($dataCache, self::CACHE_DURATION);
         Kiss::$app->redis()->expire($headerCache, self::CACHE_DURATION);
 
-        //Return the data directly.
+        //Return the data directly and set the headers
+        foreach($headerList as $header) header($header);
         die($data);
     }
 
